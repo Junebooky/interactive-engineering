@@ -13,7 +13,7 @@ function Unit({x,y,w=138,h=74,title,sub,accent='#92e5d5'}:{x:number;y:number;w?:
 function Arrow({x1,x2,y,color='#a8fbe5'}:{x1:number;x2:number;y:number;color?:string}){
  return <g stroke={color} fill="none" strokeWidth="4"><path d={`M${x1} ${y}H${x2}`}/><path d={`M${x2-13} ${y-7}l13 7-13 7`}/></g>;
 }
-export function Power31SceneVisual({sceneId,state,revealed}:{sceneId:Power31SceneId;state:Power31State;revealed:boolean}){
+export function Power31SceneVisual({sceneId,state,revealed,evidence=[]}:{sceneId:Power31SceneId;state:Power31State;revealed:boolean;evidence?:readonly string[]}){
  const uid=useId().replace(/:/g,'');
  if(!revealed)return <div className="a05-veiled" aria-label="GPU 전력·냉각의 관찰 결과와 정답 숫자는 예측 및 직접 조작하기 전 비공개">
   <div className="a05-veiled-object" aria-hidden="true"><span/></div><p>입력과 에너지·열의 흐름을 먼저 예상한 뒤 수치를 열어 보세요.</p>
@@ -83,10 +83,10 @@ export function Power31SceneVisual({sceneId,state,revealed}:{sceneId:Power31Scen
     <Unit x={254} y={142} w={163} title={'PUE '+state.pue} sub={'facility '+dc.facilityMW+'MW'} accent="#e9ce9b"/>
     <Arrow x1={424} x2={477} y={179}/>
     <Unit x={481} y={142} w={126} title={dc.overheadMW.toFixed(1)+'MW'} sub="overhead"/>
-    <Text x={62} y={253} size={15}>24h 동일 IT 기준: PUE1.4→1.2는 시설 4.8MWh 차이</Text>
+    <Text x={62} y={253} size={15}>{evidence.includes('pue14')&&evidence.includes('pue12')?'24h 동일 IT 기준: 시설 에너지 차이 4.8MWh':'동일 IT·기간의 두 PUE 조건을 각각 실험한 뒤 차이를 공개해요'}</Text>
     <Unit x={75} y={276} w={214} h={61} title={'site '+state.site+' / PUE '+dc.sitePue.toFixed(2)} sub="site facility / IT"/>
     <Unit x={346} y={276} w={241} h={61} title={'WUE '+dc.siteWue.toFixed(2)+' L/kWh'} sub="site makeup water / IT kWh" accent="#a1d8ff"/>
-    <Text x={64} y={359} size={12}>A: PUE1.2/WUE2.0 vs B: PUE1.35/WUE0.5 · 단일 최고 순위 아님</Text>
+    <Text x={64} y={359} size={12}>{evidence.includes('siteA')&&evidence.includes('siteB')?'A: PUE1.2/WUE2.0 vs B: PUE1.35/WUE0.5 · 순위 서로 다름':'사이트 A와 B를 모두 조작한 뒤 두 지표의 순위를 비교해요'}</Text>
    </>}
    <Text x={61} y={387} size={11} color="#adcbd1">2.5D 원본 교육 모형 · 실장치 성능·안전 인증·현장 계측 아님</Text>
   </svg>
