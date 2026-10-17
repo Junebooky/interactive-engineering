@@ -284,4 +284,77 @@ describe('DRAM D02 Lesson Engine Integration & Physics Model Tests', () => {
     const result = evaluateStepRules(s4, state.currentParams);
     expect(result.passed).toBe(true);
   });
+
+  it('10. S02 Negative Case: Skipping sensed directly to restored is rejected', () => {
+    const s2 = dramLesson.steps[2];
+    let state = learningReducer(initialEngineState, {
+      type: 'INIT_LESSON',
+      payload: { courseId: 'course-semiconductor', lesson: dramLesson, restoredStepIndex: 2 },
+    });
+
+    // Student goes: precharge -> shared
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'phase', value: 'shared' },
+    });
+    expect(state.currentParams.history).toContain('shared');
+
+    // Negative case: Directly jumps to restored without going through sensed
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'phase', value: 'restored' },
+    });
+    // restored MUST NOT be awarded because sensed was skipped!
+    expect(state.currentParams.history).not.toContain('restored');
+
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'answer', value: 'restore' },
+    });
+    // Evaluation must fail
+    const result = evaluateStepRules(s2, state.currentParams);
+    expect(result.passed).toBe(false);
+  });
+
+  it('11. S03 Negative Case: Refreshing before leakage does not award refreshed milestone', () => {
+    const s3 = dramLesson.steps[3];
+    let state = learningReducer(initialEngineState, {
+      type: 'INIT_LESSON',
+      payload: { courseId: 'course-semiconductor', lesson: dramLesson, restoredStepIndex: 3 },
+    });
+
+    // Student toggles refresh at t=0 without letting voltage leak
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'refresh', value: true },
+    });
+    // refreshed MUST NOT be awarded before leakage
+    expect(state.currentParams.history).not.toContain('refreshed');
+
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'answer', value: 'leak' },
+    });
+    // Evaluation must fail
+    const resultFail = evaluateStepRules(s3, state.currentParams);
+    expect(resultFail.passed).toBe(false);
+
+    // Now let time elapse >= 1.0 (leakage happens)
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'elapsed', value: 1.2 },
+    });
+    expect(state.currentParams.history).toContain('leaked');
+
+    // Toggle refresh ON after leakage
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'refresh', value: true },
+    });
+    expect(state.currentParams.history).toContain('refreshed');
+
+    const resultPass = evaluateStepRules(s3, state.currentParams);
+    expect(resultPass.passed).toBe(true);
+  });
 });
+

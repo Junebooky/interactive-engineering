@@ -69,9 +69,15 @@ export function applyDramActionAdapter(
         if (!history.includes('shared')) {
           history.push('shared');
         }
+      } else if (phase === 'sensed') {
+        if (history.includes('shared')) {
+          if (!history.includes('sensed')) {
+            history.push('sensed');
+          }
+        }
       } else if (phase === 'restored') {
-        // Restore is valid only if shared was witnessed
-        if (history.includes('shared') || currentParams.phase === 'sensed') {
+        // Restore is valid only if shared and sensed were both witnessed in sequence
+        if (history.includes('shared') && history.includes('sensed')) {
           if (!history.includes('restored')) {
             history.push('restored');
           }
@@ -104,12 +110,14 @@ export function applyDramActionAdapter(
         }
       }
 
-      // Evidence 2: 'refreshed' -> refresh toggle activated
+      // Evidence 2: 'refreshed' -> refresh toggle activated AFTER leakage has occurred
       if (key === 'refresh' && isRefreshOn) {
         refreshAt = elapsed;
         nextParams.refreshAt = refreshAt;
-        if (!history.includes('refreshed')) {
-          history.push('refreshed');
+        if (history.includes('leaked') || elapsed >= 1.0) {
+          if (!history.includes('refreshed')) {
+            history.push('refreshed');
+          }
         }
       } else if (key === 'refresh' && !isRefreshOn) {
         refreshAt = null;
