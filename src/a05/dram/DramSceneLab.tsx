@@ -170,8 +170,8 @@ export function DramSceneLab({onEvent,onSpeech}: DramLabProps) {
     event('answer.checked',{passed:next.passed});
   };
   const changed = prediction!==null;
-  const touchButton = (label:string, handler:()=>void, active=false)=>(
-    <button type="button" aria-pressed={active} className={active?'selected':''} onClick={handler}>{label}</button>
+  const touchButton = (label:string, handler:()=>void, active=false, disabled=false)=>(
+    <button type="button" aria-pressed={active} className={active?'selected':''} disabled={disabled} onClick={handler}>{label}</button>
   );
   return <div className="a05-lab a05-dram-lab" lang="ko">
     <header className="a05-head">
@@ -210,8 +210,8 @@ export function DramSceneLab({onEvent,onSpeech}: DramLabProps) {
             {sceneId==='dram-sense-restore' && <>
               <div className="a05-dram-control-grid"><strong>셀 저장 비트 선택 (프리차지 단계)</strong>
                 <div className="a05-control-buttons">
-                  {touchButton('셀 0',()=>mutate({...state,bit:0},'cellBit 0'),state.bit===0)}
-                  {touchButton('셀 1',()=>mutate({...state,bit:1},'cellBit 1'),state.bit===1)}
+                  {touchButton('셀 0',()=>mutate({...state,bit:0},'cellBit 0'),state.bit===0,state.phase!=='precharge')}
+                  {touchButton('셀 1',()=>mutate({...state,bit:1},'cellBit 1'),state.bit===1,state.phase!=='precharge')}
                 </div>
               </div>
               <p className="a05-note">전하 공유 후 셀의 1과 BL의 전압이 모두 {shareCharge(1).sharedVoltage.toFixed(2)}로 옮겨가는 모습을 비교하세요.</p>
