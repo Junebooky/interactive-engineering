@@ -10,6 +10,12 @@
 >
 > A03는 모든 학습 화면의 최종 UI/UX 디자인 기준·디자인 QA를 소유합니다. A02는 앱 구현, A05는 물리 장면 구현을 소유하고 시각/행동/컴포넌트 기준은 A03 최신본을 따릅니다. 과학·교육 정확성은 A05/A06/A07과 협의하며 오너 승인 전 main 병합/배포 금지입니다.
 
+## Lesson 12 전기회로 (현재 UX P0) — 별도 최신 화면 확보
+
+**새 A03 전기회로 UI 레퍼런스**: [Lesson12 예측 / 실험 도크 / 완료 이미지 9장](GALLERY-lesson12.md) · [실행형 HTML/디자인 소스](prototypes/a03-lesson12-switch-layout-reference.html) · [1440/390/320 Chromium 검증](https://github.com/Junebooky/interactive-engineering/actions/runs/39050723828). **회로 스위치가 Problem에서 빠지고 2.5D에 붙은 Experiment Control Dock으로 이동한 시안**입니다. 이는 A03 별도 HTML 참조 화면이며 A02 공식 React 앱 화면은 아직 아닙니다.
+
+**시각 역할**: MOSFET은 V2 레퍼런스, Lesson12 전기회로는 이 별도 최신 갤러리/HTML이 기준입니다. 공유 색·글자·버튼 시스템은 동일하고 물리 구조/과학 표현은 각 레슨별 A05 모델로 별도 구현합니다.
+
 ## 지금 A02가 구현할 유일한 디자인 기준
 
 | 우선순위 | 리소스 | GitHub 단일 최신 경로 |
