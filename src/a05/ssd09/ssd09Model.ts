@@ -28,16 +28,18 @@ export function ssdWaf(relocated:Relocated,op:OpPercent,gc:boolean){
 }
 /** Safe ordered ACK, flush, media commit and power loss: a set of visited labels is never sufficient. */
 export type PlpPhase='idle'|'host-write'|'ack'|'flush-issued'|'flush-completed'|'media-committed'|'power-lost';
+export type PlpAckMode='volatileCache'|'afterMediaCommit';
+export type PlpEvidence='durable-under-declared-policy'|'at-risk'|'energetically-possible-unverified'|'energy-insufficient'|'pending-contract';
 export type PlpAction='write'|'ack'|'flush-issue'|'flush-complete'|'media-commit'|'power-loss'|'reset'|'fua-complete';
-export type PlpCode='RESET'|'OK_WRITE'|'OK_ACK'|'OK_FLUSH_ISSUED'|'OK_FLUSH_COMPLETED'|'OK_COMMIT'|'OK_POWER_LOSS'|'OK_FUA_COMPLETED'|'INVALID_ORDER'|'NO_PENDING_WRITE'|'NOT_FLUSH_ISSUED';
+export type PlpCode='RESET'|'OK_WRITE'|'OK_ACK'|'OK_FLUSH_ISSUED'|'OK_FLUSH_COMPLETED'|'OK_COMMIT'|'OK_POWER_LOSS'|'OK_FUA_COMPLETED'|'INVALID_ORDER'|'NO_PENDING_WRITE'|'NOT_FLUSH_ISSUED'|'MEDIA_COMMIT_REQUIRED';
 export interface PlpTrial{
  phase:PlpPhase;events:PlpAction[];ack:boolean;mediaCommitted:boolean;flush:'none'|'issued'|'completed';
- fuaCompleted:boolean;volatileCache:boolean;plpEnabled:boolean;remainingWorkJ:0.4|1.2;
- energyAvailableJ:number;powerLost:boolean;lastCode:PlpCode;episode:number;
+ fuaCompleted:boolean;volatileCache:boolean;ackMode:PlpAckMode;plpEnabled:boolean;remainingWorkJ:0.4|1.2;
+ energyAvailableJ:number;powerLost:boolean;powerLossVerdict:PlpEvidence|null;lastCode:PlpCode;episode:number;
 }
 export function newPlpTrial(overrides:Partial<PlpTrial>={}):PlpTrial{
  return {phase:'idle',events:[],ack:false,mediaCommitted:false,flush:'none',fuaCompleted:false,
- volatileCache:true,plpEnabled:false,remainingWorkJ:1.2,energyAvailableJ:0.6,powerLost:false,lastCode:'RESET',episode:0,...overrides};
+ volatileCache:true,ackMode:'volatileCache',plpEnabled:false,remainingWorkJ:1.2,energyAvailableJ:0.6,powerLost:false,powerLossVerdict:null,lastCode:'RESET',episode:0,...overrides};
 }
 export function plpEnergy(work:0.4|1.2){
  const nominalJ=.5*.1*(25-9),idealSeconds=nominalJ/8,usableJ=nominalJ*.75;
@@ -45,9 +47,14 @@ export function plpEnergy(work:0.4|1.2){
   idealSeconds:round09(idealSeconds),usableJ:round09(usableJ),pendingWorkJ:work,
   enoughToyEnergy:usableJ>=work,actualDeviceDurabilityGuaranteed:false};
 }
-export interface PlpResult{accepted:boolean;code:PlpCode;trial:PlpTrial;message:string;
- evidence:'durable-under-declared-policy'|'at-risk'|'energetically-possible-unverified'|'energy-insufficient'|'pending-contract'};
-export function plpOutcome(t:PlpTrial):PlpResult['evidence']{
+export interface PlpResult{accepted:boolean;code:PlpCode;trial:PlpTrial;message:string;evidence:PlpEvidence;}
+/** Device settings are immutable once a WRITE has begun; a power loss cannot be relabelled post-hoc. */
+export function plpConfigure(old:PlpTrial,change:Partial<Pick<PlpTrial,'volatileCache'|'ackMode'|'plpEnabled'|'remainingWorkJ'>>){
+ if(old.phase!=='idle'||old.events.length>0||old.powerLost)return {accepted:false as const,code:'CONFIG_LOCKED' as const,trial:old,message:'이미 시작했거나 정전된 트랜잭션은 설정을 소급 변경할 수 없습니다. RESET 후 새 실험을 시작하세요.'};
+ return {accepted:true as const,code:'CONFIG_OK' as const,trial:{...old,...change},message:'새 쓰기 전에 캐시/ACK 정책/PLP 하드웨어 설정을 고정했습니다.'};
+}
+export function plpOutcome(t:PlpTrial):PlpEvidence{
+ if(t.powerLost&&t.powerLossVerdict!==null)return t.powerLossVerdict;
  if(t.mediaCommitted||t.flush==='completed'||t.fuaCompleted)return 'durable-under-declared-policy';
  if(t.powerLost){
   if(!t.volatileCache)return 'pending-contract';
@@ -62,7 +69,7 @@ export function plpAdvance(old:PlpTrial,action:PlpAction):PlpResult{
   if(accepted){t.lastCode=code;if(action!=='reset')t.events.push(action);}
   return {accepted,code,trial:t,message,evidence:plpOutcome(t)};
  }
- if(action==='reset')return {accepted:true,code:'RESET',trial:newPlpTrial({volatileCache:t.volatileCache,plpEnabled:t.plpEnabled,remainingWorkJ:t.remainingWorkJ,episode:t.episode+1}),message:'새 실험: 이전 ACK/flush/commit/전원손실 증거를 모두 초기화했습니다.',evidence:'pending-contract'};
+ if(action==='reset')return {accepted:true,code:'RESET',trial:newPlpTrial({volatileCache:t.volatileCache,ackMode:t.ackMode,plpEnabled:t.plpEnabled,remainingWorkJ:t.remainingWorkJ,episode:t.episode+1}),message:'새 실험: 이전 ACK/flush/commit/전원손실 증거를 모두 초기화했습니다.',evidence:'pending-contract'};
  if(t.powerLost)return result(false,'INVALID_ORDER','정전이 이미 발생했습니다. 새 트랜잭션 시작을 눌러야 합니다.');
  if(action==='write'){
   if(t.phase!=='idle')return result(false,'INVALID_ORDER','기존 쓰기 작업이 진행 중입니다. 새 실험으로 초기화해 주세요.');
@@ -71,7 +78,8 @@ export function plpAdvance(old:PlpTrial,action:PlpAction):PlpResult{
  if(t.phase==='idle')return result(false,'NO_PENDING_WRITE','아직 호스트 WRITE가 없어 ACK/flush/commit/정전 사건을 유효한 쓰기와 연결할 수 없습니다.');
  if(action==='ack'){
   if(t.ack)return result(false,'INVALID_ORDER','같은 요청의 ACK는 이미 확인했습니다.');
-  t.ack=true;t.phase='ack';return result(true,'OK_ACK','ACK 수신. 휘발성 캐시 ACK는 실제 NAND media commit 보장이 아닙니다.');
+  if(t.ackMode==='afterMediaCommit'&&!t.mediaCommitted)return result(false,'MEDIA_COMMIT_REQUIRED','afterMediaCommit ACK 정책: NAND media commit 전에 ACK를 낼 수 없습니다. 먼저 별도 media COMMIT 사건이 필요합니다.');
+  t.ack=true;t.phase='ack';return result(true,'OK_ACK',t.ackMode==='afterMediaCommit'?'가상 afterMediaCommit 계약의 ACK: 이미 NAND media commit을 확인했습니다.':'휘발 캐시 정책의 ACK: 이는 비휘발 NAND media commit 보장이 아닙니다.');
  }
  if(action==='flush-issue'){
   if(!t.ack||t.flush!=='none')return result(false,'INVALID_ORDER','Flush는 ACK 이후 한 번 요청하는 사건입니다.');
@@ -89,7 +97,7 @@ export function plpAdvance(old:PlpTrial,action:PlpAction):PlpResult{
   t.mediaCommitted=true;t.phase='media-committed';
   return result(true,'OK_COMMIT','비휘발 NAND에 commit 완료 (가상 장치 정책상 보존).');
  }
- t.powerLost=true;t.phase='power-lost';
+ t.powerLost=true;t.phase='power-lost';t.powerLossVerdict=plpOutcome(t);
  return result(true,'OK_POWER_LOSS',t.mediaCommitted?'commit 뒤 정전: 가상 media 데이터 보존.':
   t.plpEnabled?'ACK와 정전 사이 보호를 계산하더라도 보호 에너지 충분함만으로 완전 commit을 보증할 수 없습니다.':
   'ACK가 났더라도 휘발 캐시의 NAND commit 전 정전이면 영속성 위험이 있습니다.');
