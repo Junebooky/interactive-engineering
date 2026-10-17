@@ -85,3 +85,50 @@
 - **teachBack:** (초보) 두께와 C 반비례 / (중급) F/m² ↔ µF/cm² / (시니어) high-frequency inversion vs LF & interface traps and EOT.
 - **sourceRefs:** [MOS-A][MOS-D][MOS-E]
 - **nextHook:** “전하를 제어하는 커패시터에 소스와 드레인을 붙이면 비로소 어떤 길이 생길까요?”
+
+## 14-S04 · `mos-cap-to-nmosfet-bridge`
+### ① 기초: 다른 조건을 분리
+- **sceneId:** `mos-cap-to-nmosfet-bridge`
+- **learningGoal:** 2-terminal MOS capacitor와 source/drain 붙인 nMOS의 차이, 표면 반전과 순 drain current는 다른 조건임을 이해.
+- **priorKnowledge:** 14-S01/02/03; 11 PN junction.
+- **storyHook:** “게이트 아래에 전자 통로가 생겼는데, 이 상태만으로 전류가 흘러가나요?”
+- **question:** 커패시터엔 drain이 없는데, drain current를 잴 수 있을까요? nMOS의 VDS가 0이면요?
+- **prediction:** (i) 2-terminal gate/body cap, (ii) n+ source/drain added with VDS0, (iii) nMOS with VDS>0; 세 사례의 `ID` 경로를 직접 고르기.
+- **learnerAction:** gate/oxide/p-Si cap의 양 끝에 n+ source/drain 카드를 달았다 뗌, VGB=1.1V 기준(VBS=0인 교육용 조건), VDS=0/0.5V toy 토글; gate charging과 drain-source arrow를 따로 구분.
+- **modelInputs:** structure=capacitor/nMOS; p body, n+ S/D if added, VGB1.1V toy, VDS=0/0.5V; output drain current **qualitative** {undefined,no-net-current,possible-current}; no amperes.
+- **displayTextBeforePrediction:** “어떤 단자가 있어야 드레인 전류를 관찰할 수 있을까요?”
+- **speechTextBeforePrediction:** “표면의 전자 길을 관찰해 보세요. 이 길만으로 전류가 흐를까요? 단자를 하나씩 붙여보세요.”
+### ② 관찰/정오답
+- **expectedObservation:** 2-terminal cap has no drain current terminal and `ID` not defined. Gate inversion exists when bias condition met but nMOS with VDS=0 has ideal net ID=0. With source/drain + appropriate gate overdrive and VDS>0, net ID can be nonzero.
+- **correctIncorrectCriteria:** no drain terminal→ID undefined; inverted nMOS at VDS0→ideal net ID0; VDS>0→possible current, and note VGB/ VGS equal only when body tied to source.
+- **misconceptions:** [m1] inversion alone means drain current in MOS capacitor even without drain; [m2] VGS>Vth implies nonzero ID even when VDS=0; [m3] nMOS is just a PN diode forward-biased through its gate.
+- **hints:** L1 drain 없이 어떻게 `ID`라는 전류를 정의하나요? / L2 양 끝 전압차 VDS=0이면 어떤 일이 생기죠? / L3 gate oxide electric field vs PN diode carrier injection 비교해요.
+- **feedback/incorrect keyed:** m1 “MOS cap에는 drain 단자가 없어 ID라는 양이 정의되지 않아요.” / m2 “채널이 형성돼도 VDS=0에서는 이상적 순 ID가 0이에요.” / m3 “gate는 PN 접합 순방향 주입이 아니라 주로 oxide 전계로 Si 표면을 제어해요.”
+- **feedback/correct:** “표면 반전과 회로를 통해 흐르는 순 드레인 전류를 구별했어요.”
+- **displayTextAfterObservation:** “전자 길과 흐르는 전류는 서로 다른 조건이 필요해요.”
+- **speechTextAfterObservation:** “반전층은 흐를 수 있는 길을 마련하지만, 실제로 순 전류가 흐르려면 소스와 드레인, 그 사이 전압도 필요해요. 다음 MOSFET 레슨에서 확인해봐요.”
+- **explanation:** Conventional p-body nMOS gate/oxide/source/drain; MOS capacitor gate field controls surface electron density, device current also requires appropriate terminal topology and VDS. Weak-inversion subthreshold ID>0 possible with VDS>0 even below nominal Vth.
+### ③ 시니어 검증/다음
+- **physicsAssumptions:** no real MOS compact ID equation, no leakage/ESD/temperature/body effect, ideal VBS=0, toy `VGB=1.1V` separate from M01 scene's independent Vth0.7V. Current categorical, no fake hardware amperes.
+- **teachBack:** (초보) cap vs transistor/필요 단자 / (중급) VDS=0·0.5와 surface status 분리 / (시니어) body bias/weak inversion and substrate diodes caveats.
+- **sourceRefs:** [MOS-A][MOS-C]
+- **nextHook:** “01 MOSFET-S01로 가서 VGS와 VDS 두 다이얼을 따로 움직여봅시다.”
+
+## 4-Step A05 구현 전제 · A07 독립 검토 필수
+| Step | A05 visual/physics object | source-level acceptance |
+|---|---|---|
+| 14-S01 | metal/oxide/p-Si cross-section and gate wire charge indicator | oxide steady DC ≠ changing capacitance current |
+| 14-S02 | 4-state bias slider, holes/electrons/fixed ion distinct shapes | VFB=0 explicitly **toy**; −0.5 holes, +0.3 depletion, +1.1 inversion, dynamic Vt≈0.785 |
+| 14-S03 | tox5/10nm, C′ox values and schematic high-/low-frequency traces | C′ox5nm=0.6906266µF/cm², 10nm=0.3453133µF/cm², units reliable |
+| 14-S04 | attach/remove source/drain n+ elements, VDS0/+0.5 | cap ID undefined, nMOS VDS0→ideal ID0 even inversion, VDS>0 may flow |
+- **Visibility contract:** `predictionSubmitted=false` exposes only neutral question, input controls/legend and *no answer revealing readout*, no post-explanation in `aria`, Voice or status. `predictionSubmitted && visitedStatesCount≥2 && reasonSubmitted` unlock answer. User must answer a concept question, not just visit cards.
+- All scenes have 3 distinct misconception keys m1..m3 → targeted feedback; each has hints L1..L3; no generic '정답입니다' unlock. Korean UI short text vs speech natural prose; accessibility keyboard/screen-reader/44px/touch/reduced-motion after A05 implementation.
+- **Science labels:** textbook 1D planar ideal MOS vs actual CMOS, physical tox vs EOT and trap/leakage, and zero-voltage flatband only in declared VFB0 toy. A02 M01 fixed Vth0.7 is a **different teaching model**; impossible to transfer values between scenes without equal assumptions.
+- Scope: A06 wrote source/content only. Requires A07 review→A06 corrections→A07 EDU_QA_PASS before flag STORY_READY/A05 scene production. A05/ A02 code not edited; no main merge/deployment.
+
+## Verified/corroborative source URLs · checkedAt 2026-10-17
+[MOS-A] MIT 6.012 fall 2009 Lecture9 PDF slides1/8/13/14, **visually inspected** https://ocw.mit.edu/courses/6-012-microelectronic-devices-and-circuits-fall-2009/42c863e2e1e9744ce6b797646a30e463_MIT6_012F09_lec09.pdf
+[MOS-B] MIT 6.012 spring 2009 lecture notes overview https://ocw.mit.edu/courses/6-012-microelectronic-devices-and-circuits-spring-2009/pages/lecture-notes/
+[MOS-C] MIT 6.012 fall 2009 lecture10 3-terminal MOS/MOSFET https://ocw.mit.edu/courses/6-012-microelectronic-devices-and-circuits-fall-2009/pages/lecture-notes/
+[MOS-D] independent C–V source https://digitalcollections.ohsu.edu/record/2360/files/3093_etd.pdf (full text **NOT** reviewed, only extracted C–V passage; medium scope)
+[MOS-E] OpenStax capacitor physics https://openstax.org/books/university-physics-volume-2/pages/8-3-energy-stored-in-a-capacitor
