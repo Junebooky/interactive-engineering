@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {ElectricitySceneVisual} from './ElectricitySceneVisual';
 import {electricitySceneOrder,evaluateElectricity,rcModel} from './electricityModel';
-import type {ChargeMode,CircuitTopology,Direction,ElecEvent,ElecFeedback,ElecSceneId} from './electricityModel';
+import type {CircuitTopology,Direction,ElecEvent,ElecFeedback,ElecSceneId} from './electricityModel';
 import type {ElectricityVisualState} from './ElectricitySceneVisual';
 import '../a05Scenes.css';import './electricityScenes.css';
 
