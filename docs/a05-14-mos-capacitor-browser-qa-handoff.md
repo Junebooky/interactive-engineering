@@ -33,3 +33,9 @@
 - **A07→A06 P1**: independently review new A05 visual and feedback at tested source SHA; source educational PASS pertains to A06 original, **not** A05 browser/scene.
 - **Owner P2**: real iOS/Safari, native audible Korean TTS, actual accessibility assistive technologies, first-time learner testing, explicit merge/deploy authorization. **RELEASE_HOLD**.
 - Branch is **stacked Draft PR**; no main merge or deployment, no edit to A02-owned branch.
+
+
+## 2026-10-17 A07-level learner prediction disclosure hardening — **new authoritative tested SHA**
+- **A05 found and corrected pre-prediction model-limit spoiler**: the first version veiled only SVG/readouts, while a static `a05-model-limit` text still exposed lesson S01 oxide steady DC, S02 VFB/Vt, S04 cap I_D. Current `Mos14SceneLab` displays **generic physics disclaimer** until explicit learner prediction, and only then the scene-specific assumptions.
+- **Actual tested code SHA `5beb8198da205ea24e1636f347d10e7e5e578c04`**, [real Chromium run **#39030852920 7 PASS/0 FAIL**](https://github.com/Junebooky/interactive-engineering/actions/runs/39030852920), [**13 PNG artifact 12099294467**](https://github.com/Junebooky/interactive-engineering/actions/runs/39030852920/artifacts/12099294467), [**CI run #39030856797 PASS**](https://github.com/Junebooky/interactive-engineering/actions/runs/39030856797). Browser `assertPrePrediction()` now executes on **all four** step entries; checks none of `IG,DC=0`, `VFB=0`, `ID undefined`, `VT≈0.785` or numerical C are visible in the bounds panel or SVG/readout before prediction.
+- The older `49ed8266` and `90d892fa` runs were valid for their then-current source, but are **superseded** for pre-disclosure QA. This doc append is *documentation-only* after code tests. A07 separate Source/Scene independent review remains pending and A02 product app E2E remains pending. No main merge or deployment.
