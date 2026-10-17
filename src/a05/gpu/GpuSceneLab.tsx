@@ -229,7 +229,7 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
           <h3>{feedback.passed?'원리와 관찰을 연결했어요!':'빠진 조건이 있는지 살펴볼까요?'}</h3>
           {feedback.conditions.map(c=><p key={c.label}><strong>{c.passed?'✓':'△'} {c.label}</strong> — {c.passed?'확인했어요.':c.help}</p>)}
           {!feedback.passed&&<p>{story.answers.find(x=>x.id===answer)?.correction}</p>}
-          <button type="button" onClick={()=>speak(feedback.passed?story.next:feedback.conditions.filter(c=>!c.passed).map(c=>c.help).join(' '))}>피드백 듣기</button>
+          <button type="button" onClick={()=>speak(feedback.passed?story.next:sceneId==='memory-family-roles'?'미검증 항목: '+feedback.conditions.filter(c=>!c.passed).map(c=>c.label).join(', ')+'. 아직 각 가족을 개별 검사하지 않았어요.':feedback.conditions.filter(c=>!c.passed).map(c=>c.help).join(' '))}>피드백 듣기</button>
           <button type="button" onClick={()=>setWhy(!why)}>{why?'원리 접기':'왜? 원리 보기'}</button>
         </section>}
         {why&&feedback&&<div className="a05-why" data-testid="g03-why-panel"><h3>왜 그럴까요?</h3>
