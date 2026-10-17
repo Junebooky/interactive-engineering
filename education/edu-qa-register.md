@@ -50,3 +50,18 @@ Full reproducible controls, authoritative owner, physics references, ready-to-pa
 | R3-06 | A06 N04-S02/S05 | **MINOR_OPEN** | Intro speech prematurely provides storage/gc conclusions; reword before prediction; after-observation reveal. |
 | R3-07 | A06 04 N04-S01..05 | **SOURCE_PASS_SCOPED** | Floating-gate/charge-trap, page-vs-block, FTL/PLP caveats, host→SSD command vs SSD→host read DMA, residency vs load are correct under toy/platform assumptions; no A07 browser. |
 **Release scope:** R3-01/02 only block 05 SRAM scene/production integration pending A05 correction and new browser user-flow regression. Other lessons remain parallel. Detailed evidence is GitHub, no A01 separate report/approval, no main merge/deploy.
+
+## Round 04 · A06 official source recheck at PR#7 c192286 (2026-10-17)
+**Authoritative detailed retest:** [round-04-a06-retest-mos14.md](round-04-a06-retest-mos14.md). **Supersedes** older Round01/02 verdicts where latest source has changed; do not leave fixed defects reported as still active.
+| ID | Current SHA | Outcome | Evidence / next retest |
+|---|---|---|---|
+| R4-01 11 pre-display/Voice | `b61c9a49` | **PASS_SOURCE for displayed before/after copy**, **MAJOR_OPEN for `prediction` template** | 11-S02/03/04/05 still puts explicit right answer/width/order/numeric in `prediction (before revealing)`. Split safe `predictionPrompt` from teacherExpectedAnswer; ready replacements in Round04. No browser leak claimed. |
+| R4-02 12 pre-display/Voice | `e11f51ad` | **PASS_SOURCE for pre-copy/charge bridge**, **MAJOR_OPEN for `prediction` template** | S02/03/04 prints exact numerical answers in a field named `prediction`; move to hidden teacher observation; RC continuity/P01/P08 source improved. |
+| R4-03 G03 revised assessment story | `af0b7e75` | **EDU_QA_PASS_SOURCE**, **A05 SCENE_MAJORS_OPEN** | Independent family/site card grades, numeric same-domain options and neutral HBM voice in A06 source. A05 #15 remains older implementation `1cacdce` with forced-correct matching and unrelated distractor; negative-case browser pending. |
+| R4-04 lesson14 MOS story & senior note | `0a01e359` / `8748e327` | **EDU_QA_PASS_SOURCE + MINOR** | Independent 1D threshold 0.784825V, C′ox5 0.69062665/10 0.34531332 µF/cm², p-Si gate signs and VFB toy 0V confirmed MIT OCW lecture9 pages1/8/13/14. Add quasi-static minority-carrier supply/deep-depletion visible note; C–V oxide vs measured gate label. A05 2.5D may begin after A06 handoff; no scene browser QA. |
+| R4-05 Atlas/crosswalk | `06a9d8df` / `abe0ef2d` | **PASS_SOURCE** | namespaced topic/lesson/step/scene keys, P01 basic 12, P08 PARTIAL; A02 persistence migration independent. |
+| R4-06 A02 D02 old cell/history blockers | PR#11 `e0dfe83` | **RESOLVED_SOURCE (old blockers)** | Adapter now computes WL/BL→cell/history, reducer test paths; STOP reporting old empty adapter blocker based on previous head. Not independently browser-run. |
+| R4-07 A02 D02 causal order | PR#11 `e0dfe83` | **NEW MAJOR_OPEN** | `shared→restored` directly records restored without sensed; `refresh@t0→leak@t1.2` produces unordered both history tokens and may pass rule. Ordered state transition + negative-case Chromium recheck A02. |
+| R4-08 A05 SRAM current head | PR#13 `292c574` | **R3 BLOCKERS_STILL_OPEN** | No new source SHA; avoid presenting standalone original browser happy path as science signoff. |
+
+**Separation:** A06 story source clearance ≠ A05 2.5D clearance ≠ A02 integrated app/user/physical-device/Voice QA. A07 reviewer reports to A06 Issue#6, no A01 progress/approval, no main merge/deploy.
