@@ -20,7 +20,11 @@ export type SimulatorType =
   | 'mosfet-field'
   | 'mosfet-current'
   | 'nmos-resistor-inverter'
-  | 'cmos-not-gate';
+  | 'cmos-not-gate'
+  | 'dram-write'
+  | 'dram-sense-restore'
+  | 'dram-leak-refresh'
+  | 'dram-row-bank';
 
 export interface ScaffoldingHint {
   level: 1 | 2 | 3;
@@ -32,7 +36,7 @@ export interface ScaffoldingHint {
 export interface ValidationRule {
   targetKey: string;
   label?: string; // Human-readable condition label (e.g. "게이트 전압 0.8V ~ 1.8V 설정")
-  operator: 'eq' | 'gte' | 'lte' | 'between' | 'near' | 'visitedLowHigh';
+  operator: 'eq' | 'gte' | 'lte' | 'between' | 'near' | 'visitedLowHigh' | 'contains';
   expected: number | boolean | string | [number, number];
   tolerance?: number; // for 'near'
   feedbackIfFail: string;
@@ -101,6 +105,10 @@ export interface LessonStep {
 
   // Contextual scaffolding hints for Help panel (optional)
   hints?: ScaffoldingHint[];
+
+  // Pedagogical assumptions & academic citations (Contract v0.2)
+  physicsAssumptions?: string;
+  sourceRefs?: string[];
 }
 
 export type Step = LessonStep;
@@ -113,6 +121,7 @@ export interface Lesson {
   subtitle: string;
   description: string;
   category: SubjectCategory;
+  prerequisites?: string[];
   steps: LessonStep[];
 }
 

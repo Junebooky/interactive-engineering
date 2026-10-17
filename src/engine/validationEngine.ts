@@ -55,6 +55,16 @@ export function evaluateStepRules(
         isPassed = lowSeen && highSeen;
         break;
       }
+      case 'contains': {
+        if (Array.isArray(val)) {
+          isPassed = val.includes(rule.expected);
+        } else if (typeof val === 'string') {
+          isPassed = val.includes(String(rule.expected));
+        } else {
+          isPassed = false;
+        }
+        break;
+      }
       default:
         isPassed = false;
     }

@@ -15,7 +15,7 @@ export const CourseCatalogModal: React.FC<CourseCatalogModalProps> = ({
   onClose,
   onSelectCourse,
 }) => {
-  const { courseId: currentCourseId } = useLearningEngine();
+  const { courseId: currentCourseId, lesson: currentLesson } = useLearningEngine();
 
   if (!isOpen) return null;
 
@@ -62,16 +62,16 @@ export const CourseCatalogModal: React.FC<CourseCatalogModalProps> = ({
 
         <div className="catalog-courses-grid">
           {courses.map((course) => {
-            const lesson = course.lessons[0];
-            const isSelected = currentCourseId === course.id;
+            const defaultLesson = course.lessons[0];
+            const isCourseActive = currentCourseId === course.id;
 
             return (
               <div
                 key={course.id}
-                className={`catalog-course-card ${isSelected ? 'selected' : ''}`}
+                className={`catalog-course-card ${isCourseActive ? 'selected' : ''}`}
                 onClick={() => {
                   sfx.playClick();
-                  onSelectCourse(course.id, lesson.id);
+                  onSelectCourse(course.id, defaultLesson.id);
                   onClose();
                 }}
               >
@@ -83,16 +83,41 @@ export const CourseCatalogModal: React.FC<CourseCatalogModalProps> = ({
                 <h4 className="course-card-title">{course.title}</h4>
                 <p className="course-card-summary">{course.summary}</p>
 
+                {course.lessons.length > 1 && (
+                  <div className="course-lessons-list" onClick={(e) => e.stopPropagation()}>
+                    {course.lessons.map((l) => {
+                      const isLessonActive = isCourseActive && currentLesson?.id === l.id;
+                      return (
+                        <button
+                          key={l.id}
+                          type="button"
+                          className={`course-lesson-chip ${isLessonActive ? 'active' : ''}`}
+                          onClick={() => {
+                            sfx.playClick();
+                            onSelectCourse(course.id, l.id);
+                            onClose();
+                          }}
+                        >
+                          <span className="lesson-chip-title">{l.title}</span>
+                          <span className="lesson-chip-badge">{l.steps.length}단계</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="course-card-footer">
                   <span className="lesson-step-count">
-                    {lesson.steps.length}개 인터랙티브 실습 스텝
+                    {course.lessons.length > 1
+                      ? `${course.lessons.length}개 실습 레슨 (${course.lessons.reduce((acc, l) => acc + l.steps.length, 0)}단계)`
+                      : `${defaultLesson.steps.length}개 인터랙티브 실습 스텝`}
                   </span>
                   <div className="course-card-action">
-                    {isSelected ? (
-                      <span className="current-badge">현재 학습 중</span>
+                    {isCourseActive ? (
+                      <span className="current-badge">현재 강좌</span>
                     ) : (
                       <span className="select-link">
-                        학습하기 <ArrowRight size={14} />
+                        강좌 보기 <ArrowRight size={14} />
                       </span>
                     )}
                   </div>

@@ -1,5 +1,6 @@
 import type { Course } from '../types';
 import { mosfetLesson } from './semiconductor/mosfetLesson';
+import { dramLesson } from './semiconductor/dramLesson';
 import { ohmsLawLesson } from './circuits/ohmsLawLesson';
 import { gearsLesson } from './mechanics/gearsLesson';
 
@@ -11,9 +12,9 @@ export const courses: Course[] = [
     category: 'semiconductor',
     categoryLabel: '반도체 공학',
     badge: '⚡ 반도체 핵심',
-    summary: 'MOSFET 게이트 전압으로 전도 채널을 형성하고, 드레인 전류와 풀다운 스위치를 결합해 NOT 게이트 논리 신호를 완성하는 시그니처 코스',
-    estimatedMinutes: 15,
-    lessons: [mosfetLesson],
+    summary: 'MOSFET 전도 채널 형성에서부터 1T1C DRAM 메모리 비트 셀과 센스앰프 복원까지 탐구하는 시그니처 코스',
+    estimatedMinutes: 25,
+    lessons: [mosfetLesson, dramLesson],
   },
   {
     id: 'course-circuits',

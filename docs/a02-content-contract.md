@@ -1,11 +1,12 @@
-# A02 학습 엔진 공통 콘텐츠 계약 (Content Pipeline Contract v0.2)
+# A02 학습 엔진 공통 콘텐츠 계약 (Content Pipeline Contract v0.3)
 
 - **작성일**: 2026-10-17
 - **기준 브랜치/HEAD**:
-  - A02 학습 엔진: `feat/m01-a05-a06-integration` (PR #9 최신 HEAD)
-  - A05 2.5D 그래픽: `feat/a05-mosfet-discovery-scenes` (PR #8 HEAD `374a72d`), `feat/a05-dram-1t1c-scenes` (PR #10 HEAD `d3a5dad`)
+  - A02 학습 엔진: `feat/d02-a05-a06-integration` (PR #11)
+  - A05 2.5D 그래픽: `feat/a05-dram-1t1c-scenes` (PR #10 HEAD `00eb302`), `feat/a05-mosfet-discovery-scenes` (PR #8 HEAD `374a72d`)
   - A06 교육 커리큘럼: `content/a06-curriculum` (PR #7 HEAD `b8692e8`)
-- **목적**: A06의 10개 레슨 / 41개 Step 및 추가 4개 레슨(총 57 Step) 교육 설계를 A02 실제 학습 엔진(`src/engine/LearningContext.tsx`, `LessonPlayer.tsx`)에 점진적·안정적으로 수용하기 위한 공통 데이터 스키마 및 등록 파이프라인 규격 정의.
+  - A07 교육 QA 검토: `docs/a07-edu-qa-round-01` (PR #14 / Issue #12)
+- **목적**: A06의 확정 10개 레슨 / 41개 Step 및 향후 확장형 학습 Atlas(14개 레슨 / 57개 Step 이상) 교육 설계를 A02 실제 학습 엔진(`src/engine/LearningContext.tsx`, `LessonPlayer.tsx`)에 점진적·안정적으로 수용하기 위한 공통 데이터 스키마, 도메인 액션 어댑터 및 등록 파이프라인 규격 정의.
 
 ---
 
@@ -14,12 +15,17 @@
 1. **A02 학습 엔진 (공식 상태 단독 소유)**:
    - FSM 라이프사이클(`READY` $\to$ `INTERACTING` $\to$ `EVALUATING` $\to$ `EVALUATED_CORRECT` / `EVALUATED_INCORRECT` $\to$ `LESSON_FINISHED`) 단독 관리.
    - 예측 가림(Veiled) 해제, 파라미터 조작 이력(`visited`), 조건별 복합 판정(`RuleEvaluationResult[]`), 3단계 점진적 스캐폴딩 힌트, 심층 Why 모달, 음성 튜터(Web Speech), 로컬스토리지 진척도 저장·복원을 100% 소유.
-   - A05 Standalone Lab 등의 내부 로컬 상태를 메인 엔진에 중복 삽입하지 않으며, 순수 뷰(Pure View) 컴포넌트만을 어댑팅.
+   - **도메인 전용 액션/물리 상태 어댑터 (Typed Action Adapter)**:
+     - 단순 UI 토글/슬라이더 클릭이 곧바로 정답 이력으로 인정되는 조작 흉내를 방지하고, 물리적 인과관계(`writeCell`, `senseRead`, `leakageVoltage`)를 만족할 때만 물리 상태(`cell`, `phase`, `refreshAt`)와 이력(`history: string[]`)을 원자적으로 갱신합니다.
+     - 메인 리듀서(`learningReducer.ts`) 내에서 `UPDATE_PARAM` 디스패치 시 도메인 어댑터(`src/engine/adapters/dramActionAdapter.ts` 등)를 호출하여 상태를 단일 진실 원천(SSOT)으로 보존합니다.
+     - A05 Standalone Lab 등의 내부 로컬 상태를 메인 엔진에 중복 삽입하지 않으며, 순수 뷰(Pure View) 컴포넌트만을 어댑팅합니다.
 2. **A05 2.5D 인터랙티브 씬 (순수 뷰 및 물리 계산)**:
    - `SceneVisual({ sceneId, values, showObservation })` 형태의 순수 SVG/2.5D 컴포넌트 제공.
    - `scenePhysics.ts` 및 `dramModel.ts` 등 확정된 결정론적 수치 모델 소유.
 3. **A06 교육 콘텐츠 (스토리텔링 및 학습 설계)**:
    - 10개 레슨 41 Step 시나리오, 예측 문항, 오개념 피드백, 3단계 힌트, 음성 튜터 스크립트, 교육용 모델 가정(toy assumption) 및 출처 명세 소유.
+4. **A07 교육 및 사실 정확성 교차 검증 (Pedagogical QA)**:
+   - 학생 인지 부하, 예측 문항의 스포일러 방지(중립성 유지), 정규화 단위 표기($V_{DD}$ 배수, toy 시간 vs 표준 규격), 오개념 진단 피드백 검증.
 
 ---
 
@@ -63,9 +69,9 @@ export interface LessonStep {
 ### 2.2 StepControl 컨트롤 스키마
 ```typescript
 export interface StepControl {
-  id: string; // 파라미터 키 (예: 'vgs', 'vin', 'prediction', 'answer', 'wordline')
+  id: string; // 파라미터 키 (예: 'vgs', 'vin', 'wl', 'bl', 'prediction', 'answer')
   label: string;
-  type: 'slider' | 'toggle' | 'radioGroup' | 'truthTable' | 'gearSelector';
+  type: 'slider' | 'discreteSlider' | 'toggle' | 'truthTable' | 'gearSelector' | 'radioGroup';
   unit?: string;
   min?: number;
   max?: number;
@@ -83,10 +89,10 @@ export interface StepControl {
 ```typescript
 export interface ValidationRule {
   targetKey: string; // 검증 대상 파라미터
-  label?: string; // UI에 표시될 조건 라벨 (예: '입력 0V와 5V 모두 관찰')
-  operator: 'eq' | 'gte' | 'lte' | 'between' | 'near' | 'visitedLowHigh';
-  expected: any;
-  tolerance?: number;
+  label?: string; // UI에 표시될 조건 라벨 (예: 'WL ON에서 비트 1 쓰기')
+  operator: 'eq' | 'gte' | 'lte' | 'between' | 'near' | 'visitedLowHigh' | 'contains';
+  expected: number | boolean | string | [number, number];
+  tolerance?: number; // for 'near'
   feedbackIfFail: string; // 실패 시 개별 피드백
   voiceIfFail?: string; // 실패 시 음성 안내
 }
@@ -117,24 +123,32 @@ export interface ValidationRule {
 
 ---
 
-## 4. 10개 레슨 / 41 Step 점진적 등록 절차
+## 4. 커리큘럼 기준선과 지속 확장형 학습 Atlas (Expansion Roadmap)
 
-A02는 41개 장면을 독자적으로 한 번에 대량 구현하지 않으며, 다음 파이프라인에 따라 A05와 A06의 산출물이 준비되는 순서대로 단계별 통합합니다:
+A02 학습 엔진은 단일 하드코딩 구조를 지양하고, **확정된 커리큘럼 기준선**과 **향후 확장형 Atlas 로드맵**을 명확히 구분하여 점진적으로 통합합니다:
+
+### 4.1 확정된 커리큘럼 기준선 (Confirmed Baseline: 10개 레슨 / 41개 Step)
+A06 PR #7 (`b8692e8`)에 근거하여 교육적 목표와 스텝 전개가 1차 확정된 시그니처 10개 레슨입니다:
+1. **M01 (MOSFET 스위칭 & CMOS 논리)**: 4단계 (채널 형성 $\to$ VDS 포화 $\to$ nMOS 인버터 $\to$ CMOS NOT) [통합 완료 및 App QA 통과]
+2. **D02 (DRAM 1T1C 메모리 셀)**: 4단계 (셀 쓰기/격리 $\to$ 센스 증폭/복원 $\to$ 누설/리프레시 $\to$ 뱅크 병렬성) [통합 완료 및 PR #11 App QA 대상]
+3. **G03 (GPU 메모리 벽 & HBM)**: 메모리 대역폭 병목, TSV 적층 구조와 병렬 버스
+4. **N04 (NAND 플래시 & 3D V-NAND)**: 전하 포획 트랩(CTF) 및 블록 소거 메커니즘
+5. **05~10 시스템 레슨 (SRAM, 분기 예측, 캐시 계층 등)**: 순차적 씬 구현 및 연계
+
+### 4.2 지속 확장형 학습 Atlas 계획 (Ongoing Atlas Expansion Plan)
+- **추가 4개 레슨 확장 계획 (총 14개 레슨 / 57개 Step)**:
+  - 전력 반도체(SiC/GaN), 광학 소자(Photodiode/Laser Diode), 양자 큐비트 제어, 뉴로모픽 멤리스터 등 첨단 공학 주제로의 확장 시나리오 검토 중.
+- **확장 원칙**:
+  - 새로운 물리 현상이나 복잡한 회로가 추가되는 경우, 엔진 코드의 무수정 범용성에만 의존하지 않고 각 도메인의 물리 법칙을 검증하는 **전용 액션 어댑터(`ActionAdapter`)**와 **2.5D 시각 씬(`SceneVisual`)**을 쌍으로 확장합니다.
+  - 게임화 요소(XP, 스트릭, 뱃지 등)를 배제하고, 직접 조작을 통한 개념 발견과 즉각적 오개념 교정이라는 본질적 엔지니어링 UX를 일관되게 유지합니다.
 
 ```mermaid
 graph LR
     A["A06 레슨 원고<br/>(Storyboard)"] --> C["A02 데이터 모델링<br/>(Lesson Content)"]
-    B["A05 2.5D Scene<br/>(Pure View)"] --> D["A02 뷰 어댑터<br/>(LessonPlayer)"]
+    B["A05 2.5D Scene<br/>(Pure View)"] --> D["A02 뷰/액션 어댑터<br/>(ActionAdapter)"]
     C --> E["통합 레슨 등록<br/>(src/content/)"]
     D --> E
-    E --> F["Vitest 단위/회귀 테스트<br/>(smokeFlow)"]
-    F --> G["Chromium 브라우저 QA<br/>(E2E Smoke)"]
+    E --> F["Vitest 단위/회귀 테스트<br/>(smokeFlow & Reducer)"]
+    F --> G["Chromium 브라우저 QA<br/>(E2E App Smoke)"]
     G --> H["별도 Stacked PR 제출<br/>(main 병합 금지)"]
 ```
-
-### 등록 순서 가이드라인:
-1. **D02 (DRAM 1T1C)**: M01(MOSFET)의 후속 레슨으로 첫 번째 모델 통합(본보기 완성).
-2. **G03 (GPU 메모리 벽)**: DRAM 완성 후 HBM/SRAM 메모리 계층 구조와 연계하여 통합.
-3. **N04 (NAND 플래시 & eSSD)**: 플로팅 게이트 / 전하 포획 트랩 소자 시뮬레이션 연계.
-4. **05~10 (고급 시스템 커리큘럼)**: A05의 씬 구현 및 A06의 명세 인계 순서에 맞추어 개별 피처 브랜치에서 PR 단위로 점진적 통합.
-5. **게임화 지양**: 점수, XP, 스트릭 등 비교육적 게이미피케이션 요소를 배제하고, 순수 개념 발견과 조건별 피드백 중심의 Brilliant형 엔지니어링 UX를 유지.

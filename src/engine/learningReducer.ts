@@ -1,4 +1,5 @@
 import type { Lesson, LearningState, StepEvaluation } from '../types';
+import { applyDramActionAdapter } from './adapters/dramActionAdapter';
 
 export interface LearningEngineState {
   courseId: string;
@@ -99,10 +100,23 @@ export function learningReducer(
     }
 
     case 'UPDATE_PARAM': {
-      const nextParams = {
+      const { key, value } = action.payload;
+      const step = state.lesson?.steps[state.currentStepIndex];
+      const isDram = Boolean(step?.simulatorType?.startsWith('dram-'));
+
+      let nextParams = {
         ...state.currentParams,
-        [action.payload.key]: action.payload.value,
+        [key]: value,
       };
+
+      if (isDram && step) {
+        nextParams = applyDramActionAdapter(step.id, state.currentParams, key, value);
+      } else if (typeof value === 'number' && (key === 'vgs' || key === 'vds' || key === 'vin')) {
+        const prevVisited = Array.isArray(state.currentParams.visited) ? state.currentParams.visited : [0];
+        if (!prevVisited.includes(value)) {
+          nextParams.visited = [...prevVisited, value];
+        }
+      }
 
       // Invariant: Changing parameters after evaluation (CORRECT or INCORRECT)
       // invalidates prior evaluation result and returns to INTERACTING
