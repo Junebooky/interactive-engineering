@@ -10,7 +10,9 @@ import { InverterCircuit2D } from '../../simulations/mosfet/InverterCircuit2D';
 import { Circuit2DScene } from '../../simulations/ohmsLaw/Circuit2DScene';
 import { Gear2DScene } from '../../simulations/gears/Gear2DScene';
 import { A05SceneVisual } from '../../a05/A05SceneVisual';
+import { DramSceneVisual, type DramVisualState } from '../../a05/dram/DramSceneVisual';
 import type { A05Values } from '../../a05/scenePhysics';
+import '../../a05/dram/dramScenes.css';
 import '../../a05/a05Scenes.css';
 import { BookOpen, Sparkles } from 'lucide-react';
 
@@ -76,6 +78,34 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
             sceneId={currentStep.simulatorType}
             values={a05Values}
             showObservation={showObservation}
+          />
+        );
+      }
+
+      case 'dram-write':
+      case 'dram-sense-restore':
+      case 'dram-leak-refresh':
+      case 'dram-row-bank': {
+        const dramState: DramVisualState = {
+          wl: (currentParams.wl ?? 0) as 0 | 1,
+          bl: (currentParams.bl ?? 1) as 0 | 1,
+          cell: (currentParams.cell ?? 0) as 0 | 1,
+          bit: (currentParams.bit ?? 1) as 0 | 1,
+          phase: (currentParams.phase ?? 'precharge') as any,
+          elapsed: Number(currentParams.elapsed ?? 0),
+          refreshAt: currentParams.refreshAt !== undefined && currentParams.refreshAt !== null ? Number(currentParams.refreshAt) : null,
+          banks: Number(currentParams.banks ?? 1) as 1 | 2,
+        };
+        const hasPredictionCtrl = currentStep.controls?.some((c) => c.id === 'prediction');
+        const showObservation =
+          !hasPredictionCtrl ||
+          (currentParams.prediction !== undefined && currentParams.prediction !== null);
+
+        return (
+          <DramSceneVisual
+            sceneId={currentStep.simulatorType}
+            state={dramState}
+            revealed={showObservation}
           />
         );
       }
