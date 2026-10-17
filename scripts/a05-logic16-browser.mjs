@@ -40,7 +40,7 @@ async function gates(p,gate,outs){
  for(let i=0;i<pairs.length;i++){
   const [a,b]=pairs[i];
   await p.getByRole('button',{name:'A='+a}).click();await p.getByRole('button',{name:'B='+b}).click();
-  const seen=(await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'');
+  const seen=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
   if(!seen.includes('출력(정착)'+outs[i]))throw Error(gate+' '+a+b+' wrong truth output '+seen);
  }
 }
@@ -73,11 +73,11 @@ try{
  await qa('S02 same D0 different Q histories, G0 D change held, power OFF→ON invalid; wrong paths',async()=>{
   await prediction(p,'combinational-vs-sequential-memory');
   await p.getByRole('button',{name:'Q0 이력 실행'}).click();
-  if(!((await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'').includes('래치Q0')))throw Error('history0 incorrect');
+  if(!((await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'').includes('래치Q0')))throw Error('history0 incorrect');
   await p.getByRole('button',{name:'Q1 이력 실행'}).click();
-  if(!((await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'').includes('래치Q1')))throw Error('history1 not distinct');
+  if(!((await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'').includes('래치Q1')))throw Error('history1 not distinct');
   await p.getByRole('button',{name:'G=0, D1→D0'}).click();
-  if(!((await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'').includes('래치Q1')))throw Error('closed latch lost Q');
+  if(!((await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'').includes('래치Q1')))throw Error('closed latch lost Q');
   await p.screenshot({path:out+'/04-latch-g0-hold-q1.png',fullPage:true});
   await p.getByRole('button',{name:'전원 OFF→ON'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('보증 불가')))throw Error('Q resurrected after lost power');
@@ -86,33 +86,33 @@ try{
  await qa('S03 t3 latch1 DFF0, t4 latch0 DFF0, t8 DFF1, initial-high is not rising; wrong paths',async()=>{
   await prediction(p,'d-latch-vs-d-flip-flop');
   await p.getByRole('button',{name:'t3 HIGH,D1'}).click();
-  let r=(await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'');
+  let r=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
   if(!r.includes('래치Q1')||!r.includes('상승DFFQ0')||!r.includes('NO'))throw Error('t3 latch vs FF wrong '+r);
   await p.screenshot({path:out+'/06-high-d1-latch-not-ff.png',fullPage:true});
   await p.getByRole('button',{name:'t4 HIGH,D0'}).click();
-  r=(await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'');
+  r=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
   if(!r.includes('래치Q0')||!r.includes('상승DFFQ0'))throw Error('t4 not held '+r);
   await p.getByRole('button',{name:'t8 CLK↑,D1'}).click();
-  r=(await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'');
+  r=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
   if(!r.includes('상승DFFQ1')||!r.includes('YES'))throw Error('t8 actual edge not captured '+r);
   await p.getByRole('button',{name:'시작 시 CLK=1만 표시 (직전 CLK 미상)'}).click();
-  r=(await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'');
+  r=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
   if(!r.includes('보증 불가')||!r.includes('검증 안됨'))throw Error('initial clk HIGH incorrectly treated as positive event');
   await keyedWrongAndComplete(p,'07-clock-edge');await p.getByRole('button',{name:'다음 질문으로'}).click();
  });
  await qa('S04 T8 no buffer setup+0.5 hold−0.3; buffered T8 setup−0.1 hold+0.1; T9 both positive, hazard unknown; wrong paths',async()=>{
   await prediction(p,'setup-hold-metastability-clock');
   await p.getByRole('button',{name:'기본 T8 / 버퍼 없음'}).click();
-  let x=(await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'');
+  let x=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
   if(!x.includes('PASS0.5ns')||!x.includes('FAIL-0.3ns'))throw Error('initial timing wrong '+x);
   await p.screenshot({path:out+'/08-t8-hold-fail.png',fullPage:true});
-  await p.getByRole('button',{name:'버퍼 추가 / T8'}).click();x=(await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'');
+  await p.getByRole('button',{name:'버퍼 추가 / T8'}).click();x=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
   if(!x.includes('FAIL-0.1ns')||!x.includes('PASS0.1ns'))throw Error('buffer8 timing wrong '+x);
   await p.screenshot({path:out+'/09-buffer-t8-setup-fail.png',fullPage:true});
-  await p.getByRole('button',{name:'버퍼 유지 / T9'}).click();x=(await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'');
+  await p.getByRole('button',{name:'버퍼 유지 / T9'}).click();x=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
   if(!x.includes('PASS0.9ns')||!x.includes('PASS0.1ns'))throw Error('buffer9 should pass '+x);
   await p.getByRole('button',{name:'입력이 클록 에지에 가까이 변경 (위험 확인)'}).click();
-  x=(await p.locator('.a05-readouts').innerText()).replace(/\\s+/g,'');
+  x=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
   if(!x.includes('unknown/possible metastability'))throw Error('forced deterministic bit under hazard');
   await keyedWrongAndComplete(p,'10-setup-hold');
   await overflow(p);
