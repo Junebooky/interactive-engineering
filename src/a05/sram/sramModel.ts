@@ -18,7 +18,7 @@ export type AccessMode='write'|'read';
 export function access6T(q:Bit, wordline:Bit, bl:Bit, mode:AccessMode){
   const qNext=wordline&&mode==='write'?bl:q;
   return {q:qNext,qBar:(1-qNext) as Bit,connected:wordline===1,
-    readBit:wordline&&mode==='read'?q:null,readDisturbPossible:wordline&&mode==='read'};
+    readBit:wordline===1&&mode==='read'?q:null,readDisturbPossible:wordline===1&&mode==='read'};
 }
 export type CacheRequest='A'|'B'|'C';
 export const REQUESTS:readonly CacheRequest[]=['A','A','B','A','C'];
