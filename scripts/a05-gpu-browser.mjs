@@ -63,6 +63,19 @@ try{
    await page.getByRole('button',{name:'현재 가족 매칭 피드백 듣기'}).click();
    const g6voice=await page.getByTestId('gpu-voice-text').innerText();
    if(!g6voice.includes('GDDR6')||g6voice.includes('GDDR7'))throw Error('GDDR6 voice improperly leaked other independent GDDR7 answer');
+   // A07 R24-01: wrong-first GDDR6 + correct general concept cannot open full WHY for unattempted GDDR7.
+   await answer(page,'셋 모두 DRAM');
+   await page.getByRole('button',{name:'조건별로 확인하기'}).click();
+   if(!await page.getByText('원리와 관찰을 더 연결해 보세요',{exact:false}).count() && await page.getByText('원리와 관찰을 연결했어요!').count())
+     throw Error('R24: wrong single pairing magically passed the four-pair assessment');
+   await page.getByRole('button',{name:'왜? 원리 보기'}).click();
+   const partialWhy=await page.getByTestId('g03-why-panel').innerText();
+   if(/GDDR6\/7.*GPU 보드|GDDR7.*GPU 보드|HBM.*GPU 패키지|DDR.*CPU/.test(partialWhy))throw Error('R24: incomplete WHY leaked unattempted GDDR7/HBM/DDR placement map: '+partialWhy);
+   await page.getByRole('button',{name:'피드백 듣기'}).click();
+   const partialVoice=await page.getByTestId('gpu-voice-text').innerText();
+   if(/GDDR7.*GPU 보드|GDDR6\/7.*GPU 보드|HBM.*GPU 패키지/.test(partialVoice))
+     throw Error('R24: incomplete concept feedback Voice leaked other family map');
+   await page.screenshot({path:out+'/04e-g03-s02-failed-why-masks-unattempted.png',fullPage:true});
    await page.screenshot({path:out+'/04c-wrong-gddr6-only-no-gddr7.png',fullPage:true});
    await page.getByRole('button',{name:'GDDR7',exact:true}).click();
    if(await page.getByTestId('gpu-family-match-feedback').count())throw Error('switch to GDDR7 did not clear old-family grade');
@@ -97,6 +110,9 @@ try{
    await answer(page,'셋 모두 DRAM');
    await page.getByRole('button',{name:'조건별로 확인하기'}).click();
    if(!await page.getByText('원리와 관찰을 연결했어요!').count())throw Error('G03-S02 failed');
+   await page.getByRole('button',{name:'왜? 원리 보기'}).click();
+   const fullWhy=await page.getByTestId('g03-why-panel').innerText();
+   if(!fullWhy.includes('GDDR6/7')||!fullWhy.includes('HBM'))throw Error('R24: full teacher story not available after all 4 pair proofs and correct WHY');
    await page.screenshot({path:out+'/04-memory-families.png',fullPage:true});
    await page.getByRole('button',{name:'다음 질문으로'}).click();
  });
