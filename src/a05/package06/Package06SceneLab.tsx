@@ -99,7 +99,7 @@ export function Package06SceneLab({onEvent,onSpeech}:Package06LabProps){
  function setScreening(screening:Screening){change({...state,screening},screening);}
  function setDensity(density:0|0.005){change({...state,density},density===0?'density0':'density005');}
  function setAssembly(assembly:1|0.95){change({...state,assembly},assembly===1?'assembly1':'assembly095');}
- function topology(v:PackageTopology){change({...state,topology:v,tsv:false},v==='board'?'board':v==='hbm-stack'?'stack':'interposer-silicon');}
+ function topology(v:PackageTopology){change({...state,topology:v,tsv:false},v==='board'?'board':v==='hbm-stack'?'stack':'interposer-enter');}
  function interposerKind(v:InterposerKind){
   if(state.topology!=='interposer'){setSystemMsg('먼저 GPU+HBM interposer 구조를 선택하세요.');return;}
   change({...state,interposer:v},'interposer-'+v);
