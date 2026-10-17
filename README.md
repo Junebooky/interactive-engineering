@@ -1,7 +1,98 @@
-# Interactive Engineering
+# Interactive Engineering (인터랙티브 공학 원리 학습 플랫폼)
 
-Interactive Engineering is a next-generation interactive learning platform for engineering domains (Semiconductor, Electrical & Circuits, Mechanical Systems).
+Interactive Engineering은 Brilliant 수준의 깊은 몰입감과 직접 조작형 물리 시뮬레이션을 제공하는 독자적인 반도체·전기전자·기계공학 학습 플랫폼입니다.
 
-- Target UX: Inspired by [Brilliant.org](https://brilliant.org/home/)
-- Analysis & Specifications: `research/` directory (managed via REA agent analysis)
-- Implementation MVP: Issue #1 (A02 developer, pending A01 approval)
+---
+
+## 🌟 핵심 구현 기능 (MVP P0)
+
+1. **정교한 2.5D SVG/Canvas 공학 그래픽**:
+   - 가볍고 유연한 순수 SVG 및 HTML5 Canvas 기반의 2.5D 그래픽 (무거운 3D 메시 엔진 배제, 60fps 부드러운 반응).
+   - 반도체: 실리콘 기판 단면, 게이트 산화막, $V_{GS}$ 수직 전계 화살표, 전자 반전층 채널, $V_{DS}$ 수평 전계 및 핀치오프(Pinch-off), 실시간 IV 특성 곡선.
+   - 전기전자: 직류 배터리, 인터랙티브 나이프 스위치, 가변 저항, 필라멘트 발광 및 $P=I^2R$ 방사형 글로우, 순환 표류 전자 파티클 애니메이션.
+   - 기계공학: 정밀 인볼류트 치차 기어 트레인, 마우스/터치 직접 드래그 회전, 외접 맞물림 반대 방향 회전 연동, 이산형 잇수 선택기 ($12T, 18T, 24T, 36T$).
+
+2. **개념 발견에서 응용으로 이어지는 스토리텔링 레슨**:
+   - **반도체 대표 완결형 레슨: 'MOSFET에서 논리 0/1과 NOT 게이트로'**:
+     - **1단계**: 왜 전압을 올리면 전도 채널이 생길까? ($V_{GS}$ 슬라이더와 문턱전압 $V_{th}=0.7\text{V}$ 돌파 관찰)
+     - **2단계**: 채널이 생기면 무조건 전류가 흐를까? ($V_{DS}$를 가해 수평 전계와 핀치오프 전류 추진력 관찰)
+     - **3단계**: nMOS가 켜졌다는 건 출력 논리 '1'인가? (풀업 저항 $R_D$와 nMOS 풀다운 스위치로 $V_{in}$ HIGH일 때 $V_{out}$이 접지(0V, LOW)로 떨어지는 반전 체득)
+     - **4단계**: NOT 게이트 진리표 완성 (입력 0 $\to$ 출력 1, 입력 1 $\to$ 출력 0 완성)
+   - **전기전자 완성형 레슨: '옴의 법칙과 전류 제어 ($V = I \times R$)'**:
+     - 닫힌 회로와 전류 루프 $\to$ 저항 조절과 전구 밝기 극대화 $\to$ 12V 전원에서 0.4A 정격 전류를 맞추는 $30\Omega$ 저항 설계 도전
+   - **기계공학 완성형 레슨: '기어 시스템과 동력 전달'**:
+     - 외접 맞물림 회전 방향 반전 관찰 $\to$ 2:1 감속비 잇수($24T$) 선택 $\to$ 3배 토크 증폭($36T$) 메커니즘 설계
+
+3. **중앙 집중형 셸 & 상황별 분할 튜터 (Help Mode)**:
+   - 평상시: 화면 중앙에 문제와 2.5D 시뮬레이터가 집중 배치되는 몰입형 캔버스.
+   - 도움말(`도움말 / 💡 힌트`) 클릭 시: 좌측 '공학 튜터 패널(3단계 점진적 스캐폴딩 힌트)' + 우측 '문제 캔버스'의 2열 분할 모드로 부드럽게 전환 (모바일 세로 스택).
+   - 모든 스텝에 고정 45:55 분할 강제를 지양하고 상황에 따라 최적의 레이아웃 제공.
+
+4. **한국어 Voice Tutor & Web Speech API**:
+   - 브라우저 내장 `window.speechSynthesis` 기반 완전 독립 무료 한국어 음성 튜터.
+   - **브라우저 의존성 안내**: Chrome, Edge, Safari 등 최신 모던 브라우저 환경에서 동작하며, 미지원 환경이나 브라우저 자동 재생 정책에 의해 차단된 경우에도 UI 시각 피드백으로 우아하게 무음 폴백(Graceful Fallback)됩니다.
+   - 공학 수식 및 기호 한국어 정규화 낭독 ($V_{GS} \to$ 게이트 전압, $0.7\text{V} \to$ 0.7 볼트).
+   - 임계값 진입 순간(True crossing) 1회 발화 및 쿨다운 가디언을 적용하여 슬라이더 재조작 시 반복 폭주 방지.
+   - 스텝 전환 및 패널 닫힘 시 즉시 취소(`cancel()`) 불변식 준수.
+   - 음성 음소거/켜기 토글 및 로컬 저장소 영속화 (`ie_voice_enabled`).
+
+5. **조건별 정오답 피드백 및 Why? 심층 원리 해설**:
+   - **조건별 평가 데이터 반환 (`ruleResults`)**: 복수 규칙이 적용된 스텝(예: NOT 게이트 진리표)에서 조건별 통과 여부를 뱃지로 명확히 분리 표시.
+   - **정답 판정 후 조작 무효화**: 정답 판정 후 파라미터를 다시 잘못된 값으로 변경하면 즉시 평가 상태가 무효화(`evaluation: null`)되어 부정 통과 차단.
+   - **설명형 Step 지원**: 시뮬레이터 및 규칙이 없는 순수 개념/설명형 Step(`stepType: 'CONCEPT'`)에서도 안정적인 뷰 렌더링 및 통과 계약 보장.
+   - 오답 시 물리적 원인 진단 피드백 및 파라미터 보존(미세 조정 지원).
+   - 정답 시 [Why? 원리] 심층 해설 다이얼로그 제공.
+
+6. **엄격한 원칙 준수 및 모델 가정**:
+   - 🚫 **게임화 요소 완전 배제**: 점수, XP, 스트릭, 랭킹, 보상 시스템 일체 미구현 (학습 진도 저장 및 스텝 완료 상태만 유지).
+   - ⚡ **교육용 단순화 물리 모델**: 회로 및 반도체는 기초 공학 개념 습득을 위한 이상적 DC 모델(이상 전압원, 닫힌 폐루프, 온저항 분배기)을 적용하였으며, 복잡한 기생 성분이나 발열 온도 계수는 교육적 명확성을 위해 단순화되었습니다.
+   - 📱 **모바일 반응형 최적화**: 터치 타깃 44px 이상, `touch-action: none` 회전 조작, 가로 스크롤 완전 방지.
+   - 💾 **세션 복원력**: `LocalStorage` 기반으로 새로고침해도 마지막 진행 스텝과 시뮬레이터 파라미터 복원.
+   - 🧱 **A05(2.5D 인터랙션 디자이너)·A06(공학 교육 스토리텔러) 협업 대비**: 순수 물리 모델(`simulations/*/*Model.ts`), 2.5D 뷰(`*Scene.tsx`), 스텝 데이터 계약(`content/types.ts`)의 엄격한 관심사 분리.
+
+---
+
+## 🛠️ 기술 스택
+
+- **Frontend**: React 19 + TypeScript + Vite 8
+- **Styling**: Engineering Slate Dark CSS Design System (Vanilla CSS + Modern Layouts)
+- **Audio**: Web Speech API (`SpeechSynthesisUtterance`) + Web Audio API 촉각 효과음
+- **Testing**: Vitest (28개 테스트 전수 통과)
+- **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`)
+
+---
+
+## 📑 통합 계약 및 협업 가이드
+
+- **A05(2.5D 인터랙션 디자이너)·A06(공학 교육 스토리텔러) 통합 가이드**: [docs/integration-contract.md](docs/integration-contract.md)
+  - `LessonStep` 데이터 계약 및 설명형 스텝(CONCEPT) 처리 규격
+  - 2.5D 시뮬레이터 씬(`*Scene.tsx`) Props 인터페이스 및 신규 씬 등록 절차
+  - 다중 조건 평가 데이터(`ruleResults`) 및 Anti-Tampering(정답 후 조작 시 무효화) 보장 규격
+  - 한국어 Voice Tutor 텍스트 정규화 및 마일스톤 발화 규격
+
+---
+
+## 🚀 실행 및 테스트 방법
+
+### 개발 서버 실행
+```bash
+npm install
+npm run dev
+# 브라우저에서 http://localhost:5173/ 접속
+```
+
+### 단위 및 스모크 테스트 실행
+```bash
+npm test
+```
+
+### 정적 코드 분석
+```bash
+npm run lint
+```
+
+### 프로덕션 빌드
+```bash
+npm run build
+```
+
