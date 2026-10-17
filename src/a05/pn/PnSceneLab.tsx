@@ -12,7 +12,7 @@ const STORIES:Record<PnSceneId,Story>={
   title:'실리콘은 금속도 절연체도 아니라는데?',
   hook:'전자가 올라갈 수 있는 에너지 자리를 바꾸면 전하 이동도 달라질까요?',
   question:'금속·실리콘·큰 밴드갭 물질 중 빛·온도로 캐리어를 만들기 쉬운 곳은?',
-  prediction:'밴드갭이 작은 소재와 큰 소재가 왜 다르게 작동할까요?',
+  prediction:'금속처럼 에너지 상태가 이어진 경우·작은 밴드갭·큰 밴드갭 중 상온에서 이동 가능한 캐리어가 생기기 쉬운 구조를 골라 보세요.',
   predictions:[{id:'finite',text:'실리콘은 유한한 에너지 틈이 있어 환경에 따라 달라져요.'},{id:'physical',text:'밴드갭은 웨이퍼를 실제로 파낸 틈이에요.'}],
   prompt:'금속 겹침/Si 1.1eV/절연체 5eV를 비교하고 실리콘의 빛 또는 온도를 바꿔 보세요.',
   answers:[
@@ -30,8 +30,8 @@ const STORIES:Record<PnSceneId,Story>={
  'silicon-donor-acceptor-doping':{
   title:'도핑 원자 하나에 운반자가 바뀐다고요?',
   hook:'실리콘의 네 결합 자리 사이에 5가 P 또는 3가 B를 대신 놓아봐요.',
-  question:'Donor P가 들어간 n형과 Acceptor B가 들어간 p형의 다수 캐리어는?',
-  prediction:'도핑하면 실리콘 덩어리 전체가 플러스·마이너스 배터리가 될까요?',
+  question:'5가 원자와 3가 원자를 섞으면 이동 가능한 캐리어는 어떻게 달라질까요?',
+  prediction:'5가 원자와 3가 원자를 섞을 때 각각 움직이는 전자·정공 중 누가 다수일지 이유를 골라 보세요.',
   predictions:[{id:'neutral',text:'대부분의 벌크는 중성을 유지하며 다수 캐리어 종류가 달라져요.'},{id:'charged',text:'n형 전체가 엄청 큰 음전하 덩어리가 돼요.'}],
   prompt:'Intrinsic, donor P, acceptor B 카드에서 다수 캐리어·고정 도핑 이온·소수 캐리어를 비교하세요.',
   answers:[
@@ -43,14 +43,14 @@ const STORIES:Record<PnSceneId,Story>={
   hints:['P는 대표적 donor, B는 대표적 acceptor입니다.','고정 도핑 이온과 이동 캐리어 전하를 합하면?','다수 캐리어가 존재한다는 말은 소수가 0이라는 뜻일까요?'],
   why:'P donor는 움직일 전자를 제공해 n형, B acceptor는 정공의 다수를 만들 수 있어 p형이라 부릅니다. 하지만 전체 벌크 전하중성은 대부분 유지되고 소수 캐리어가 존재합니다. 10칸 격자는 설명용으로 실제 도핑 농도가 아닙니다.',
   next:'n형과 p형을 맞닿게 하면 왜 공핍층과 전기장이 생길까요?',
-  speech:'도핑 카드를 바꿔 전자와 정공 가운데 어떤 운반자가 다수가 되는지 보세요.',
+  speech:'실리콘에 원자 카드 하나를 넣어 보세요. 이동 가능한 전자와 정공 중 무엇이 더 많아질지 먼저 골라요.',
   assumption:'10격자 아이콘만의 설명, 농도·이온화·이동도 계산 없고 벌크의 전하중성만 표현'
  },
  'pn-diffusion-drift-equilibrium':{
   title:'PN을 붙였는데 왜 계속 전류가 흐르지 않을까요?',
   hook:'두 지역의 전하 운반자가 확산하다가 고정 이온을 남겨요.',
-  question:'그 순간 생긴 내부 전기장은 n(+)에서 p(−) 중 어느 방향일까요?',
-  prediction:'PN 평형에서 drift와 diffusion 전류가 겹치면 순합이?',
+  question:'n쪽·p쪽 접합 후 이동하지 않는 전하와 내부 화살표는 어떻게 될까요?',
+  prediction:'접합 직후 n쪽·p쪽에 남는 고정 이온의 부호와 내부 전기장 방향, 시간이 지난 뒤 순 전류를 예상해 보세요.',
   predictions:[{id:'cancel',text:'두 전류가 상쇄돼 외부 바이어스 없는 평형에서는 순 DC가 0이에요.'},{id:'battery',text:'내장 전기장 때문에 영원히 전기를 꺼내 쓸 수 있어요.'}],
   prompt:'분리 → 접촉·확산 → 평형을 거치고 n+→p− 전계/이온과 확산·drift 흐름 합을 확인해 보세요.',
   answers:[
@@ -62,14 +62,14 @@ const STORIES:Record<PnSceneId,Story>={
   hints:['캐리어가 떠난 자리에는 고정 이온이 남겠죠?','n 쪽 양 이온에서 p 쪽 음 이온으로 E 화살표를 그려요.','+1 toy 확산과 −1 toy 드리프트를 더해 보세요.'],
   why:'접합 직후 농도차에 따른 확산으로 이동 캐리어가 줄어들고 고정 donor(+)·acceptor(−) 이온이 남아 내부 E가 n→p로 생깁니다. 평형에서는 확산/드리프트에 해당하는 전류가 같고 반대여서 순 DC가 0이며, 내장 전압은 외부 단자용 배터리 출력이 아니에요.',
   next:'PN에 양/음 바이어스를 걸면 공핍층 넓이가 어떻게 바뀔까요?',
-  speech:'n형과 p형을 만나게 해 볼까요? 접합 주변에 어떤 변화가 생길지 먼저 예상해 보세요.',
+  speech:'n형과 p형을 만나게 해 볼까요? 전하가 움직이면 접합 주변에 무엇이 남을지 먼저 예상해 보세요.',
   assumption:'내장 전계 n+→p−, 전류 +1/−1은 무차원 설명용 snapshot, 1D 평형·외부 0V'
  },
  'pn-bias-depletion-calculator':{
   title:'전압 방향만 바꿨는데 PN 벽이 달라져요',
   hook:'공핍폭은 스위치 ON/OFF처럼 고정되지 않고 전압에 연속해서 반응해요.',
-  question:'p단자 상대 n단자 Va가 −1V/0V/+0.2V라면 공핍폭이 가장 큰 경우는?',
-  prediction:'역바이어스와 순바이어스 중 어느 쪽 공핍층이 더 넓을까요?',
+  question:'p와 n에 거는 전압을 바꾸면 접합 주변 폭의 순서는 어떻게 될까요?',
+  prediction:'V_A=−1/0/+0.2 V 세 조건에서 공핍층 폭을 큰 것부터 작은 것 순서로 골라 보세요.',
   predictions:[{id:'reverse',text:'−1V 역바이어스가 가장 넓고, +0.2V 순방향이 더 좁아요.'},{id:'forward',text:'순방향 +0.2V에서 오히려 더 넓어져요.'}],
   prompt:'−1V, 0V, +0.2V 순서로 바이어스를 바꾸고 W(µm)·내장전위(V)를 읽으세요. 고농도 카드로 비선형 변화를 살펴볼 수도 있어요.',
   answers:[
@@ -81,14 +81,14 @@ const STORIES:Record<PnSceneId,Story>={
   hints:['역바이어스에서 장벽 Vbi−Va가 커질까요?','W는 (Vbi−Va)의 제곱근이 들어간 식이에요.','Vbi는 장치 안 전위분포이지 충전된 배터리가 아니에요.'],
   why:'이상 Si abrupt PN, 300K, Na=Nd=1e16/cm³, ni=1e10/cm³이면 Vbi≈0.714V. W(−1V)≈0.6659µm, W(0)≈0.4298µm, W(+0.2V)≈0.3647µm. 고농도/강한 주입·breakdown에서는 단순 공핍 근사가 어긋날 수 있어요.',
   next:'공핍폭만 변할까요? 다이오드 전류는 전압에 어떻게 반응할까요?',
-  speech:'p 단자의 전압을 바꾸어 보세요. 역방향과 순방향에서 공핍폭이 어떻게 달라지는지 비교해요.',
+  speech:'p와 n 양쪽에 전압을 반대로 걸어 보세요. 어느 쪽에서 공핍층이 더 넓어질지 먼저 선택해 주세요.',
   assumption:'300K Si 1D abrupt/Na,Nd=1e16/cm³ 기본, ni=1e10/cm³, Va<Vbi, W µm. 실제 실측값 아님'
  },
  'pn-diode-current-to-mos':{
   title:'다이오드는 어떤 전압-전류 곡선을 그릴까요?',
   hook:'0.3V에서 0.4V로 조금 올렸는데 흐름이 몇 배로 커질까요?',
-  question:'0.7V 미만은 전류가 정확히 0이고 MOS도 PN 전류만 쓸까요?',
-  prediction:'+0.3V와 +0.4V의 다이오드 전류는 비슷할까요?',
+  question:'다이오드에서 전압을 조금 바꾸면 전류와 MOS 게이트의 작용은 어떻게 달라질까요?',
+  prediction:'V_A=−1/0/+0.3/+0.4 V에서 전류 부호와 +0.3→+0.4 V 전류 변화를 숫자·곡선으로 먼저 예상해 보세요.',
   predictions:[{id:'exponential',text:'연속적인 지수함수라 전류는 약 6.9배 차이 날 수 있어요.'},{id:'zero',text:'0.7V 아래니까 둘 다 전류 0이에요.'}],
   prompt:'순방향 +0.3/+0.4V, 역방향 −1V, MOS gate 산화막 카드를 비교하세요.',
   answers:[
