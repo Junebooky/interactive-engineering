@@ -74,11 +74,11 @@ try{
      if(await page.locator('.a05-readouts').count())throw Error(stage+': numeric readouts leaked');
      if(!await page.locator('.a05-veiled').count())throw Error(stage+': numeric canvas not veiled');
      const canvas=await page.locator('.a05-canvas-col').innerText();
-     if(/384\\s*GB\\/s|512\\s*GB\\/s/.test(canvas))throw Error(stage+': results leaked in canvas');
+     if(['384 GB/s','512 GB/s'].some(v=>canvas.includes(v)))throw Error(stage+': results leaked in canvas');
      const aria=await page.locator('.a05-canvas-col').locator('[aria-label]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')).join(' '));
-     if(/384\\s*GB\\/s|512\\s*GB\\/s/.test(aria))throw Error(stage+': results leaked in ARIA');
+     if(['384 GB/s','512 GB/s'].some(v=>aria.includes(v)))throw Error(stage+': results leaked in ARIA');
      const body=await page.locator('.a05-result,.a05-model-limit,.a05-why').allInnerTexts();
-     if(body.some(x=>/384\\s*GB\\/s|512\\s*GB\\/s/.test(x)))throw Error(stage+': numeric answer exposed in answer feedback/model assumption');
+     if(body.some(x=>['384 GB/s','512 GB/s'].some(v=>x.includes(v))))throw Error(stage+': numeric answer exposed in answer feedback/model assumption');
    }
    await assertVeiled('pre-numeric-attempt');
    await quiz24.getByRole('button',{name:'192 GB/s'}).click();
@@ -95,7 +95,7 @@ try{
    await assertVeiled('wrong-32-after-feedback');
    await page.getByRole('button',{name:'피드백 듣기'}).click();
    const voice=await page.locator('[data-testid="gpu-voice-text"]').allInnerTexts();
-   if(voice.some(x=>/384\\s*GB\\/s|512\\s*GB\\/s/.test(x)))throw Error('spoken feedback leaked correct numeric values');
+   if(voice.some(x=>['384 GB/s','512 GB/s'].some(v=>x.includes(v))))throw Error('spoken feedback leaked correct numeric values');
    await page.screenshot({path:out+'/05a-wrong-32Gbps-quiz.png',fullPage:true});
    await quiz32.getByRole('button',{name:'512 GB/s'}).click();
    await page.getByRole('button',{name:'PAM3 3레벨'}).click();
