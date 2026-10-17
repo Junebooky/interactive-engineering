@@ -57,7 +57,18 @@ Interactive Engineering은 Brilliant 수준의 깊은 몰입감과 직접 조작
 - **Frontend**: React 19 + TypeScript + Vite 8
 - **Styling**: Engineering Slate Dark CSS Design System (Vanilla CSS + Modern Layouts)
 - **Audio**: Web Speech API (`SpeechSynthesisUtterance`) + Web Audio API 촉각 효과음
-- **Testing**: Vitest (22개 테스트 전수 통과)
+- **Testing**: Vitest (28개 테스트 전수 통과)
+- **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`)
+
+---
+
+## 📑 통합 계약 및 협업 가이드
+
+- **A05(2.5D 인터랙션 디자이너)·A06(공학 교육 스토리텔러) 통합 가이드**: [docs/integration-contract.md](docs/integration-contract.md)
+  - `LessonStep` 데이터 계약 및 설명형 스텝(CONCEPT) 처리 규격
+  - 2.5D 시뮬레이터 씬(`*Scene.tsx`) Props 인터페이스 및 신규 씬 등록 절차
+  - 다중 조건 평가 데이터(`ruleResults`) 및 Anti-Tampering(정답 후 조작 시 무효화) 보장 규격
+  - 한국어 Voice Tutor 텍스트 정규화 및 마일스톤 발화 규격
 
 ---
 
@@ -70,9 +81,14 @@ npm run dev
 # 브라우저에서 http://localhost:5173/ 접속
 ```
 
-### 단위 테스트 실행
+### 단위 및 스모크 테스트 실행
 ```bash
 npm test
+```
+
+### 정적 코드 분석
+```bash
+npm run lint
 ```
 
 ### 프로덕션 빌드
