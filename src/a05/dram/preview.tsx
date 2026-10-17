@@ -3,7 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { DramSceneLab } from './DramSceneLab';
 function DramPreview() {
   const [voiceInfo,setVoiceInfo]=useState('');
+  const [voiceTranscript,setVoiceTranscript]=useState('');
   const speak=(_sceneId:string,text:string)=>{
+    setVoiceTranscript(text);
     const available=typeof window !== 'undefined' &&
       typeof window.speechSynthesis?.speak==='function' &&
       typeof SpeechSynthesisUtterance==='function';
@@ -22,6 +24,7 @@ function DramPreview() {
     }
   };
   return <>
+    {voiceTranscript && <p className="a05-dram-transcript" data-testid="a05-dram-voice-transcript"><strong>요청한 음성 문장:</strong> {voiceTranscript}</p>}
     {voiceInfo && <p role="status" aria-live="polite" className="a05-dram-voice-status">{voiceInfo}</p>}
     <DramSceneLab onSpeech={speak}/>
   </>;
