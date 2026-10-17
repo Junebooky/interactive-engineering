@@ -70,7 +70,7 @@ export const mosfetLesson: Lesson = {
           options: [
             { label: '전자들이 산화막을 뚫고 게이트로 넘어갔어요.', value: 'oxide', misconception: '산화막은 절연체예요. 전기장은 영향을 주지만, 전자가 산화막을 통과하는 모습은 아니에요.' },
             { label: '게이트 아래 실리콘 표면에 전자들이 모였어요.', value: 'surface' },
-            { label: '0.7 V 이하는 실제로 모든 전류가 완벽하게 0이에요.', value: 'zero', misconception: '문턱 아래에도 미세한 전류가 존재할 수 있어요. 이 화면에서만 단순화했어요.' },
+            { label: 'VDS가 있어도 문턱 아래의 드레인 전류는 항상 정확히 0이에요.', value: 'zero', misconception: 'VDS가 걸린 실제 소자에는 문턱 아래 미세 전류가 있을 수 있어요. 하지만 이 장면은 VDS=0이므로 순 DC 전류는 0이 맞아요.' },
             { label: '모든 MOSFET의 문턱은 언제나 0.7 V예요.', value: 'universal', misconception: '문턱 전압은 실제 소자·공정·온도에 따라 달라요. 0.7 V는 이 실험의 가정이에요.' },
           ],
         },
@@ -336,7 +336,7 @@ export const mosfetLesson: Lesson = {
       storyLead: '저항 대신 위에 pMOS를 하나 더 넣었어요. 뭐가 달라질까요? 입력이 0과 1일 때 위아래 소자 중 누가 켜질까요?',
       prompt: '입력 0V에서 위쪽 pMOS 상태를 먼저 예상하고, 입력 토글을 움직여 상보적인 두 스위치의 동작을 관찰한 뒤 CMOS NOT 진리표를 완성하세요.',
       detailExplanation: 'CMOS(Complementary MOS) 인버터는 상단 pMOS 풀업과 하단 nMOS 풀다운을 상보적으로 구동합니다.\n• 입력 0(LOW): pMOS ON, nMOS OFF → 출력 +5V(HIGH, 1)\n• 입력 1(HIGH): pMOS OFF, nMOS ON → 출력 0V(LOW, 0)\n정지 상태에서 전원(VDD)에서 접지(GND)로의 직류 관통 경로가 차단되므로 정적 전력 소모를 극적으로 줄입니다.',
-      whyExplanation: 'CMOS는 pMOS 풀업과 nMOS 풀다운을 상보적으로 구동해 안정 상태에서 직접 VDD→GND 관통 경로를 억제해요. 실제 회로에는 누설 및 스위칭 전력이 존재합니다. 이는 이전의 저항형 nMOS 회로와 다른 토폴로지예요.',
+      whyExplanation: 'CMOS는 pMOS 풀업과 nMOS 풀다운을 상보적으로 구동해 안정 상태에서 직접 VDD→GND 관통 경로를 억제해요. 실제 회로에는 누설 및 스위칭 전력이 존재합니다. 이는 이전의 저항형 nMOS 회로와 다른 토폴로지예요. 다음 질문: CMOS 인버터 두 개를 되먹임하면 SRAM이 돼요. 커패시터 하나에 저장하는 DRAM과 무엇이 다를까요?',
       simulatorType: 'cmos-not-gate',
       initialParams: {
         vin: 0.0,
@@ -397,7 +397,7 @@ export const mosfetLesson: Lesson = {
           voiceIfFail: '입력이 1일 때 nMOS가 켜지므로 출력은 0이 됩니다.',
         },
       ],
-      successMessage: '대성공! 상보형 pMOS와 nMOS로 구동되는 완벽한 CMOS NOT 게이트 진리표를 완성했습니다. 다음 단계에서는 이 0과 1 비트를 기억하는 DRAM으로 연결됩니다!',
+      successMessage: '대성공! 상보형 pMOS와 nMOS로 구동되는 완벽한 CMOS NOT 게이트 진리표를 완성했습니다. CMOS 인버터 두 개를 되먹임하면 SRAM이 돼요. 커패시터 하나에 저장하는 DRAM과 무엇이 다를까요?',
       successVoice: '대성공! 입력과 출력이 반전되는 완벽한 시모스 낫 게이트 진리표를 완성했습니다.',
       voice: {
         intro: '이번에는 위쪽에 pMOS가 있어요. 입력을 바꾸면서 두 소자가 어떻게 번갈아 움직이는지 보세요.',
