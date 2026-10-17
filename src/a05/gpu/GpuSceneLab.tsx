@@ -183,7 +183,7 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
               </div>
               <button type="button" className="a05-primary" onClick={gradeMatch}>선택한 짝 검사하기</button>
               {matching&&<p className="a05-note" role="status">{matching}</p>}
-              <p className="a05-note">GDDR6·GDDR7 모두 GPU 보드가 적절한 예시입니다. 실제 GPU의 메모리 지원은 제품마다 다릅니다.</p>
+              <p className="a05-note">먼저 가족과 위치를 각자 고른 다음 짝을 검사하세요. 정답 위치는 이 가족을 검사한 뒤에만 확인할 수 있습니다. 실제 메모리 지원은 제품마다 다릅니다.</p>
             </div>}
             {sceneId==='gddr-width-rate'&&<div className="a05-gpu-controls">
               <strong>핀당 전송률 / 이론 상한</strong><div className="a05-control-buttons">
@@ -237,8 +237,8 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
       </section>
       <section className="a05-canvas-col" aria-label="2.5D GPU 메모리 인터랙티브 시각화">
         <div className="a05-canvas-header"><span>LIVE GPU 2.5D · G03</span><span>{sceneRevealed?'관찰':'정답 계산 전 — 수치 은닉'}</span></div>
-        <GpuSceneVisual sceneId={sceneId} state={state} revealed={sceneRevealed}/>
-        <div className="a05-model-limit"><strong>모형 범위</strong> {story.assumptions}</div>
+        <GpuSceneVisual sceneId={sceneId} state={state} revealed={sceneRevealed} familyMatchChecked={matching!==null}/>
+        <div className="a05-model-limit"><strong>모형 범위</strong> {sceneId==='memory-family-roles'&&matching===null?'대표적인 CPU·GPU 메모리 배치를 단순화한 교육용 모형입니다. 선택한 가족을 검사한 후 예시 위치를 확인하세요.':story.assumptions}</div>
         <div className="a05-source">A06 PR #7 G03 스토리보드 / A05 직접 구현 / 공인 제품 수치 아님</div>
       </section>
     </main>
