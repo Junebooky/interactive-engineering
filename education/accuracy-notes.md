@@ -97,3 +97,22 @@ CheckedAt: 2026-10-17 (KST) · Content version 0.1 · 기준 PR #5 head: 766339b
 - Facility energy: IT 1MW, assumed steady facility PUE 1.4 => facility **1.4MW**, overhead 0.4MW. PUE standard reporting uses appropriately bounded energy/time.
 
 **Scientific QA limits:** Formal JEDEC/CXL licensed documents not read in full, marketed product speedups not accepted as universal, no device measurement/browser end-to-end execution by A06. Real board rank/population, DDR5 ECC fault coverage, SSD PLP/FUA contracts, CXL implementation, PUE annual measurements require dedicated verification.
+
+
+## Round 04 source ledger · core semiconductor and intro electronics (checkedAt 2026-10-17)
+| ref | URL | role / status | limits / claims allowed |
+|---|---|---|---|
+| PN-A | https://ocw.mit.edu/courses/3-024-electronic-optical-and-magnetic-properties-of-materials-spring-2013/833afa926e598523708318bdf7d6a4ed_MIT3_024S13_2012lec18.pdf | MIT academic 2013 lecture18 pp4/5/7 **visually checked** | PN depletion approximation, Vbi and bias, not commercial Si device parameter |
+| PN-B | https://openstax.org/books/university-physics-volume-3/pages/9-7-semiconductor-devices | open university text checked | diode qualitative drift/diffusion; leakage idealization |
+| PN-C | https://openstax.org/books/university-physics-volume-3/pages/9-6-semiconductors-and-doping | open university text checked | donor/acceptor/holes; contains inconsistent p-type majority sentence: **p majority is holes**, verified MIT |
+| EL1/2 | https://openstax.org/books/college-physics/pages/20-2-ohms-law-resistance-and-simple-circuits ; https://openstax.org/books/university-physics-volume-2/pages/9-5-electrical-energy-and-power | official open textbook | I=V/R for ohmic; P=VI, W=J/s |
+| EL3/4 | https://openstax.org/books/university-physics-volume-2/pages/10-key-equations ; https://openstax.org/books/university-physics-volume-2/pages/10-5-rc-circuits | open textbook | Kirchhoff, τ=RC, e^-t/τ, 0.632/0.368 fractions |
+| EL5 | https://openstax.org/books/university-physics-volume-2/pages/8-3-energy-stored-in-a-capacitor | open textbook | Ecap=½CV²; source energy ≠ stored |
+| MOS-START | https://ocw.mit.edu/courses/6-012-microelectronic-devices-and-circuits-fall-2009/pages/lecture-notes/ | official course topic index only | MOS accumulation/depletion/inversion; deeper material and threshold numeric still RESEARCHING |
+| STD-UCIe | https://www.uciexpress.org/specifications | UCIe consortium official | **UCIe 3.0** Aug2025 48/64GT/s; actual interop/chip SKU not verified |
+| STD-PCIe | https://pcisig.com/specifications/pcie-70-specification-version-03-now-available-members | PCI-SIG official | **PCIe7.0** June2025 raw 128GT/s; app payload, platform SKU not implied |
+| IMEC-RD | https://www.imec-int.com/en/articles/advancing-cfet-based-device-roadmap-novel-integration-modules-and-standard-cell | research organization 2026 | GAA/CFET R&D roadmap; future R&D path ≠ commercial mass-product availability |
+
+**PN unit/failure checks**: 300K, VT=0.025852V, NA=ND=1e16 cm^-3 ni=1e10 cm^-3 illustrative => Vbi0.7143V, W(VA=-1/0/+0.2)=0.6659/0.4298/0.3647µm. Is=1pA n=2 toy I(0.3)=0.330nA I(0.4)=2.289nA. Vbi is not freely available battery output, reverse nonzero leakage, n/p bulk neutral, p majority holes. **12 RC**: τ1kΩ×10µF=10ms; Vcharge(τ)=3.16V/Vdischarge(τ)=1.84V at5V, resistor series/parallel5V→2.5/10mA; Ecap10µF@5V=125µJ; source P=5V×10mA=50mW, 10s→0.5J. All toy with omissions detailed in [11 PN note](deep-dives/11-pn-foundations.md)/[12 RC note](deep-dives/12-electricity-rc-foundations.md).
+
+**All broader 115 topic graph entries are curriculum coverage, NOT independently source-validated facts.** Full standard text/actual MOS/diode leakage/DDR SKU and user device QA unresolved.
