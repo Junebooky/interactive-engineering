@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {Nand04SceneVisual} from './Nand04SceneVisual';
-import {gradeNand04,nand04Fresh,nand04SceneOrder} from './nand04Model';
-import type {Nand04Event,Nand04EventType,Nand04Grade,Nand04SceneId,Nand04State} from './nand04Model';
+import {gradeNand04,nand04Advance,nand04Fresh,nand04SceneOrder} from './nand04Model';
+import type {Nand04Event,Nand04EventType,Nand04Grade,Nand04SceneId,Nand04State,Nand04TxnAction} from './nand04Model';
 import '../a05Scenes.css';import './nand04.css';
 type Choice={id:string;text:string;feedback?:string};
 type Story={title:string;hook:string;question:string;prediction:string;predictions:Choice[];
@@ -112,6 +112,7 @@ export function Nand04SceneLab({onEvent,onSpeech}:Nand04LabProps){
  const [seen,setSeen]=useState<string[]>([]),[hint,setHint]=useState(0);
  const [feedback,setFeedback]=useState<Nand04Grade|null>(null),[why,setWhy]=useState(false);
  const [visited,setVisited]=useState(false);
+ const [sequenceMessage,setSequenceMessage]=useState('');
  const reveal=prediction!==null;
  const emit=(type:Nand04EventType,payload?:Record<string,unknown>)=>onEvent?.({sceneId:id,type,payload});
  function observe(tag:string){setSeen(xs=>xs.includes(tag)?xs:[...xs,tag]);}
@@ -119,10 +120,27 @@ export function Nand04SceneLab({onEvent,onSpeech}:Nand04LabProps){
   setState(next);observe(tag);setVisited(true);setFeedback(null);setWhy(false);
   emit('parameter.changed',{tag});
  }
+ /** A07 P1: reject physically impossible transitions BEFORE changing SVG/model or grade evidence. */
+ function sequence(action:Nand04TxnAction){
+  const page=id==='nand-page-block',kind=page?'page':'transport';
+  const history=page?state.pageHistory:state.transportHistory;
+  const outcome=nand04Advance(kind,history,action);
+  setSequenceMessage(outcome.code+': '+outcome.explanation);
+  setFeedback(null);setWhy(false);
+  if(!outcome.accepted){emit('parameter.changed',{action,accepted:false,code:outcome.code,episode:state.episode,history:[...history]});return;}
+  const episode=state.episode+(outcome.reset?1:0);
+  setState(prev=>({...prev,pageStage:page?(outcome.phase==='updated'||outcome.phase==='collected'?outcome.phase:'initial'):prev.pageStage,
+   transport:!page?(outcome.phase==='read-data'||outcome.phase==='to-gpu'?outcome.phase:'command'):prev.transport,
+   pageHistory:page?outcome.history:prev.pageHistory,transportHistory:page?prev.transportHistory:outcome.history,
+   episode,lastCode:outcome.code}));
+  setSeen(outcome.history);setVisited(outcome.history.length>0);
+  setAnswer(null);
+  emit('parameter.changed',{action,accepted:true,code:outcome.code,episode,history:[...outcome.history],phase:outcome.phase,reset:outcome.reset});
+ }
  function enter(i:number){
   if(i<0||i>=nand04SceneOrder.length)return;
   setIndex(i);setState(nand04Fresh());setPrediction(null);setAnswer(null);setSeen([]);setHint(0);
-  setFeedback(null);setWhy(false);setVisited(false);onEvent?.({sceneId:nand04SceneOrder[i],type:'scene.enter'});
+  setFeedback(null);setWhy(false);setVisited(false);setSequenceMessage('');onEvent?.({sceneId:nand04SceneOrder[i],type:'scene.enter'});
  }
  function correct(){
   const result=gradeNand04(id,seen,answer);
@@ -164,9 +182,10 @@ export function Nand04SceneLab({onEvent,onSpeech}:Nand04LabProps){
       </div></div>}
      {id==='nand-page-block'&&<div className="a05-nand04-controls">
       <strong>장난감 LBA7 A → B / 두 블록</strong><div className="a05-control-buttons">
-       {ctl('초기 A 저장',()=>change({...state,pageStage:'initial'},'initial'),state.pageStage==='initial')}
-       {ctl('같은 LBA 수정 B',()=>change({...state,pageStage:'updated'},'updated'),state.pageStage==='updated')}
-       {ctl('GC · 무효 블록 지우기',()=>change({...state,pageStage:'collected'},'collected'),state.pageStage==='collected')}
+       {ctl('초기 A 저장',()=>sequence('initial'),state.pageHistory.length===1)}
+       {ctl('같은 LBA 수정 B',()=>sequence('updated'),state.pageHistory.length===2)}
+       {ctl('GC · 무효 블록 지우기',()=>sequence('collected'),state.pageHistory.length===3)}
+       {ctl('RESET · 새 페이지 실험',()=>sequence('reset'),false)}
       </div></div>}
      {id==='ssd-ftl-reliability'&&<div className="a05-nand04-controls">
       <strong>쓰기가 잦은 주소와 드문 주소 비교</strong><div className="a05-control-buttons">
@@ -179,10 +198,13 @@ export function Nand04SceneLab({onEvent,onSpeech}:Nand04LabProps){
       </div></div>}
      {id==='nvme-transfer'&&<div className="a05-nand04-controls">
       <strong>요청/읽기 payload/이후 GPU 이동 분리</strong><div className="a05-control-buttons">
-       {ctl('NVMe READ 명령',()=>change({...state,transport:'command'},'command'),state.transport==='command')}
-       {ctl('PCIe DMA payload',()=>change({...state,transport:'read-data'},'read-data'),state.transport==='read-data')}
-       {ctl('DDR → GPU 별도 이동',()=>change({...state,transport:'to-gpu'},'to-gpu'),state.transport==='to-gpu')}
+       {ctl('NVMe READ 명령',()=>sequence('command'),state.transportHistory.length===1)}
+       {ctl('PCIe DMA payload',()=>sequence('read-data'),state.transportHistory.length===2)}
+       {ctl('DDR → GPU 별도 이동',()=>sequence('to-gpu'),state.transportHistory.length===3)}
+       {ctl('RESET · 새 NVMe READ',()=>sequence('reset'),false)}
       </div></div>}
+     {(id==='nand-page-block'||id==='nvme-transfer')&&sequenceMessage&&<p className="a05-note" role="status" data-testid="nand04-transaction-result" aria-live="polite">{sequenceMessage}</p>}
+     {(id==='nand-page-block'||id==='nvme-transfer')&&sequenceMessage&&<button type="button" onClick={()=>speak(sequenceMessage)}>전이 결과 듣기</button>}
      {id==='ai-datacenter-pipeline'&&<div className="a05-nand04-controls">
       <strong>모델 로딩/상주 추론/체크포인트</strong><div className="a05-control-buttons">
        {ctl('처음 모델 로딩',()=>change({...state,ai:'cold-load'},'cold-load'),state.ai==='cold-load')}
