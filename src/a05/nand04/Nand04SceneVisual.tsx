@@ -17,8 +17,8 @@ export function Nand04SceneVisual({sceneId,state,revealed}:{sceneId:Nand04SceneI
   <div className="a05-veiled-object" aria-hidden="true"><span/></div><p>직접 예상한 뒤 전하·페이지·전송 경로를 실험으로 열어보세요.</p>
  </div>;
  const threshold=nand04Threshold(state.cell,state.readV,state.power);
- const page=nand04Pages(state.pageStage),ssd=nand04Ssd(state.writePattern,state.ecc,state.plp,state.dramCache);
- const xfer=nand04Transport(state.transport),ai=nand04Ai(state.ai,state.servers);
+ const page=nand04Pages(state.pageStage,state.pageHistory),ssd=nand04Ssd(state.writePattern,state.ecc,state.plp,state.dramCache);
+ const xfer=nand04Transport(state.transport,state.transportHistory),ai=nand04Ai(state.ai,state.servers);
  return <div className="a05-visual a05-nand04-visual">
   <svg role="img" viewBox="0 0 680 400" aria-label={
    sceneId==='nand-threshold'?'NAND 저장 전하에 따른 읽기 문턱, 전원 ON/OFF 도식':
@@ -89,14 +89,14 @@ export function Nand04SceneVisual({sceneId,state,revealed}:{sceneId:Nand04SceneI
     <span>읽기 V<b>{state.readV} V</b></span><span>센싱<b>{threshold.reading}</b></span>
    </>:sceneId==='nand-page-block'?<>
     <span>논리 주소<b>LBA7</b></span><span>물리 매핑<b>{page.mapping.LBA7}</b></span>
-    <span>블록 erase<b>{page.erasedBlock0?'BLOCK 0 후 정리':'보존 중'}</b></span>
+    <span>블록 erase<b>{page.erasedBlock0?'BLOCK 0 후 정리':'보존 중'}</b></span><span>원인 트랜잭션<b>{state.pageHistory.join(' → ')||'미시작'}</b></span>
     <span>유효 페이지<b>{page.pages.filter(p=>p.status==='valid').length}</b></span>
    </>:sceneId==='ssd-ftl-reliability'?<>
     <span>FTL 상태<b>{ssd.physical}</b></span><span>ECC<b>{state.ecc?'선택 (한계 존재)':'미선택'}</b></span>
     <span>PLP<b>{state.plp?'있는 제품 예':'없는 제품 예'}</b></span><span>DRAM 캐시<b>{state.dramCache?'있음':'DRAMless'}</b></span>
    </>:sceneId==='nvme-transfer'?<>
     <span>화살표 종류<b>{xfer.kind}</b></span><span>시작<b>{xfer.from}</b></span>
-    <span>연결<b>{xfer.via}</b></span><span>도착<b>{xfer.to}</b></span>
+    <span>연결<b>{xfer.via}</b></span><span>도착<b>{xfer.to}</b></span><span>READ 순서<b>{state.transportHistory.join(' → ')||'미시작'}</b></span>
    </>:<>
     <span>시나리오<b>{state.ai}</b></span><span>시작 상태<b>{ai.source}</b></span>
     <span>서버<b>{state.servers}대</b></span><span>병목 예<b>{ai.bottleneck}</b></span>
