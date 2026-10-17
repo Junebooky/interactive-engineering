@@ -1,7 +1,78 @@
-# Interactive Engineering
+# Interactive Engineering (인터랙티브 공학 원리 학습 플랫폼)
 
-Interactive Engineering is a next-generation interactive learning platform for engineering domains (Semiconductor, Electrical & Circuits, Mechanical Systems).
+Interactive Engineering은 Brilliant 수준의 깊은 몰입감과 직접 조작형 물리 시뮬레이션을 제공하는 독자적인 반도체·전기전자·기계공학 학습 플랫폼입니다.
 
-- Target UX: Inspired by [Brilliant.org](https://brilliant.org/home/)
-- Analysis & Specifications: `research/` directory (managed via REA agent analysis)
-- Implementation MVP: Issue #1 (A02 developer, pending A01 approval)
+---
+
+## 🌟 핵심 구현 기능 (MVP P0)
+
+1. **정교한 2.5D SVG/Canvas 공학 그래픽**:
+   - 가볍고 유연한 순수 SVG 및 HTML5 Canvas 기반의 2.5D 그래픽 (무거운 3D 메시 엔진 배제, 60fps 부드러운 반응).
+   - 반도체: 실리콘 기판 단면, 게이트 산화막, $V_{GS}$ 수직 전계 화살표, 전자 반전층 채널, $V_{DS}$ 수평 전계 및 핀치오프(Pinch-off), 실시간 IV 특성 곡선.
+   - 전기전자: 직류 배터리, 인터랙티브 나이프 스위치, 가변 저항, 필라멘트 발광 및 $P=I^2R$ 방사형 글로우, 순환 표류 전자 파티클 애니메이션.
+   - 기계공학: 정밀 인볼류트 치차 기어 트레인, 마우스/터치 직접 드래그 회전, 외접 맞물림 반대 방향 회전 연동, 이산형 잇수 선택기 ($12T, 18T, 24T, 36T$).
+
+2. **개념 발견에서 응용으로 이어지는 스토리텔링 레슨**:
+   - **반도체 대표 완결형 레슨: 'MOSFET에서 논리 0/1과 NOT 게이트로'**:
+     - **1단계**: 왜 전압을 올리면 전도 채널이 생길까? ($V_{GS}$ 슬라이더와 문턱전압 $V_{th}=0.7\text{V}$ 돌파 관찰)
+     - **2단계**: 채널이 생기면 무조건 전류가 흐를까? ($V_{DS}$를 가해 수평 전계와 핀치오프 전류 추진력 관찰)
+     - **3단계**: nMOS가 켜졌다는 건 출력 논리 '1'인가? (풀업 저항 $R_D$와 nMOS 풀다운 스위치로 $V_{in}$ HIGH일 때 $V_{out}$이 접지(0V, LOW)로 떨어지는 반전 체득)
+     - **4단계**: NOT 게이트 진리표 완성 (입력 0 $\to$ 출력 1, 입력 1 $\to$ 출력 0 완성)
+   - **전기전자 완성형 레슨: '옴의 법칙과 전류 제어 ($V = I \times R$)'**:
+     - 닫힌 회로와 전류 루프 $\to$ 저항 조절과 전구 밝기 극대화 $\to$ 12V 전원에서 0.4A 정격 전류를 맞추는 $30\Omega$ 저항 설계 도전
+   - **기계공학 완성형 레슨: '기어 시스템과 동력 전달'**:
+     - 외접 맞물림 회전 방향 반전 관찰 $\to$ 2:1 감속비 잇수($24T$) 선택 $\to$ 3배 토크 증폭($36T$) 메커니즘 설계
+
+3. **중앙 집중형 셸 & 상황별 분할 튜터 (Help Mode)**:
+   - 평상시: 화면 중앙에 문제와 2.5D 시뮬레이터가 집중 배치되는 몰입형 캔버스.
+   - 도움말(`도움말 / 💡 힌트`) 클릭 시: 좌측 '공학 튜터 패널(3단계 점진적 스캐폴딩 힌트)' + 우측 '문제 캔버스'의 2열 분할 모드로 부드럽게 전환 (모바일 세로 스택).
+   - 모든 스텝에 고정 45:55 분할 강제를 지양하고 상황에 따라 최적의 레이아웃 제공.
+
+4. **한국어 Voice Tutor & Web Speech API**:
+   - 브라우저 내장 `window.speechSynthesis` 기반 완전 독립 무료 한국어 음성 튜터.
+   - 공학 수식 및 기호 한국어 정규화 낭독 ($V_{GS} \to$ 게이트 전압, $0.7\text{V} \to$ 0.7 볼트).
+   - 마일스톤 쿨다운(최소 4초) 가디언을 적용하여 슬라이더 조작 중 음성 폭주 방지.
+   - 스텝 전환 및 패널 닫힘 시 즉시 취소(`cancel()`) 불변식 준수.
+   - 음성 음소거/켜기 토글 및 로컬 저장소 영속화 (`ie_voice_enabled`).
+
+5. **조건별 정오답 피드백 및 Why? 심층 원리 해설**:
+   - 오답 시 단순 실패가 아닌, "문턱 전압 0.7V보다 낮아 전자가 모이지 않았습니다", "저항이 너무 큽니다" 등 물리적 원인 진단.
+   - 오답 제출 시 입력 파라미터를 강제 리셋하지 않고 미세 조정할 수 있는 사용자 배려.
+   - 정답 시 녹색 바운스 애니메이션과 함께 [Why? 원리] 심층 해설 다이얼로그 제공.
+
+6. **엄격한 원칙 준수**:
+   - 🚫 **게임화 요소 완전 배제**: 점수, XP, 스트릭, 랭킹, 보상 시스템 일체 미구현 (학습 진도 저장 및 스텝 완료 상태만 유지).
+   - 📱 **모바일 반응형 최적화**: 터치 타깃 44px 이상, `touch-action: none` 회전 조작, 가로 스크롤 완전 방지.
+   - 💾 **세션 복원력**: `LocalStorage` 기반으로 새로고침해도 마지막 진행 스텝과 시뮬레이터 파라미터 복원.
+   - 🧱 **A05 PRISM 모듈화 대비**: 순수 물리 모델(`simulations/*/*Model.ts`), 2.5D 뷰(`*Scene.tsx`), 스텝 데이터 계약(`content/types.ts`)의 엄격한 관심사 분리.
+
+---
+
+## 🛠️ 기술 스택
+
+- **Frontend**: React 19 + TypeScript + Vite 8
+- **Styling**: Engineering Slate Dark CSS Design System (Vanilla CSS + Modern Layouts)
+- **Audio**: Web Speech API (`SpeechSynthesisUtterance`) + Web Audio API 촉각 효과음
+- **Testing**: Vitest (18개 테스트 전수 통과)
+
+---
+
+## 🚀 실행 및 테스트 방법
+
+### 개발 서버 실행
+```bash
+npm install
+npm run dev
+# 브라우저에서 http://localhost:5173/ 접속
+```
+
+### 단위 테스트 실행
+```bash
+npm test
+```
+
+### 프로덕션 빌드
+```bash
+npm run build
+```
+

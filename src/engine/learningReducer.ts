@@ -1,0 +1,240 @@
+import type { Lesson, LearningState, StepEvaluation } from '../types';
+
+export interface LearningEngineState {
+  courseId: string;
+  lesson: Lesson | null;
+  currentStepIndex: number;
+  fsmState: LearningState;
+  currentParams: Record<string, any>;
+  evaluation: StepEvaluation | null;
+  isHelpOpen: boolean;
+  activeHintLevel: 1 | 2 | 3;
+  completedStepIds: string[];
+  isDirty: boolean; // has user modified parameters from initial state
+  showWhyModal: boolean;
+}
+
+export type LearningAction =
+  | { type: 'INIT_LESSON'; payload: { courseId: string; lesson: Lesson; restoredStepIndex?: number; restoredParams?: Record<string, any>; completedStepIds?: string[] } }
+  | { type: 'LOAD_STEP'; payload: { stepIndex: number } }
+  | { type: 'START_INTERACTION' }
+  | { type: 'UPDATE_PARAM'; payload: { key: string; value: any } }
+  | { type: 'END_INTERACTION' }
+  | { type: 'SUBMIT_CHECK' }
+  | { type: 'EVAL_RESULT'; payload: StepEvaluation }
+  | { type: 'RETRY' }
+  | { type: 'OPEN_HINT'; payload?: { level?: 1 | 2 | 3 } }
+  | { type: 'CLOSE_HINT' }
+  | { type: 'OPEN_WHY_MODAL' }
+  | { type: 'CLOSE_WHY_MODAL' }
+  | { type: 'NEXT_STEP' }
+  | { type: 'GOTO_STEP'; payload: { stepIndex: number } }
+  | { type: 'RESET_CURRENT_STEP' };
+
+export const initialEngineState: LearningEngineState = {
+  courseId: '',
+  lesson: null,
+  currentStepIndex: 0,
+  fsmState: 'IDLE',
+  currentParams: {},
+  evaluation: null,
+  isHelpOpen: false,
+  activeHintLevel: 1,
+  completedStepIds: [],
+  isDirty: false,
+  showWhyModal: false,
+};
+
+export function learningReducer(
+  state: LearningEngineState,
+  action: LearningAction
+): LearningEngineState {
+  switch (action.type) {
+    case 'INIT_LESSON': {
+      const { courseId, lesson, restoredStepIndex = 0, restoredParams, completedStepIds = [] } = action.payload;
+      const initialStep = lesson.steps[restoredStepIndex] || lesson.steps[0];
+      const params = restoredParams || { ...initialStep.initialParams };
+
+      return {
+        ...state,
+        courseId,
+        lesson,
+        currentStepIndex: restoredStepIndex,
+        fsmState: 'STEP_INTRO',
+        currentParams: params,
+        evaluation: null,
+        isHelpOpen: false,
+        activeHintLevel: 1,
+        completedStepIds,
+        isDirty: false,
+        showWhyModal: false,
+      };
+    }
+
+    case 'LOAD_STEP': {
+      if (!state.lesson) return state;
+      const targetIndex = action.payload.stepIndex;
+      const step = state.lesson.steps[targetIndex];
+      if (!step) return state;
+
+      return {
+        ...state,
+        currentStepIndex: targetIndex,
+        fsmState: 'STEP_INTRO',
+        currentParams: { ...step.initialParams },
+        evaluation: null,
+        isHelpOpen: false,
+        activeHintLevel: 1,
+        isDirty: false,
+        showWhyModal: false,
+      };
+    }
+
+    case 'START_INTERACTION': {
+      return {
+        ...state,
+        fsmState: 'INTERACTING',
+      };
+    }
+
+    case 'UPDATE_PARAM': {
+      const nextParams = {
+        ...state.currentParams,
+        [action.payload.key]: action.payload.value,
+      };
+      return {
+        ...state,
+        fsmState: state.fsmState === 'EVALUATED_INCORRECT' ? 'INTERACTING' : state.fsmState,
+        currentParams: nextParams,
+        isDirty: true,
+      };
+    }
+
+    case 'END_INTERACTION': {
+      return {
+        ...state,
+        fsmState: 'AWAITING_VALIDATION',
+      };
+    }
+
+    case 'SUBMIT_CHECK': {
+      return {
+        ...state,
+        fsmState: 'EVALUATING',
+      };
+    }
+
+    case 'EVAL_RESULT': {
+      const isPassed = action.payload.passed;
+      let nextCompleted = state.completedStepIds;
+      if (isPassed && state.lesson) {
+        const stepId = state.lesson.steps[state.currentStepIndex]?.id;
+        if (stepId && !nextCompleted.includes(stepId)) {
+          nextCompleted = [...nextCompleted, stepId];
+        }
+      }
+
+      return {
+        ...state,
+        fsmState: isPassed ? 'EVALUATED_CORRECT' : 'EVALUATED_INCORRECT',
+        evaluation: action.payload,
+        completedStepIds: nextCompleted,
+      };
+    }
+
+    case 'RETRY': {
+      return {
+        ...state,
+        fsmState: 'AWAITING_VALIDATION',
+        evaluation: null,
+      };
+    }
+
+    case 'OPEN_HINT': {
+      return {
+        ...state,
+        isHelpOpen: true,
+        activeHintLevel: action.payload?.level || state.activeHintLevel,
+      };
+    }
+
+    case 'CLOSE_HINT': {
+      return {
+        ...state,
+        isHelpOpen: false,
+      };
+    }
+
+    case 'OPEN_WHY_MODAL': {
+      return {
+        ...state,
+        showWhyModal: true,
+      };
+    }
+
+    case 'CLOSE_WHY_MODAL': {
+      return {
+        ...state,
+        showWhyModal: false,
+      };
+    }
+
+    case 'NEXT_STEP': {
+      if (!state.lesson) return state;
+      const nextIndex = state.currentStepIndex + 1;
+      if (nextIndex >= state.lesson.steps.length) {
+        return {
+          ...state,
+          fsmState: 'LESSON_FINISHED',
+          showWhyModal: false,
+        };
+      }
+      const nextStep = state.lesson.steps[nextIndex];
+      return {
+        ...state,
+        currentStepIndex: nextIndex,
+        fsmState: 'STEP_INTRO',
+        currentParams: { ...nextStep.initialParams },
+        evaluation: null,
+        isHelpOpen: false,
+        activeHintLevel: 1,
+        isDirty: false,
+        showWhyModal: false,
+      };
+    }
+
+    case 'GOTO_STEP': {
+      if (!state.lesson) return state;
+      const targetIndex = action.payload.stepIndex;
+      if (targetIndex < 0 || targetIndex >= state.lesson.steps.length) return state;
+      const targetStep = state.lesson.steps[targetIndex];
+
+      return {
+        ...state,
+        currentStepIndex: targetIndex,
+        fsmState: 'STEP_INTRO',
+        currentParams: { ...targetStep.initialParams },
+        evaluation: null,
+        isHelpOpen: false,
+        activeHintLevel: 1,
+        isDirty: false,
+        showWhyModal: false,
+      };
+    }
+
+    case 'RESET_CURRENT_STEP': {
+      if (!state.lesson) return state;
+      const currentStep = state.lesson.steps[state.currentStepIndex];
+      return {
+        ...state,
+        currentParams: { ...currentStep.initialParams },
+        fsmState: 'STEP_INTRO',
+        evaluation: null,
+        isDirty: false,
+      };
+    }
+
+    default:
+      return state;
+  }
+}
