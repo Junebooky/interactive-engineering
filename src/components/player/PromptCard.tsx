@@ -90,14 +90,39 @@ export const PromptCard: React.FC = () => {
             }
 
             if (ctrl.type === 'toggle') {
-              const checked = Boolean(currentParams[ctrl.id]);
+              const offOption = ctrl.options?.[0];
+              const onOption = ctrl.options?.[1];
+
+              const currentVal = currentParams[ctrl.id];
+              const isMatch = (val: any, target: any) => {
+                if (val === target) return true;
+                if (typeof target === 'number') return Number(val) === Number(target);
+                if (typeof target === 'boolean') return Boolean(val) === Boolean(target);
+                return false;
+              };
+
+              const checked = onOption !== undefined
+                ? isMatch(currentVal, onOption.value)
+                : Boolean(currentVal);
+
+              const handleToggle = (nextChecked: boolean) => {
+                if (ctrl.options && ctrl.options.length >= 2) {
+                  const targetOption = nextChecked ? onOption : offOption;
+                  updateParam(ctrl.id, targetOption?.value ?? nextChecked);
+                } else {
+                  updateParam(ctrl.id, nextChecked);
+                }
+              };
+
               return (
                 <SwitchToggle
                   key={ctrl.id}
                   id={ctrl.id}
                   label={ctrl.label}
                   checked={checked}
-                  onToggle={(newVal) => updateParam(ctrl.id, newVal)}
+                  onText={onOption?.label}
+                  offText={offOption?.label}
+                  onToggle={handleToggle}
                 />
               );
             }

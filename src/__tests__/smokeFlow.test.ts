@@ -182,4 +182,116 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     expect(normalized).toContain('10 옴');
     expect(normalized).toContain('0.4 암페어');
   });
+
+  it('7. S03 & S04 toggle mapping to numeric vin=5.0 and automatic visited tracking with physical observation', async () => {
+    const s03 = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s3-inverter-reversal')!;
+    expect(s03).toBeDefined();
+
+    const vinCtrl = s03.controls?.find((c) => c.id === 'vin');
+    expect(vinCtrl?.type).toBe('toggle');
+    expect(vinCtrl?.options).toBeDefined();
+
+    // Verify toggle mapping helper logic identical to PromptCard
+    const offOpt = vinCtrl!.options![0];
+    const onOpt = vinCtrl!.options![1];
+    expect(offOpt.value).toBe(0.0);
+    expect(onOpt.value).toBe(5.0);
+
+    // Initial state: vin = 0.0, visited = [0]
+    let params: Record<string, any> = { ...s03.initialParams };
+    expect(params.vin).toBe(0.0);
+    expect(params.visited).toEqual([0]);
+
+    // Simulate clicking toggle ON: UI produces nextChecked = true -> maps to onOpt.value (5.0)
+    const nextValOn = onOpt.value;
+    params.vin = nextValOn;
+    // LearningContext automatic visited tracking for number voltage
+    if (typeof nextValOn === 'number') {
+      params.visited = Array.from(new Set([...params.visited, nextValOn]));
+    }
+    expect(params.vin).toBe(5.0);
+    expect(params.visited).toContain(0);
+    expect(params.visited).toContain(5);
+
+    // Verify physical observation matches A02 toy model: 10k pullup, ~0.98k Ron -> Vout ≈ 0.45V
+    const { resistorInverterObservation } = await import('../a05/scenePhysics');
+    const invObs = resistorInverterObservation(params.vin);
+    expect(invObs.vin).toBe(5.0);
+    expect(invObs.vout).toBe(0.45);
+    expect(invObs.outputLogic).toBe(0);
+    expect(invObs.pullDownActive).toBe(true);
+
+    // Evaluation with prediction & correct explanation
+    params.prediction = 'down';
+    params.answer = 'pulldown';
+    const evalS03 = evaluateStepRules(s03, params);
+    expect(evalS03.passed).toBe(true);
+    expect(evalS03.ruleResults[0].passed).toBe(true); // visitedLowHigh (0 and >= 5)
+    expect(evalS03.ruleResults[1].passed).toBe(true); // pulldown answer
+
+    // Check S04 CMOS toggle to 5V and physical observation
+    const s04 = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s4-cmos-not-gate')!;
+    const { cmosObservation } = await import('../a05/scenePhysics');
+    const cmosObs0 = cmosObservation(0);
+    expect(cmosObs0.vout).toBe(5);
+    expect(cmosObs0.output).toBe(1);
+    expect(cmosObs0.pmosOn).toBe(true);
+    expect(cmosObs0.nmosOn).toBe(false);
+
+    const cmosObs1 = cmosObservation(1);
+    expect(cmosObs1.vout).toBe(0);
+    expect(cmosObs1.output).toBe(0);
+    expect(cmosObs1.pmosOn).toBe(false);
+    expect(cmosObs1.nmosOn).toBe(true);
+    expect(cmosObs1.settledDirectPath).toBe(false);
+
+    // S04 evaluation with visited and truth table
+    const s04Params = {
+      ...s04.initialParams,
+      vin: 5.0,
+      visited: [0, 5],
+      prediction: 'pmos-on',
+      out0: 1,
+      out1: 0,
+    };
+    const evalS04 = evaluateStepRules(s04, s04Params);
+    expect(evalS04.passed).toBe(true);
+    expect(evalS04.ruleResults[0].passed).toBe(true);
+    expect(evalS04.ruleResults[1].passed).toBe(true);
+    expect(evalS04.ruleResults[2].passed).toBe(true);
+  });
+
+  it('8. Ohms law knife switch regression: toggle mapping preserves boolean switchClosed', async () => {
+    const { ohmsLawLesson } = await import('../content/circuits/ohmsLawLesson');
+    const step0 = ohmsLawLesson.steps[0];
+    const switchCtrl = step0.controls?.find((c) => c.id === 'switchClosed');
+    expect(switchCtrl).toBeDefined();
+    expect(switchCtrl.type).toBe('toggle');
+    expect(switchCtrl.options).toBeDefined();
+
+    const offOpt = switchCtrl.options![0];
+    const onOpt = switchCtrl.options![1];
+    expect(offOpt.value).toBe(false);
+    expect(onOpt.value).toBe(true);
+
+    // Initial state: false
+    let switchClosed = false;
+
+    // Simulate clicking toggle ON
+    const nextChecked = true;
+    const targetVal = nextChecked ? onOpt.value : offOpt.value;
+    switchClosed = targetVal;
+    expect(typeof switchClosed).toBe('boolean');
+    expect(switchClosed).toBe(true);
+
+    // Circuit evaluation with switchClosed = true
+    const evalResult = evaluateStepRules(step0, {
+      ...step0.initialParams,
+      switchClosed: true,
+      voltage: 12,
+      resistance: 30,
+    });
+    expect(evalResult.passed).toBe(true);
+    expect(evalResult.ruleResults[0].passed).toBe(true);
+  });
 });
