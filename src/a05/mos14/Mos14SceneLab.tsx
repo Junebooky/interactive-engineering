@@ -180,7 +180,7 @@ export function Mos14SceneLab({onEvent,onSpeech}:Mos14LabProps){
   <section className="a05-canvas-col" aria-label="원본 MOS 단면의 학습 실험">
    <div className="a05-canvas-header"><span>LIVE MOS CAP 2.5D</span><span>{revealed?'예상 후 관찰':'예측 전 값 비공개'}</span></div>
    <Mos14SceneVisual sceneId={id} state={state} revealed={revealed}/>
-   <div className="a05-model-limit"><strong>물리 범위</strong> {story.bounds}</div>
+   <div className="a05-model-limit"><strong>물리 범위</strong> {revealed?story.bounds:'이상화 교육 모형입니다. 세부 전압·전류 조건과 숫자는 먼저 예상한 뒤 확인하세요.'}</div>
    <div className="a05-source">A06 14 원고 d356f8ae · A07 Source EDU_PASS · A05 독자 SVG · 실제 반도체 계측값 아님</div>
   </section></main></div>;
 }
