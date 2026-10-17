@@ -1,0 +1,31 @@
+name: A05 16 Logic and Clock Real Chromium QA
+on:
+  push:
+    branches:
+      - feat/a05-16-logic-clock-registers
+  workflow_dispatch:
+jobs:
+  browser-logic16:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium for real browser QA
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Four-stage logic clock + 12 wrong feedback path Chromium QA
+        run: node scripts/a05-logic16-browser.mjs
+      - name: Save actual screenshots on failure or success
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a05-logic16-chromium-screenshots
+          path: browser-evidence/logic16/
+          if-no-files-found: warn
+          retention-days: 14
