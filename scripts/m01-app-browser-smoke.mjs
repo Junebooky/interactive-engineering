@@ -59,7 +59,7 @@ try {
     await page.goto(baseUrl);
     await page.waitForSelector('.prompt-title');
     const title = await page.locator('.prompt-title').textContent();
-    if (!title?.includes('MOSFET')) throw Error(`Unexpected step 0 title: ${title}`);
+    if (!title?.includes('스위치') && !title?.includes('MOSFET')) throw Error(`Unexpected step 0 title: ${title}`);
 
     // Voice toggle in header
     const voiceBtn = page.locator('.voice-toggle-btn');
@@ -172,8 +172,8 @@ try {
 
     // Truth Table input: out0 = 1, out1 = 0
     const rows = page.locator('.truth-table-row');
-    await rows.nth(0).getByRole('button', { name: '1' }).click();
-    await rows.nth(1).getByRole('button', { name: '0' }).click();
+    await rows.nth(0).getByRole('button', { name: /1 \(HIGH\)/ }).click();
+    await rows.nth(1).getByRole('button', { name: /0 \(LOW\)/ }).click();
 
     await page.screenshot({ path: `${output}/09-app-s04-cmos-pass.png`, fullPage: true });
     await page.getByRole('button', { name: /확인하기/ }).click();
