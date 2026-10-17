@@ -37,3 +37,16 @@
 | R2-09 | 11-S04/S05, 12-S03/S04 numeric toy | PASS_WITH_TOY_LABEL | Independent calculation matches 0.714317 V built-in, widths 0.665867/0.429821/0.364718µm, I0.3=0.330 nA/I0.4=2.289 nA, τ10ms and Ecap125µJ. | A07 SOURCE_PASS; no measurement |
 | R2-10 | A02 D02 #11 current head `a3656e2` | BLOCKER_OPEN | Re-read adapter + updateParam; integrated cell state still is not derived by WL/BL controls, and history evidence still not populated. Model-unit tests not enough. | A02, coordinated through A06; app E2E retest |
 **QA outcome:** MAJOR_OPEN for 11/12 source copy and G03 assessment. Numerical models source-PASS within toy assumptions. No standalone A07 Chromium/real device/human test. Other ready scenes may continue.
+
+## Round 03 · A06 SRAM05 + NAND04 source QA (2026-10-17)
+Full reproducible controls, authoritative owner, physics references, ready-to-paste 4-Step/5-Step text, counterexample tests: [round-03-sram-04-audit.md](round-03-sram-04-audit.md). At A06 head `095d651`; A05 SRAM #13 head `292c574`.
+| ID | Owner / scene | Severity/status | Evidence + acceptance |
+|---|---|---|---|
+| R3-01 | A05 #13 SRAM 05-S01 | **BLOCKER_OPEN · source verified** | Power Q1→VDD OFF→ON returns Q1 deterministically because `state.q` never invalidates despite showing ? while off. Must invalidate storage/require explicit reinit; add user-flow test. A05's independent 7 Chromium PASS doesn't cover this counterexample. |
+| R3-02 | A05 #13 SRAM 05-S02 | **BLOCKER_OPEN · source verified** | WL ON/write→BL1 displays Q1 but `setBl` never changes `state.q` → WL OFF reverts Q0; read can expose stale bit. Transition on BL/WL/mode changes and persist canonical q; test both write action orders/read. |
+| R3-03 | A06 PR #7 05-S01–04 | **MAJOR_OPEN** | All 4 `physicsAssumptions` mistakenly cite sources and `sourceRefs` hold next-topic text; source traceability broken, Voice repeats UI. Fix 17-field semantics + keyed misconception feedback. |
+| R3-04 | A06/A05 05-S01/02 | **MAJOR_OPEN** | Pre-prediction Voice/UI already explain latch feedback/WL isolation; neutral speech with after-observation facts in Round03 doc; DOM+TTS recheck. |
+| R3-05 | A06 PR #7 N04-S01/02/04/05 | **MAJOR_OPEN** | Generic wrong-answer feedback lacks explanation matched to misconceptions; 12 ready-to-paste keyed scripts in Round03 doc. S03 already keyed correctly: do NOT regress. |
+| R3-06 | A06 N04-S02/S05 | **MINOR_OPEN** | Intro speech prematurely provides storage/gc conclusions; reword before prediction; after-observation reveal. |
+| R3-07 | A06 04 N04-S01..05 | **SOURCE_PASS_SCOPED** | Floating-gate/charge-trap, page-vs-block, FTL/PLP caveats, host→SSD command vs SSD→host read DMA, residency vs load are correct under toy/platform assumptions; no A07 browser. |
+**Release scope:** R3-01/02 only block 05 SRAM scene/production integration pending A05 correction and new browser user-flow regression. Other lessons remain parallel. Detailed evidence is GitHub, no A01 separate report/approval, no main merge/deploy.
