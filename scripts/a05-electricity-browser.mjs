@@ -25,7 +25,7 @@ try{
   await p.getByRole('button',{name:'CLOSED · ON'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('5.00 mA')))throw Error('CLOSED should be 5mA');
   await p.getByRole('button',{name:'전자 이동'}).click();
-  await p.getByRole('button',{name:'관습전류'}).click();
+  await p.getByRole('button',{name:'관습전류',exact:true}).click();
   await answer(p,'5V면 언제나 5A'); // verify wrong answer yields feedback
   await p.getByRole('button',{name:'관찰 조건으로 확인하기'}).click();
   if(!await p.getByText('아직 확인할 실험 조건이').count())throw Error('wrong answer was accepted');
