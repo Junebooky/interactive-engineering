@@ -39,3 +39,27 @@
 3. M01-S04에서 저항 부하 모형을 CMOS라고 이름 바꾸지 않고 pMOS 신규 소자 추가.
 4. 각 scene 3개 오개념 피드백, 모바일/키보드/Voice, 물리 가정/단위/Why/nextHook 갖춤.
 5. A05가 장면별 PR/스크린샷·조작 시연·테스트 링크를 Issue #4에 올리면 A06가 학습/과학 QA 회신.
+
+
+## v0.2 교차 QA 및 신규 8개 Scene(2026-10-17)
+**M01 A05 source-level 교차 QA:** [a05-m01-cross-qa.md](a05-m01-cross-qa.md) — A05 PR #8 head fd9d921 기준. P1 2건(0.7V threshold 시각/말 충돌, VDS=0과 subthreshold 설명 조건), P2 2건(초기 0V 자동 관찰 처리, SRAM nextHook)을 수정 제안. **실제 browser QA 미실시**; 완료라고 표시하지 않음.
+
+새로 A05에 직접 인계할 2개 신규 레슨(각 4 Step, 총 8 scene)의 source of truth:
+- [05 SRAM/CPU cache](lessons/05-sram-cpu-cache.md) — M01 이후 선수 학습 경로 보강.
+- [06 제조/칩렛·HBM 패키징](lessons/06-hbm-chiplet-packaging.md) — G03 이후 P01/P02 심화. A05는 이미 인계된 D02 제작을 우선하며 05/06은 독립 브랜치/PR로 분리.
+
+| 새 sceneId | 조작 모델·관찰 | 오개념/주의 |
+|---|---|---|
+| `sram-cross-coupled-inverters` | 교차 CMOS 인버터 2개: Q/Qbar 0/1, feedback on/off, VDD on/off. 두 안정 상태 | SRAM 휘발·피드백이 저장; 두 출력 같은 논리 금지 |
+| `sram-6t-access` | CMOS 인버터 2개(4T)+접근 nMOS 2개, WL·BL/BLB read/write | 6T≠1T1C; read disturb 가능, WR/BL 상태 예측 |
+| `cpu-cache-vs-dram` | A,A,B,A,C, cacheLines 1/2 toy-LRU. 41 vs 32 toy units | toy 숫자를 실제 latency로 부르지 않음 |
+| `cpu-to-gpu-data-locality` | CPU cache/DDR/GPU SRAM+GDDR 또는 HBM/SSD placement, model-resident toggle | 별도 discrete GPU path는 대표 사례, 통합 메모리 아키텍처도 존재 |
+| `fab-pattern-to-die` | wafer, deposition→pattern→etch/implant→metallization→testing 도식 반복 | **일방향 1회 공정 아니며 실제 세부 순서 상이** (ASML) |
+| `chiplet-yield-model` | 100 mm² vs 4×25 mm², toy D=0.005/mm², KGD 및 assembly 옵션 | 다이 개별 수율 0.6065 vs 0.8825, 전체 시스템 자동 4배 개선 금지 |
+| `hbm-tsv-interposer` | HBM 층간 TSV vs GPU↔HBM 이종 다이 사이 interposer 연결/board GDDR 비교 | CoWoS-S silicon vs R/L RDL/LSI와 같은 대안; UI 스타일 2.5D와 기술 2.5D 구분 |
+| `package-power-heat` | P=20/40W, Rθ=0.2/0.4 K/W → ΔT=4/16K toy | 정상상태 1노드만, 온도·냉각 실제 제품 수치 아님 |
+
+**기존 G03/N04 오류 수정 인계:**
+- `compute-feeding`: 완전 파이프라인 겹침 모형이면 feed=8 unit/s에서 compute 16→32에도 64/8≈8toy s 유지. 직렬 두 단계라면 12→10toy s로 바뀜. 구현 시 **모형을 선택하고 가정 표시**.
+- `ssd-ftl-reliability`: PLP-항상 / DRAM cache-항상 / ECC-무오류 세 선택지에 각각 다른 오류 메시지+원리 힌트 필요; [N04-S03](lessons/04-nand-essd-data-center.md) 참조.
+- `nvme-transfer`: **host→PCIe→SSD controller 명령**, **NAND→controller→PCIe DMA→host DDR read data**, **host DDR→GPU 별도 데이터 이동**을 각기 다른 방향/레이블로 그림. 캐시/DMA 직접 전달/GPUDirect Storage 등 대안 별도.
