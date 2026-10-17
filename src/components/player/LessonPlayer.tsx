@@ -9,6 +9,9 @@ import { Mosfet2DScene } from '../../simulations/mosfet/Mosfet2DScene';
 import { InverterCircuit2D } from '../../simulations/mosfet/InverterCircuit2D';
 import { Circuit2DScene } from '../../simulations/ohmsLaw/Circuit2DScene';
 import { Gear2DScene } from '../../simulations/gears/Gear2DScene';
+import { A05SceneVisual } from '../../a05/A05SceneVisual';
+import type { A05Values } from '../../a05/scenePhysics';
+import '../../a05/a05Scenes.css';
 import { BookOpen, Sparkles } from 'lucide-react';
 
 interface LessonPlayerProps {
@@ -52,6 +55,31 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
   // Render the appropriate 2.5D simulator scene if one is specified
   const renderSimulator = () => {
     switch (currentStep.simulatorType) {
+      case 'mosfet-field':
+      case 'mosfet-current':
+      case 'nmos-resistor-inverter':
+      case 'cmos-not-gate': {
+        const a05Values: A05Values = {
+          vgs: Number(currentParams.vgs ?? (currentStep.simulatorType === 'mosfet-current' ? 1.5 : 0)),
+          vds: Number(currentParams.vds ?? 0),
+          vin: Number(currentParams.vin ?? 0),
+          out0: currentParams.out0 === 0 || currentParams.out0 === 1 ? currentParams.out0 : null,
+          out1: currentParams.out1 === 0 || currentParams.out1 === 1 ? currentParams.out1 : null,
+        };
+        const hasPredictionCtrl = currentStep.controls?.some((c) => c.id === 'prediction');
+        const showObservation =
+          !hasPredictionCtrl ||
+          (currentParams.prediction !== undefined && currentParams.prediction !== null);
+
+        return (
+          <A05SceneVisual
+            sceneId={currentStep.simulatorType}
+            values={a05Values}
+            showObservation={showObservation}
+          />
+        );
+      }
+
       case 'mosfet':
         return (
           <Mosfet2DScene

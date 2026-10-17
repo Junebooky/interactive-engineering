@@ -5,10 +5,12 @@ import { getLastActiveLesson } from './engine/progressStorage';
 import { Header } from './components/common/Header';
 import { LessonPlayer } from './components/player/LessonPlayer';
 import { CourseCatalogModal } from './components/catalog/CourseCatalogModal';
+import { A05MosfetSceneLab } from './a05/A05MosfetSceneLab';
 
 const AppContent: React.FC = () => {
   const { initLesson } = useLearningEngine();
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+  const [showQALab, setShowQALab] = useState(false);
 
   // Initial load: restore from last active lesson or default to semiconductor
   useEffect(() => {
@@ -35,7 +37,10 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Header onOpenCatalog={() => setIsCatalogOpen(true)} />
+      <Header
+        onOpenCatalog={() => setIsCatalogOpen(true)}
+        onToggleQALab={() => setShowQALab(true)}
+      />
       
       <LessonPlayer onOpenCatalog={() => setIsCatalogOpen(true)} />
 
@@ -44,6 +49,22 @@ const AppContent: React.FC = () => {
         onClose={() => setIsCatalogOpen(false)}
         onSelectCourse={handleSelectCourse}
       />
+
+      {showQALab && (
+        <div className="qa-lab-overlay">
+          <div className="qa-lab-header">
+            <span>🧪 A05 MOSFET 2.5D Discovery Lab (Standalone QA Preview)</span>
+            <button
+              type="button"
+              className="qa-lab-close-btn"
+              onClick={() => setShowQALab(false)}
+            >
+              ✕ 공식 레슨 플레이어로 돌아가기
+            </button>
+          </div>
+          <A05MosfetSceneLab />
+        </div>
+      )}
     </div>
   );
 };

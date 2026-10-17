@@ -43,7 +43,7 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     expect(state.currentParams.vgs).toBe(0.0);
   });
 
-  it('2. Step 1 manipulation, fail on low Vgs, pass on proper Vgs', () => {
+  it('2. Step 1 manipulation, fail on low Vgs/misconception, pass on proper exploration & concept answer', () => {
     let state = learningReducer(initialEngineState, {
       type: 'INIT_LESSON',
       payload: { courseId: 'course-semiconductor', lesson: mosfetLesson, restoredStepIndex: 1 },
@@ -51,17 +51,20 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
 
     const step1 = mosfetLesson.steps[1];
 
-    // Under-threshold parameter manipulation
+    // Under-explored manipulation & wrong misconception answer
     state = learningReducer(state, {
       type: 'UPDATE_PARAM',
-      payload: { key: 'vgs', value: 0.4 },
+      payload: { key: 'visited', value: [0, 0.4] },
     });
-    expect(state.currentParams.vgs).toBe(0.4);
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'answer', value: 'oxide' },
+    });
 
     const failEval = evaluateStepRules(step1, state.currentParams);
     expect(failEval.passed).toBe(false);
     expect(failEval.ruleResults[0].passed).toBe(false);
-    expect(failEval.message).toContain('문턱 전압');
+    expect(failEval.ruleResults[1].passed).toBe(false);
 
     state = learningReducer(state, {
       type: 'EVAL_RESULT',
@@ -69,10 +72,14 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     });
     expect(state.fsmState).toBe('EVALUATED_INCORRECT');
 
-    // User adjusts to valid range
+    // User explores high voltage and selects correct concept answer
     state = learningReducer(state, {
       type: 'UPDATE_PARAM',
-      payload: { key: 'vgs', value: 1.2 },
+      payload: { key: 'visited', value: [0, 0.4, 1.2] },
+    });
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'answer', value: 'surface' },
     });
     expect(state.fsmState).toBe('INTERACTING'); // Reset on param change
     expect(state.evaluation).toBeNull();
@@ -80,6 +87,7 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     const passEval = evaluateStepRules(step1, state.currentParams);
     expect(passEval.passed).toBe(true);
     expect(passEval.ruleResults[0].passed).toBe(true);
+    expect(passEval.ruleResults[1].passed).toBe(true);
 
     state = learningReducer(state, {
       type: 'EVAL_RESULT',
@@ -96,7 +104,7 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     });
 
     const step1 = mosfetLesson.steps[1];
-    const passEval = evaluateStepRules(step1, { vgs: 1.2 });
+    const passEval = evaluateStepRules(step1, { visited: [0, 1.2], answer: 'surface' });
 
     state = learningReducer(state, {
       type: 'EVAL_RESULT',
@@ -105,10 +113,10 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     expect(state.fsmState).toBe('EVALUATED_CORRECT');
     expect(state.evaluation).not.toBeNull();
 
-    // User maliciously or accidentally adjusts slider to invalid value 0.1V after passing
+    // User changes answer to wrong answer after passing
     state = learningReducer(state, {
       type: 'UPDATE_PARAM',
-      payload: { key: 'vgs', value: 0.1 },
+      payload: { key: 'answer', value: 'oxide' },
     });
 
     // Engine must revoke passed status immediately
@@ -116,24 +124,26 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     expect(state.fsmState).toBe('INTERACTING');
   });
 
-  it('4. Multi-condition truth table partial failure and full pass', () => {
-    const truthTableStep = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s4-not-gate-truth-table')!;
+  it('4. Multi-condition CMOS truth table partial failure and full pass', () => {
+    const truthTableStep = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s4-cmos-not-gate')!;
     expect(truthTableStep).toBeDefined();
 
-    // Partial input: out0 is 1 (correct), out1 is 1 (wrong, should be 0)
-    const partialEval = evaluateStepRules(truthTableStep, { out0: 1, out1: 1 });
+    // Partial input: visited both 0 and 5V, out0 is 1 (correct), out1 is 1 (wrong, should be 0)
+    const partialEval = evaluateStepRules(truthTableStep, { visited: [0, 5], out0: 1, out1: 1 });
     expect(partialEval.passed).toBe(false);
-    expect(partialEval.ruleResults).toHaveLength(2);
-    expect(partialEval.ruleResults[0].targetKey).toBe('out0');
-    expect(partialEval.ruleResults[0].passed).toBe(true);
-    expect(partialEval.ruleResults[1].targetKey).toBe('out1');
-    expect(partialEval.ruleResults[1].passed).toBe(false);
+    expect(partialEval.ruleResults).toHaveLength(3);
+    expect(partialEval.ruleResults[0].passed).toBe(true); // visited
+    expect(partialEval.ruleResults[1].targetKey).toBe('out0');
+    expect(partialEval.ruleResults[1].passed).toBe(true);
+    expect(partialEval.ruleResults[2].targetKey).toBe('out1');
+    expect(partialEval.ruleResults[2].passed).toBe(false);
 
     // Full correct input: out0 = 1, out1 = 0
-    const fullEval = evaluateStepRules(truthTableStep, { out0: 1, out1: 0 });
+    const fullEval = evaluateStepRules(truthTableStep, { visited: [0, 5], out0: 1, out1: 0 });
     expect(fullEval.passed).toBe(true);
     expect(fullEval.ruleResults[0].passed).toBe(true);
     expect(fullEval.ruleResults[1].passed).toBe(true);
+    expect(fullEval.ruleResults[2].passed).toBe(true);
   });
 
   it('5. LocalStorage session serialization and restoration integrity', () => {

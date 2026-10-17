@@ -1594,3 +1594,128 @@ html, body {
     flex-direction: column;
   }
 }
+
+/* Radio Group Options (Prediction & Conceptual Answers) */
+.radio-group-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+}
+
+.radio-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.radio-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--bg-subtle, #142236);
+  border: 1px solid var(--border-default, #243b56);
+  border-radius: 8px;
+  color: var(--text-secondary, #cbd5e1);
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.radio-option-btn:hover {
+  border-color: var(--cyan-400, #38bdf8);
+  background: rgba(56, 189, 248, 0.08);
+  color: #f8fafc;
+}
+
+.radio-option-btn.selected {
+  border-color: var(--cyan-400, #38bdf8);
+  background: rgba(56, 189, 248, 0.16);
+  color: #f8fafc;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+.radio-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #64748b;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.radio-option-btn.selected .radio-dot {
+  border-color: var(--cyan-400, #38bdf8);
+  background: var(--cyan-400, #38bdf8);
+}
+
+.radio-option-text {
+  flex: 1;
+  line-height: 1.35;
+}
+
+/* QA Lab Mode Overlay & Header */
+.qa-lab-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+
+.qa-lab-toggle-btn:hover {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #fbbf24;
+}
+
+.qa-lab-overlay {
+  position: fixed;
+  inset: 0;
+  background: #091626;
+  z-index: 1000;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.qa-lab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: #0f233a;
+  border-bottom: 1px solid #1e3a5a;
+  color: #e2e8f0;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.qa-lab-close-btn {
+  padding: 0.4rem 0.85rem;
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.qa-lab-close-btn:hover {
+  background: #334155;
+  border-color: #94a3b8;
+}

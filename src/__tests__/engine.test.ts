@@ -7,7 +7,7 @@ import type { Step } from '../types';
 describe('Validation Engine', () => {
   const conceptStep = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s0-concept')!;
   const channelStep = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s1-channel')!;
-  const truthTableStep = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s4-not-gate-truth-table')!;
+  const truthTableStep = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s4-cmos-not-gate')!;
 
   it('should auto-pass explanatory steps with no rules', () => {
     const result = evaluateStepRules(conceptStep, {});
@@ -16,38 +16,40 @@ describe('Validation Engine', () => {
     expect(result.message).toContain('기본 개념을 확인했습니다');
   });
 
-  it('should fail when Vgs is below 0.7V threshold', () => {
-    const result = evaluateStepRules(channelStep, { vgs: 0.5 });
+  it('should fail when Vgs is not sufficiently explored or answer is incorrect', () => {
+    // Only low voltage visited, no concept answer
+    const result = evaluateStepRules(channelStep, { visited: [0], answer: 'oxide' });
     expect(result.passed).toBe(false);
-    expect(result.message).toContain('문턱 전압');
-    expect(result.ruleResults).toHaveLength(1);
-    expect(result.ruleResults[0].passed).toBe(false);
-    expect(result.ruleResults[0].targetKey).toBe('vgs');
-    expect(result.ruleResults[0].label).toBe('게이트 전압 V_GS');
+    expect(result.ruleResults).toHaveLength(2);
+    expect(result.ruleResults[0].passed).toBe(false); // observation
+    expect(result.ruleResults[1].passed).toBe(false); // misconception
   });
 
-  it('should pass when Vgs is within [0.8, 1.8] range', () => {
-    const result = evaluateStepRules(channelStep, { vgs: 1.2 });
+  it('should pass when low/high Vgs are visited and surface answer is selected', () => {
+    const result = evaluateStepRules(channelStep, { visited: [0, 1.2], answer: 'surface' });
     expect(result.passed).toBe(true);
     expect(result.message).toContain('완벽합니다');
     expect(result.ruleResults[0].passed).toBe(true);
+    expect(result.ruleResults[1].passed).toBe(true);
   });
 
-  it('should return condition-by-condition evaluation results for multi-rule steps', () => {
-    // When out0 is correct (1) but out1 is incorrect (1 instead of 0)
-    const partialResult = evaluateStepRules(truthTableStep, { out0: 1, out1: 1 });
+  it('should return condition-by-condition evaluation results for CMOS truth table', () => {
+    // visited both 0 and 5V, out0 is correct (1) but out1 is incorrect (1 instead of 0)
+    const partialResult = evaluateStepRules(truthTableStep, { visited: [0, 5], out0: 1, out1: 1 });
     expect(partialResult.passed).toBe(false);
-    expect(partialResult.ruleResults).toHaveLength(2);
-    expect(partialResult.ruleResults[0].targetKey).toBe('out0');
-    expect(partialResult.ruleResults[0].passed).toBe(true);
-    expect(partialResult.ruleResults[1].targetKey).toBe('out1');
-    expect(partialResult.ruleResults[1].passed).toBe(false);
+    expect(partialResult.ruleResults).toHaveLength(3);
+    expect(partialResult.ruleResults[0].passed).toBe(true); // visited
+    expect(partialResult.ruleResults[1].targetKey).toBe('out0');
+    expect(partialResult.ruleResults[1].passed).toBe(true);
+    expect(partialResult.ruleResults[2].targetKey).toBe('out1');
+    expect(partialResult.ruleResults[2].passed).toBe(false);
 
-    // When both are correct
-    const fullResult = evaluateStepRules(truthTableStep, { out0: 1, out1: 0 });
+    // When all conditions are correct
+    const fullResult = evaluateStepRules(truthTableStep, { visited: [0, 5], out0: 1, out1: 0 });
     expect(fullResult.passed).toBe(true);
     expect(fullResult.ruleResults[0].passed).toBe(true);
     expect(fullResult.ruleResults[1].passed).toBe(true);
+    expect(fullResult.ruleResults[2].passed).toBe(true);
   });
 });
 

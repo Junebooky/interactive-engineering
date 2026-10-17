@@ -134,6 +134,35 @@ export const PromptCard: React.FC = () => {
               );
             }
 
+            if (ctrl.type === 'radioGroup') {
+              const currentVal = currentParams[ctrl.id];
+              return (
+                <div key={ctrl.id} className="control-group radio-group-container">
+                  <span className="control-label">{ctrl.label}</span>
+                  <div className="radio-options-list" role="radiogroup" aria-label={ctrl.label}>
+                    {ctrl.options?.map((opt) => {
+                      const isSelected = currentVal === opt.value;
+                      return (
+                        <button
+                          key={String(opt.value)}
+                          type="button"
+                          role="radio"
+                          aria-checked={isSelected}
+                          className={`radio-option-btn ${isSelected ? 'selected' : ''}`}
+                          onClick={() => updateParam(ctrl.id, opt.value)}
+                        >
+                          <span className={`radio-dot ${isSelected ? 'active' : ''}`} />
+                          <div className="radio-option-text">
+                            <span className="radio-label">{opt.label}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+
             return null;
           })}
         </div>

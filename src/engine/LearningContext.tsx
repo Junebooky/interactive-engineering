@@ -72,6 +72,14 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
   const updateParam = useCallback((key: string, value: any) => {
     dispatch({ type: 'UPDATE_PARAM', payload: { key, value } });
 
+    // Track visited voltage values for scientific observation criteria
+    if (typeof value === 'number' && (key === 'vgs' || key === 'vds' || key === 'vin')) {
+      const prevVisited = Array.isArray(state.currentParams.visited) ? state.currentParams.visited : [0];
+      if (!prevVisited.includes(value)) {
+        dispatch({ type: 'UPDATE_PARAM', payload: { key: 'visited', value: [...prevVisited, value] } });
+      }
+    }
+
     // Check true milestone crossing event
     if (state.lesson) {
       const step = state.lesson.steps[state.currentStepIndex];
@@ -89,7 +97,7 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
       }
     }
-  }, [state.lesson, state.currentStepIndex]);
+  }, [state.lesson, state.currentStepIndex, state.currentParams.visited]);
 
   const startInteraction = useCallback(() => {
     dispatch({ type: 'START_INTERACTION' });
