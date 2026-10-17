@@ -85,7 +85,7 @@ try{
  await qa('10-S03 PUE1.4/1.2 facility MW independent of throughput1000/1500',async()=>{
   await first(p,'rack-power-pue-thermal');
   if(!(await probe(p)).includes('1.4 MW'))throw Error('PUE1.4 facility1.4');
-  await p.getByRole('button',{name:'PUE 1.2'}).click();
+  await p.getByRole('button',{name:'PUE 1.2',exact:true}).click();
   if(!(await probe(p)).includes('1.2 MW'))throw Error('PUE1.2 facility1.2');
   await p.getByRole('button',{name:'1500 tasks/s'}).click();
   const status=await probe(p);
