@@ -119,6 +119,53 @@ try{
   for(const k of ['shared-switch-no-route','backup-disconnected','configured-but-local-state','back-route-recoverable'])if(!e.includes(k))throw Error('resilience proof missing '+k);
   await wrongCorrect(p,'05-resilience');await overflow(p);
  });
+ await qa('A07 R28-02 actual SVG: open cable is visibly broken, B wired but unconfigured dashed, only recoverable B is solid live',async()=>{
+  // Reuse the finished S04 student journey; this is an independent negative visual proof.
+  const a=p.getByTestId('dc10-link-primary'),b=p.getByTestId('dc10-link-backup');
+  const inspect=async(loc,expected,present)=>{
+   const actual=await loc.getAttribute('data-route-state'),wired=await loc.getAttribute('data-physical-cable');
+   if(actual!==expected||wired!==String(present))throw Error('route SVG mismatch '+actual+'/'+wired+' expected '+expected+'/'+present);
+   const paths=loc.locator('path'),n=await paths.count(),wire=await paths.first().getAttribute('d');
+   if(expected==='open'&&(n<2||wire.includes('M179 175L225 144')||wire.includes('M179 176L225 280')))throw Error('open SVG still draws continuous healthy path');
+   if(expected==='active'&&(n!==1||(await paths.first().getAttribute('stroke'))!=='#83f0d5'))throw Error('active SVG not drawn solid mint');
+   if(expected==='unconfigured'&&((await paths.first().getAttribute('stroke-dasharray'))!=='8 6'))throw Error('wired-unconfigured must be dashed');
+  };
+  await p.getByRole('button',{name:'Switch A 정상'}).click();
+  await p.getByRole('button',{name:'주 회선 단절'}).click();
+  await p.getByRole('button',{name:'Switch B 미설치'}).click();
+  await p.getByRole('button',{name:'B 회선 분리'}).click();
+  if(!(await probe(p)).includes('NO_ROUTE'))throw Error('A healthy but actual cable disconnected cannot carry packets');
+  await inspect(a,'open',false);await inspect(b,'open',false);
+  await p.screenshot({path:out+'/09-A-healthy-but-cable-OPEN.png',fullPage:true});
+  await p.getByRole('button',{name:'Switch A 장애'}).click();
+  await p.getByRole('button',{name:'B 회선 연결'}).click();
+  if(!(await probe(p)).includes('NO_ROUTE'))throw Error('B path magically exists without physical switch');
+  await inspect(b,'open',false);
+  await p.screenshot({path:out+'/10-B-wire-clicked-but-switch-ABSENT.png',fullPage:true});
+  await p.getByRole('button',{name:'Switch B 설치'}).click();
+  await p.getByRole('button',{name:'B 경로 구성 OFF'}).click();
+  if(!(await probe(p)).includes('ROUTE_NOT_CONFIGURED'))throw Error('configured error not displayed');
+  await inspect(b,'unconfigured',true);
+  await p.screenshot({path:out+'/11-B-physically-connected-NOT-CONFIGURED.png',fullPage:true});
+  await p.getByRole('button',{name:'B 경로 구성 ON'}).click();
+  await p.getByRole('button',{name:'Local-only state'}).click();
+  if(!(await probe(p)).includes('STATE_NOT_RECOVERABLE'))throw Error('no replica yet');
+  await inspect(b,'standby',true);
+  await p.screenshot({path:out+'/12-B-configured-but-local-session-NOT-ACTIVE.png',fullPage:true});
+  await p.getByRole('button',{name:'Replicated state'}).click();
+  if(!(await probe(p)).includes('RECOVERY_POSSIBLE'))throw Error('fully valid route not possible');
+  await inspect(b,'active',true);
+  await p.getByRole('button',{name:'현재 관찰 한국어 듣기'}).click();
+  if(!(await p.getByTestId('dc10-voice-text').innerText()).includes('RECOVERY_POSSIBLE'))throw Error('SVG live and Korean spoken status mismatch');
+  await p.screenshot({path:out+'/13-B-recoverable-route-LIVE.png',fullPage:true});
+  await p.getByRole('button',{name:'공통 전원 장애'}).click();
+  if(!(await probe(p)).includes('NO_SHARED_POWER'))throw Error('correlated power fault not rejected');
+  await inspect(b,'fault',true);
+  await p.screenshot({path:out+'/14-shared-power-fault-backup-NOT-LIVE.png',fullPage:true});
+  await p.setViewportSize({width:320,height:720});await overflow(p);
+  await p.screenshot({path:out+'/15-320px-disconnected-route-visual.png',fullPage:true});
+  await p.setViewportSize({width:1440,height:900});
+ });
  await qa('Voice unavailable displays Korean text fallback with no exception',async()=>{
   const q=await ctx.newPage();q.on('pageerror',e=>failed.push({name:'voice JS',error:String(e)}));
   await q.addInitScript(()=>Object.defineProperty(window,'SpeechSynthesisUtterance',{value:undefined,configurable:true}));
