@@ -120,7 +120,7 @@ try {
   await assert('mobile prediction, touch and no overflow', async () => {
     await phone.goto(baseUrl);
     await choose(phone, '1.2 V');
-    await phone.locator('#a05-voltage').fill('1.0');
+    await phone.locator('#a05-voltage').fill('1');
     await phone.screenshot({ path: output + '/06-gate-mobile-375.png', fullPage: true });
     await checkViewport(phone, '375px mobile');
     await phone.setViewportSize({ width: 320, height: 700 });
