@@ -63,6 +63,22 @@ export function dc10Recovery(s:Readonly<Dc10State>):Dc10Recovery{
  if(s.sessionState==='replicated'&&!s.storageReplicaHealthy)return finish('REPLICA_UNAVAILABLE');
  return finish('RECOVERY_POSSIBLE');
 }
+/** Separate cable existence from live forwarding. Never color an absent/faulted cable as a working route.
+ * 'standby' is wired + configured but not recovered (policy/session/state may still block).
+ * These tokens drive the original SVG and are regression-tested against dc10Recovery. */
+export type Dc10DiagramLink='open'|'fault'|'unconfigured'|'standby'|'active';
+export function dc10DiagramLinks(s:Readonly<Dc10State>):{primary:Dc10DiagramLink;backup:Dc10DiagramLink;primaryCablePresent:boolean;backupCablePresent:boolean}{
+ const verdict=dc10Recovery(s);
+ const primaryCablePresent=s.routeAConnected;
+ const backupCablePresent=s.servers===2&&s.switch2Installed&&s.routeBConnected;
+ const primary:Dc10DiagramLink=!primaryCablePresent?'open':
+  !s.switch1Healthy||!s.sharedPowerHealthy?'fault':'active';
+ const backup:Dc10DiagramLink=!backupCablePresent?'open':
+  !s.switch2Healthy||!s.backupHealthy||!s.sharedPowerHealthy?'fault':
+  !s.routeBConfigured?'unconfigured':
+  verdict.code==='RECOVERY_POSSIBLE'?'active':'standby';
+ return {primary,backup,primaryCablePresent,backupCablePresent};
+}
 /** Proof keys are minted only when learner explicitly probes a physical state.
  * No invalid/backtracking toggle alone can manufacture route recovery evidence. */
 export function dc10Probe(scene:Dc10SceneId,s:Readonly<Dc10State>):{evidence:Dc10Evidence|null;display:string;result:unknown}{
