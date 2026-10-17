@@ -7,6 +7,19 @@ const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4186',
 let browser;const passed=[],failed=[];
 async function qa(name,fn){try{await fn();passed.push(name);console.log('PASS '+name);}catch(e){failed.push({name,error:String(e)});console.error('FAIL '+name,e);}}
 async function ready(){for(let i=0;i<80;i++){try{if((await fetch(url)).ok)return;}catch{}await new Promise(r=>setTimeout(r,300));}throw Error('dev server unreachable');}
+const learnerPrompts={"charge-voltage-current-arrows":"전원단자 전압","resistors-series-parallel-kcl":"저항 2개를","capacitor-rc-charge-discharge":"충전 10ms/30ms","power-energy-joules-heat":"5V·10mA"};
+async function verifyNeutralBeforePredict(p){
+  const id=await p.locator('.a05-copy .a05-eyebrow').innerText();
+  const scene=Object.keys(learnerPrompts).find(k=>id.includes(k));
+  if(!scene)throw Error('unidentified pre-prediction step '+id);
+  if(await p.locator('.a05-readouts').count())throw Error(scene+' exposed numeric before prediction');
+  if(!await p.locator('.a05-veiled').count())throw Error(scene+' exposed SVG before prediction');
+  const question=await p.locator('.a05-box').first().innerText();
+  if(!question.includes(learnerPrompts[scene]))throw Error(scene+' canonical A06 learner prediction copy missing');
+  await p.getByRole('button',{name:'한국어 질문 듣기'}).click();
+  const speech=await p.getByTestId('electricity-voice-text').innerText();
+  if(/teacherExpectedAnswer|correctIncorrectCriteria|3\\.16V|4\\.75V|2\\.289nA|0\\.330nA/.test(speech))throw Error(scene+' teacher numeric answer leaked through Korean voice');
+}
 async function predict(p){await p.locator('.a05-box').first().locator('.a05-choice-set button').first().click();}
 async function answer(p,words){await p.locator('.a05-box').last().locator('.a05-choice-set button').filter({hasText:words}).first().click();}
 async function noOverflow(p){const x=await p.evaluate(()=>[document.documentElement.clientWidth,document.documentElement.scrollWidth]);if(x[1]>x[0]+2)throw Error('overflow:'+x);}
@@ -17,7 +30,7 @@ try{
  await qa('before prediction numeric readouts hidden',async()=>{
   await p.goto(url);
   if(await p.locator('.a05-readouts').count())throw Error('readouts revealed before prediction');
-  await p.screenshot({path:out+'/01-prediction-hidden.png',fullPage:true});await predict(p);
+  await p.screenshot({path:out+'/01-prediction-hidden.png',fullPage:true});await verifyNeutralBeforePredict(p);await predict(p);
  });
  await qa('S01 5V open0 and closed5mA; electron direction; misconception and hints',async()=>{
   await p.getByRole('button',{name:'OPEN · OFF'}).click();
@@ -38,7 +51,7 @@ try{
   await p.getByRole('button',{name:'다음 질문으로'}).click();
  });
  await qa('S02 series 2.5mA, parallel 10mA & KCL',async()=>{
-  await predict(p);
+  await verifyNeutralBeforePredict(p);await predict(p);
   await p.getByRole('button',{name:'직렬 2kΩ'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('2.50 mA')))throw Error('series 2.5mA missing');
   await p.screenshot({path:out+'/03-resistors-series.png',fullPage:true});
@@ -51,7 +64,7 @@ try{
   await p.getByRole('button',{name:'다음 질문으로'}).click();
  });
  await qa('S03 keyboard RC slider tau10, charge3.16, discharge1.84, changed RC tau20',async()=>{
-  await predict(p);
+  await verifyNeutralBeforePredict(p);await predict(p);
   const slider=p.locator('#elec-rc-time');await slider.focus();await p.keyboard.press('ArrowRight');
   if(await slider.inputValue()!=='10')throw Error('keyboard slider failed');
   if(!((await p.locator('.a05-readouts').innerText()).includes('3.16 V')))throw Error('charge tau 3.16 missing');
@@ -72,7 +85,7 @@ try{
   await p.getByRole('button',{name:'다음 질문으로'}).click();
  });
  await qa('S04 50mW 0.5J capacitor125uJ, doubled V four times energy',async()=>{
-  await predict(p);
+  await verifyNeutralBeforePredict(p);await predict(p);
   await p.getByRole('button',{name:'10mA',exact:true}).click();
   await p.getByRole('button',{name:'10초',exact:true}).click();
   const base=await p.locator('.a05-readouts').innerText();
