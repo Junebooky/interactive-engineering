@@ -81,14 +81,14 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
             <path d={'M' + (220 + i * 34) + ' 165 l5 9 l5 -9'} fill="none" stroke={GOLD} strokeWidth="1.7"/>
           </g>
         ))}
-        {s.isChannelFormed && s.channelThickness > 0 && (
+        {s.channelThickness > 0 && (
           <g>
             <path d={'M174 177 L469 177 L469 ' + (177 + widthAtDrain) + ' L174 ' + (177 + widthAtSource) + ' Z'}
               fill={MINT} fillOpacity=".24" stroke={MINT} strokeWidth="2"/>
             {electrons.map((e, i) => <circle key={i} cx={e.x} cy={e.y} r="2.1" fill="#b4ffff"/>)}
           </g>
         )}
-        <SvgLabel x={200} y={227} color={MINT} size={13}>{s.isChannelFormed ? '표면 반전층 형성' : '강한 반전층 미형성'}</SvgLabel>
+        <SvgLabel x={200} y={227} color={MINT} size={13}>{s.channelThickness > 0 ? '표면 반전층 가시화' : values.vgs >= 0.7 ? '문턱 경계 · 아직 채널 두께 0' : '강한 반전층 미형성'}</SvgLabel>
         {showCurrent && s.id > 0 && <>
           <path d="M195 243 H451" stroke={CYAN} strokeWidth="3" strokeDasharray="8 6" className="a05-current-line" />
           <path d="M451 243 l-13 -7 v14 Z" fill={CYAN}/>
@@ -102,7 +102,7 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
       <div className="a05-readouts" aria-live="polite">
         <span>VGS <b>{values.vgs.toFixed(1)} V</b></span>
         <span>VDS <b>{values.vds.toFixed(1)} V</b></span>
-        <span>반전 채널 <b>{s.isChannelFormed ? 'ON (문턱 이상)' : 'OFF (문턱 미만)'}</b></span>
+        <span>반전 채널 <b>{s.channelThickness > 0 ? '가시화 (문턱 초과)' : values.vgs >= 0.7 ? '경계 (두께 0)' : '미가시화 (문턱 미만)'}</b></span>
         <span>모델 ID <b>{s.id.toFixed(2)} mA</b></span>
       </div>
       {showCurrent && <div className="a05-plot">
