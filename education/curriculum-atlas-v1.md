@@ -1,3 +1,4 @@
+> **2026-10-17 A06 Round09 신규 레슨 실제 집필 반영:** [31 GPU 전원·냉각·PUE/WUE 5-Step](lessons/31-gpu-power-thermal-data-center.md) + [TI/DOE 공학 검산](deep-dives/31-vrm-cdu-pue-wue.md) **A06 자체 QA 완료 / A07 독립 SOURCE REVIEW 대기**. 현재 합계 **16개 원고/68 Step** = 기존 15/63+신규31 5 Step. [협업 카드 #38](https://github.com/Junebooky/interactive-engineering/issues/38) `NEXT:A07`. 신규 31은 A07 SOURCE PASS/ A05 제작/ A02 제품완료 판정이 아님. 전수 지도 115 topic/계획32 번호는 유지하고, PDF/제조사 SKU 성능을 toy로 혼동하지 않음.
 > **2026-10-17 A06 신규 라운드:** A07이 11·12·14 및 다른 레슨을 독립 검수하는 동안 **16 CMOS 논리·래치/플립플롭·클록 4-Step**을 자율 조사·작성. [16 lesson](lessons/16-logic-clock-registers.md) + [MIT 6.004/TI 공학 검산](deep-dives/16-digital-logic-clock-timing.md). A06 자체 QA만 완료, A07 독립 검토/EDU_QA_PASS는 **미완료**. 따라서 01→16→05 경로의 교육 자료는 존재해도 16의 SCENE_READY/앱 출시를 뜻하지 않음. 현재 총 원고 **15개/63 Step**.
 
 > **A07 협력 품질 게이트 v1.1 (2026-10-17):** 11·12의 예측 전 UI/Voice를 중립 문구로 교정했으며 **A07 재검증 대기**. 14 MOS capacitor 원고 4 Step 작성/공학 자가 QA 후 **A07 독립 QA 대기**, STORY_READY / A05 인계 승격은 A07 BLOCKER·MAJOR 해결 후 진행. 문서 총량 14/58과 검증·구현 완료를 혼동하지 않는다. [ID 네임스페이스 교차표](id-namespace-crosswalk.md): `topic:D02`는 캐리어 개념, `lesson:D02`는 DRAM; topic DAG 115개 무순환과 lesson-level 선수 연결을 별도로 QA한다.
@@ -29,7 +30,7 @@
 | 13 | U5 **06 제조·칩렛·HBM 패키징** | 11,03 | mask→yield→TSV→열 | 4 Step | 45~55분 | STORY_READY |
 | 14 | U5 **29 SerDes/PCIe/IOMMU** | 12,17 | 고속 신호·FLIT·주소/DMA·CXL | 5-Step 실험 | 45~60분 | **A06_SELF_QA / A07_REVIEW_PENDING** |
 | 15 | U5 **08 RDMA/RoCE/IB/optics** | 07,29 | GPU 간 통신의 비용 | 4 Step | 40~50분 | STORY_READY |
-| 16 | U6 **31 VRM/PSU/냉각** | 06,12 | 전기를 처리량·열과 연결 | switch losses/PUE | 45~55분 | P0 미작성 |
+| 16 | U6 **31 VRM/PSU/냉각** | 06,12 | MOSFET 전력손실→buck/PDN→CDU·물과 PUE/WUE | **5-Step 조작 원고 + 심화 physics** | 45~55분(기획) | **A06_SELF_QA_DONE / A07_EDU_REVIEW_PENDING; #38** |
 | 17 | U6 **10 AI 데이터센터 E2E** | 03,04,07,08,09,31 | 입출력→서버→추론→복구 | 4 Step | 45~55분 | STORY_READY |
 | 18 | U6 **32 capstone** | 10,31 | 전체 데이터 경로 실측 기준·SLO | 오류 주입/최적화 | 55~70분 | P0 미작성 |
 | 확장 A | 15 FinFET→GAA/CFET, 19 RowHammer | 01,02 | 미세화/신뢰성 | short channel, disturbance | 각 45~60분 | Research candidate |
