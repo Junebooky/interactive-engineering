@@ -40,7 +40,7 @@ const STORY: Record<DramSceneId, Story> = {
     question:'작은 ±ΔV를 분명한 논리 0 또는 1로 어떻게 판단할까요?',
     prediction:'BL을 0.5×VDD로 사전충전했을 때 1을 읽으면 BL이 어느 쪽으로 변할까요?',
     choices:[{id:'plus',text:'0.5보다 조금 높아져요.'},{id:'minus',text:'0.5보다 조금 낮아져요.'},{id:'unchanged',text:'절대 변하지 않아요.'}],
-    prompt:'비트 선택 → 사전충전 → 전하 공유 → 감지 증폭 → 셀 복원을 차례로 실행해 보세요.',
+    prompt:'셀 비트 선택 → BL=0.5×VDD 사전충전 → 전하 공유 → 센스앰프 증폭 시작 → 복원 완료 순간을 차례로 관찰하세요. 버튼은 실제 독립 DRAM 명령/클록이 아닌 교육용 스냅샷입니다.',
     answers:[
       {id:'restore',text:'전하 공유로 셀 상태가 흔들려서 센스앰프가 증폭한 뒤 다시 복원해요.'},
       {id:'untouched',text:'읽어도 셀의 전하는 조금도 달라지지 않아요.',misconception:'비트라인과 연결되는 순간 전하 공유가 일어나 셀 전압도 변해요.'},
@@ -48,9 +48,9 @@ const STORY: Record<DramSceneId, Story> = {
       {id:'large',text:'처음 생기는 BL 미세 변화는 이미 완전한 0/1 전압이에요.',misconception:'처음 변화는 작은 ±ΔV이고 센스앰프가 논리 레벨로 키웁니다.'},
     ],
     hints:['BL이 0.5, 셀이 1 또는 0이면 서로 연결할 때 전하가 어디로 갈까요?','아주 작은 차이를 크게 키워주는 회로는 뭘까요?','감지만 하고 끝내면 셀에는 어떤 전압이 남아 있을까요?'],
-    why:'교육용 Ccell:Cbitline=1:9, BL 프리차지 0.5×VDD에서 공유 전압은 (Cc×Vcell+Cb×0.5)/(Cc+Cb)로 0.55 또는 0.45입니다. 센스앰프가 작은 차이를 증폭해 0/1로 판단하고 셀 값을 재기록합니다. 실제 지연·전압·노이즈는 다릅니다.',
+    why:'교육용 Ccell:Cbitline=1:9, BL 프리차지 0.5×VDD에서 공유 전압은 (Cc×Vcell+Cb×0.5)/(Cc+Cb)로 0.55 또는 0.45입니다. 실제 WL이 열린 상태에서 센스앰프가 BL을 구동하면 셀 복원도 진행됩니다. 여기서 sensed/복원 완료 버튼은 그 연속 과정을 나눈 교육용 가상 순간이지 독립적인 실물 명령이 아닙니다. 실제 지연·전압·노이즈는 다릅니다.',
     nextHook:'읽지 않아도 전하가 서서히 샌다면 어떤 장치가 필요할까요?',
-    speech:'전압이 아주 조금만 움직이네요. 이 작은 차이를 증폭한 다음 다시 셀에 써 볼까요?',
+    speech:'전하 공유 뒤 미세한 전압 차가 생겨요. 센스앰프가 활성화되면 증폭과 셀 복원이 함께 진행됩니다. 이 화면은 이해를 돕는 가상 순간들이에요.',
     assumption:'정규화 VDD=1 · BL 사전충전 0.5 · Cc:Cb=1:9 · ΔV=±0.05 가상, 실제 DRAM 감지 전압 아님',
   },
   'dram-leak-refresh': {
@@ -170,6 +170,9 @@ export function DramSceneLab({onEvent,onSpeech}: DramLabProps) {
     event('answer.checked',{passed:next.passed});
   };
   const changed = prediction!==null;
+  const charge = shareCharge(state.bit);
+  const senseVoice = `현재 선택한 셀은 ${state.bit}이에요. 프리차지 0.50에서 전하 공유 후 비트라인은 ${charge.sharedVoltage.toFixed(2)}로 ${state.bit===1?'올라가고':'내려가요'}. 센스앰프가 켜지면 증폭과 셀 복원이 함께 진행되며, 두 버튼은 이 연속 과정의 가상 스냅샷이에요.`;
+  const promptVoice = sceneId==='dram-sense-restore' ? senseVoice : story.speech;
   const touchButton = (label:string, handler:()=>void, active=false, disabled=false)=>(
     <button type="button" aria-pressed={active} className={active?'selected':''} disabled={disabled} onClick={handler}>{label}</button>
   );
@@ -214,11 +217,13 @@ export function DramSceneLab({onEvent,onSpeech}: DramLabProps) {
                   {touchButton('셀 1',()=>mutate({...state,bit:1},'cellBit 1'),state.bit===1,state.phase!=='precharge')}
                 </div>
               </div>
-              <p className="a05-note">전하 공유 후 셀의 1과 BL의 전압이 모두 {shareCharge(1).sharedVoltage.toFixed(2)}로 옮겨가는 모습을 비교하세요.</p>
+              <p className="a05-note" data-testid="charge-sharing-explanation">현재 선택한 셀의 비트는 <strong>{state.bit}</strong>이에요. BL이 0.50에서 <strong>{charge.sharedVoltage.toFixed(2)} × VDD</strong>로 조금 {state.bit===1?'올라가요':'내려가요'}. 증폭과 복원 뒤에는 어떻게 될까요?</p>
+              <p className="a05-note">실제 센스앰프 활성화는 BL 구동과 셀 복원이 함께 진행되는 과정입니다. 아래 버튼은 <strong>연속 동작의 교육용 가상 순간</strong>을 구분합니다.</p>
+              <button type="button" className="a05-dram-observation-voice" onClick={()=>speak(senseVoice)}>선택한 비트 {state.bit}의 관찰 설명 듣기</button>
               <div className="a05-dram-actions">
                 <button type="button" disabled={state.phase!=='precharge'} onClick={()=>phase('shared')}>1. 전하 공유 (WL ON)</button>
-                <button type="button" disabled={state.phase!=='shared'} onClick={()=>phase('sensed')}>2. 센스앰프 활성화</button>
-                <button type="button" disabled={state.phase!=='sensed'} onClick={()=>phase('restored')}>3. 셀 복원</button>
+                <button type="button" disabled={state.phase!=='shared'} onClick={()=>phase('sensed')}>2. 증폭 시작 순간 보기</button>
+                <button type="button" disabled={state.phase!=='sensed'} onClick={()=>phase('restored')}>3. 복원 완료 순간 보기</button>
               </div>
             </>}
             {sceneId==='dram-leak-refresh' && <>
@@ -241,7 +246,7 @@ export function DramSceneLab({onEvent,onSpeech}: DramLabProps) {
           </div>
         </>}
         <div className="a05-tools">
-          <button type="button" onClick={()=>speak(story.speech)}>한국어 질문 듣기</button>
+          <button type="button" onClick={()=>speak(promptVoice)}>한국어 질문 듣기</button>
           {changed && <button type="button" disabled={hint>=3}
             onClick={()=>{setHint(Math.min(3,hint+1));event('hint.opened',{level:Math.min(3,hint+1)});}}>힌트 {hint}/3</button>}
         </div>
