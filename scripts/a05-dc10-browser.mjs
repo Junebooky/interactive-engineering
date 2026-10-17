@@ -1,9 +1,9 @@
 import {spawn} from 'node:child_process';
 import {mkdir} from 'node:fs/promises';
 import {chromium,devices} from 'playwright';
-const url='http://127.0.0.1:4190/a05-dc10-preview.html',out='browser-evidence/dc10';
+const url='http://127.0.0.1:4189/a05-dc10-preview.html',out='browser-evidence/dc10';
 await mkdir(out,{recursive:true});
-const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4190','--strictPort'],{stdio:['ignore','inherit','inherit']});
+const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4189','--strictPort'],{stdio:['ignore','inherit','inherit']});
 const passed=[],failed=[];let browser;
 async function qa(name,fn){try{await fn();passed.push(name);console.log('PASS '+name);}catch(e){failed.push({name,error:String(e)});console.error('FAIL '+name,e);}}
 async function ready(){let last='';for(let i=0;i<90;i++){try{const r=await fetch(url);if(r.ok)return;last='HTTP '+r.status+' '+(await r.text()).slice(0,350);}catch(e){last=String(e)+' cause='+String(e?.cause)+' code='+String(e?.cause?.code)+' address='+String(e?.cause?.address)+' port='+String(e?.cause?.port);}if(i%20===0)console.error('Vite preview readiness: '+last);await new Promise(r=>setTimeout(r,350));}throw Error('vite unavailable: '+last);}
