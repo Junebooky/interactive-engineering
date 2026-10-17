@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {SramSceneVisual} from './SramSceneVisual';
-import {assessSram,sramSceneOrder,access6T,simulateLru} from './sramModel';
+import {assessSram,sramSceneOrder,transitionSramCell,simulateLru} from './sramModel';
 import type {Bit,SramEvent,SramFeedback,SramSceneId} from './sramModel';
 import type {SramVisualState} from './SramSceneVisual';
 import '../a05Scenes.css';
@@ -14,7 +14,7 @@ type Story={
 };
 const LESSON:Record<SramSceneId,Story>={
   'sram-cross-coupled-inverters':{
-    title:'두 개의 NOT이 서로를 기억할 수 있을까요?',
+    title:'두 개의 NOT을 연결하면 무엇을 기억할까요?',
     hook:'MOSFET을 조합해 만든 CMOS NOT 게이트 두 개를 서로 마주 보게 연결했어요.',
     question:'Q=1, Q̅=0을 만든 뒤 입력을 떼면 얼마나 버틸까요?',
     prediction:'상호 피드백과 전원이 모두 있다면 무슨 일이 생길까요?',
@@ -29,7 +29,7 @@ const LESSON:Record<SramSceneId,Story>={
     hints:['출력이 반대 인버터 입력에 다시 들어간다는 점을 보세요.','Q가 1이라면 반대편 Q̅는 무엇일까요?','전원 공급 없이 CMOS가 상태를 유지할 수 있을까요?'],
     why:'두 CMOS 인버터를 서로 교차 연결하면 Q와 Q̅가 상보인 두 안정 상태를 만들 수 있어요. 정적 상태에서는 DRAM처럼 주기적으로 셀을 리프레시하지 않지만 전원은 필요합니다. 되먹임 OFF의 순간적인 아날로그 보존은 이 논리 장면에서 보장하지 않아요.',
     nextHook:'저장된 비트를 바깥에서 읽거나 바꾸려면 어떤 스위치가 필요할까요?',
-    speech:'두 인버터를 마주 연결하면 한쪽이 1일 때 다른 쪽은 0이에요. 전원을 꺼도 기억할까요?',
+    speech:'두 인버터를 마주 연결했어요. 전원을 껐다 켜면 저장된 숫자가 어떻게 될지 직접 예상해 보세요.',
     assumptions:'이상화된 전원·CMOS 상보 래치, 전원 OFF 데이터는 불확정 표시; 정확한 메타안정성/누설 생략',
   },
   'sram-6t-access':{
@@ -48,7 +48,7 @@ const LESSON:Record<SramSceneId,Story>={
     hints:['CMOS 인버터 둘에는 nMOS/pMOS가 모두 몇 개 있나요?','WL로 제어하는 접근 스위치는 양쪽에 각각 하나예요.','읽기 전압 교란 가능성과 1T1C 전하 공유를 구별해요.'],
     why:'대표 6T SRAM 셀은 4T로 된 두 교차 CMOS 인버터와 2T 접근 nMOS를 가집니다. 쓰기에서는 외부 BL/BLB 구동이 래치 상태를 바꾸고, 읽기 안정성은 소자 크기/잡음 여유에 의존해요. 이 장면은 안정 동작의 논리적 근사입니다.',
     nextHook:'이 비싸고 빠른 셀을 CPU 옆에 조금만 둔다면 무슨 이득이 있을까요?',
-    speech:'워드라인을 끄면 비트라인이 셀과 분리돼요. 6T는 네 개의 인버터 소자와 두 접근 소자라는 점을 기억해요.',
+    speech:'비트라인과 워드라인을 바꿔 보세요. 어느 조작에서 저장된 비트가 달라지는지 예상해 볼까요?',
     assumptions:'6T=4T+2T 이상화 안정 논리; 쓰기 assist·precharge·sense margins·read disturb 실제 전압 비정량',
   },
   'cpu-cache-vs-dram':{
@@ -112,21 +112,35 @@ export function SramSceneLab({onEvent,onSpeech}:SramLabProps){
     onEvent?.({sceneId:sramSceneOrder[i],type:'scene.enter'});
   }
   function q(value:Bit){
-    update({...state,q:value},'Q '+value);
-    if(state.feedback&&state.supply)observe(value?'q1':'q0');
+    // Manual Q choice is an explicit initialization; power-on alone NEVER resurrects the old bit.
+    if(!state.feedback||!state.supply)return;
+    update({...state,q:value},'Q initialized '+value);
+    observe(value?'q1':'q0');
   }
-  function setSupply(value:boolean){update({...state,supply:value},'VDD '+value);if(!value)observe('volatile');}
-  function setBl(value:Bit){update({...state,bl:value},'BL '+value);
-    if(state.wl===0&&value!==state.q)observe('isolated');}
+  function setSupply(value:boolean){
+    update({...state,supply:value,q:value?state.q:null},'VDD '+value);
+    if(!value)observe('volatile');
+  }
+  function setFeedback(value:boolean){
+    update({...state,feedback:value,q:value?state.q:null},'feedback '+value);
+  }
+  function setBl(value:Bit){
+    const next=transitionSramCell(state,{type:'bl',value});
+    update({...state,...next},'BL '+value);
+    if(state.wl===0&&value!==state.q)observe('isolated');
+    if(next.wl===1&&next.mode==='write')observe('wrote');
+  }
   function setWl(value:Bit){
-    const next=access6T(state.q,value,state.bl,state.mode);
-    update({...state,wl:value,q:next.q},'WL '+value);
-    if(value===1&&state.mode==='write')observe('wrote');
-    if(value===1&&state.mode==='read')observe('read');
+    const next=transitionSramCell(state,{type:'wl',value});
+    update({...state,...next},'WL '+value);
+    if(value===1&&next.mode==='write')observe('wrote');
+    if(value===1&&next.mode==='read')observe('read');
   }
   function setMode(mode:'read'|'write'){
-    update({...state,mode},'mode '+mode);
-    if(mode==='read'&&state.wl===1)observe('read');
+    const next=transitionSramCell(state,{type:'mode',value:mode});
+    update({...state,...next},'mode '+mode);
+    if(mode==='write'&&next.wl===1)observe('wrote');
+    if(mode==='read'&&next.wl===1)observe('read');
   }
   function runCache(){
     const report=simulateLru(state.cacheLines);
@@ -170,9 +184,9 @@ export function SramSceneLab({onEvent,onSpeech}:SramLabProps){
             {id==='sram-cross-coupled-inverters'&&<div className="a05-sram-controls">
               <strong>교차 인버터 (Q와 Q̅)</strong><div className="a05-control-buttons">
                 {btn('Q = 0',()=>q(0),state.q===0)}{btn('Q = 1',()=>q(1),state.q===1)}
-              </div><div className="a05-control-buttons">
-                {btn('피드백 ON',()=>update({...state,feedback:true},'feedback on'),state.feedback)}
-                {btn('피드백 OFF',()=>update({...state,feedback:false},'feedback off'),!state.feedback)}
+              </div><p className="a05-note">전원 OFF 후 ON은 이전 Q를 복원하지 않아요. Q=?인 경우 전원과 되먹임을 켜고 Q=0/1로 명시적으로 초기화하세요.</p><div className="a05-control-buttons">
+                {btn('피드백 ON',()=>setFeedback(true),state.feedback)}
+                {btn('피드백 OFF',()=>setFeedback(false),!state.feedback)}
               </div><div className="a05-control-buttons">
                 {btn('전원 ON',()=>setSupply(true),state.supply)}{btn('전원 OFF',()=>setSupply(false),!state.supply)}
               </div>

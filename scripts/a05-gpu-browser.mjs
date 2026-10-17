@@ -38,9 +38,22 @@ try{
  });
  await test('S02 DDR/GDDR/HBM are DRAM with distinct installation',async()=>{
    await predict(page);
-   await page.getByRole('button',{name:'CPU DIMM → DDR/RDIMM'}).click();
-   await page.getByRole('button',{name:'GPU 보드 → GDDR6/GDDR7'}).click();
-   await page.getByRole('button',{name:'GPU 패키지 → HBM'}).click();
+   // Wrong matching is now possible: old pre-matched controls hid this misconception.
+   await page.getByRole('button',{name:'HBM',exact:true}).click();
+   await page.getByRole('button',{name:'선택한 짝 검사하기'}).click();
+   if(!await page.getByText('오답: HBM은',{exact:false}).count())throw Error('S02 independent wrong pairing not visible');
+   await page.screenshot({path:out+'/04a-wrong-hbm-at-cpu-dimm.png',fullPage:true});
+   await page.getByRole('button',{name:'DDR/RDIMM',exact:true}).click();
+   await page.getByRole('button',{name:'CPU DIMM',exact:true}).click();
+   await page.getByRole('button',{name:'선택한 짝 검사하기'}).click();
+   await page.getByRole('button',{name:'GDDR6',exact:true}).click();
+   await page.getByRole('button',{name:'GPU 보드',exact:true}).click();
+   await page.getByRole('button',{name:'선택한 짝 검사하기'}).click();
+   await page.getByRole('button',{name:'GDDR7',exact:true}).click();
+   await page.getByRole('button',{name:'선택한 짝 검사하기'}).click();
+   await page.getByRole('button',{name:'HBM',exact:true}).click();
+   await page.getByRole('button',{name:'GPU 패키지',exact:true}).click();
+   await page.getByRole('button',{name:'선택한 짝 검사하기'}).click();
    const panel=await page.locator('.a05-readouts').innerText();
    if(!panel.includes('HBM')||!panel.includes('모두 DRAM'))throw Error('HBM not DRAM');
    await answer(page,'셋 모두 DRAM');
@@ -52,13 +65,26 @@ try{
  await test('S03 theoretical 384/512 GB/s; PAM3 3 levels not 3 bits',async()=>{
    await predict(page);
    await page.getByRole('button',{name:'24 Gb/s/pin'}).click();
-   if(!((await page.locator('.a05-readouts').innerText()).includes('384 GB/s')))throw Error('384 missing');
+   if(await page.locator('.a05-readouts').count())throw Error('numeric answers revealed before quiz');
+   const quiz24=page.locator('.a05-gpu-controls .a05-control-buttons').nth(2);
+   const quiz32=page.locator('.a05-gpu-controls .a05-control-buttons').nth(3);
+   await quiz24.getByRole('button',{name:'192 GB/s'}).click();
+   if(await page.locator('.a05-readouts').count())throw Error('numeric answer revealed after only first try');
+   await quiz24.getByRole('button',{name:'384 GB/s'}).click();
+   await page.getByRole('button',{name:'32 Gb/s/pin'}).click();
+   await quiz32.getByRole('button',{name:'384 GB/s'}).click();
+   await answer(page,'이론 GB/s=bit폭');
+   await page.getByRole('button',{name:'조건별로 확인하기'}).click();
+   if(!await page.getByText('빠진 조건이 있는지').count())throw Error('wrong 32Gb/s selection wrongly passed');
+   await page.screenshot({path:out+'/05a-wrong-32Gbps-quiz.png',fullPage:true});
+   await quiz32.getByRole('button',{name:'512 GB/s'}).click();
+   await page.getByRole('button',{name:'PAM3 3레벨'}).click();
+   const show=await page.locator('.a05-readouts').innerText();
+   if(!show.includes('512 GB/s')||!show.includes('3 levels'))throw Error('32GBps/pam3 missing '+show);
+   await page.getByRole('button',{name:'24 Gb/s/pin'}).click();
+   if(!((await page.locator('.a05-readouts').innerText()).includes('384 GB/s')))throw Error('24 GBps missing');
    await page.screenshot({path:out+'/05-gddr-384.png',fullPage:true});
    await page.getByRole('button',{name:'32 Gb/s/pin'}).click();
-   await page.getByRole('button',{name:'PAM3 3레벨'}).click();
-   if(!((await page.locator('.a05-readouts').innerText()).includes('512 GB/s')))throw Error('512 missing');
-   if(!((await page.locator('.a05-readouts').innerText()).includes('3 levels')))throw Error('PAM3 3 levels missing');
-   await answer(page,'이론 GB/s=bit폭');
    await page.getByRole('button',{name:'조건별로 확인하기'}).click();
    if(!await page.getByText('원리와 관찰을 연결했어요!').count())throw Error('G03-S03 failed');
    await page.screenshot({path:out+'/06-gddr-512-pam3.png',fullPage:true});

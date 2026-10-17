@@ -9,17 +9,29 @@ export interface SramEvent {
   type:'scene.enter'|'prediction.recorded'|'parameter.changed'|'answer.checked'|'hint.opened'|'voice.requested';
   payload?:Record<string,number|boolean|string>;
 }
-export function latch(q:Bit, feedback:boolean, supply:boolean){
-  return {q:supply&&feedback?q:null, qBar:supply&&feedback?(1-q) as Bit:null,
-    stable:supply&&feedback,
+export function latch(q:Bit|null, feedback:boolean, supply:boolean){
+  const valid=supply&&feedback&&q!==null;
+  return {q:valid?q:null, qBar:valid&&q!==null?(1-q) as Bit:null,
+    stable:valid,
     note:!supply?'전원 OFF: 상태 유지 불가(휘발성)':!feedback?'되먹임 OFF: 안정 저장 보장 불가':'상보 피드백: 안정 논리 모형'};
 }
 export type AccessMode='write'|'read';
-export function access6T(q:Bit, wordline:Bit, bl:Bit, mode:AccessMode){
+export function access6T(q:Bit|null, wordline:Bit, bl:Bit, mode:AccessMode){
   const qNext=wordline&&mode==='write'?bl:q;
-  return {q:qNext,qBar:(1-qNext) as Bit,connected:wordline===1,
+  return {q:qNext,qBar:qNext===null?null:(1-qNext) as Bit,connected:wordline===1,
     readBit:wordline===1&&mode==='read'?q:null,readDisturbPossible:wordline===1&&mode==='read'};
 }
+/** Persisted 6T cell transition. A read never silently commits BL; a write commits on any gate/BL/mode change. */
+export interface SramCellState {q:Bit|null; wl:Bit; bl:Bit; mode:AccessMode}
+export type SramCellAction={type:'wl';value:Bit}|{type:'bl';value:Bit}|{type:'mode';value:AccessMode};
+export function transitionSramCell(state:SramCellState, action:SramCellAction):SramCellState{
+  const next:SramCellState={
+    ...state,
+    ...(action.type==='wl'?{wl:action.value}:action.type==='bl'?{bl:action.value}:{mode:action.value}),
+  };
+  return {...next,q:next.wl===1&&next.mode==='write'?next.bl:state.q};
+}
+
 export type CacheRequest='A'|'B'|'C';
 export const REQUESTS:readonly CacheRequest[]=['A','A','B','A','C'];
 export interface CacheFrame {request:CacheRequest;hit:boolean;evicted:CacheRequest|null;slots:CacheRequest[];cost:number;total:number}
