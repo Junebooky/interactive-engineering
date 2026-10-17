@@ -1,5 +1,5 @@
 import {useId} from 'react';
-import {clockTimeline,evaluateNetwork,gateLogic,initialClockHighNoEdge,latchCase,metastability,timingToy} from './logic16Model';
+import {clockTimeline,evaluateNetwork,gateLogic,metastability,timingToy} from './logic16Model';
 import type {Logic16SceneId,Logic16State} from './logic16Model';
 function T({x,y,children,color='#dff9ff',size=14}:{x:number;y:number;children:React.ReactNode;color?:string;size?:number}){
  return <text x={x} y={y} fill={color} fontWeight="650" fontSize={size}>{children}</text>;
