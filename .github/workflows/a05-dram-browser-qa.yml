@@ -1,0 +1,31 @@
+name: A05 D02 Real Browser QA
+on:
+  push:
+    branches:
+      - feat/a05-dram-1t1c-scenes
+  workflow_dispatch:
+jobs:
+  chromium-dram:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install isolated Playwright and Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Actual DRAM desktop/mobile browser checks
+        run: node scripts/a05-dram-browser.mjs
+      - name: Store actual screen captures even on failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a05-d02-browser-evidence
+          path: browser-evidence/d02/
+          if-no-files-found: warn
+          retention-days: 14
