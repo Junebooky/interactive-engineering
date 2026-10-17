@@ -64,18 +64,38 @@ try{
  });
  await test('S03 theoretical 384/512 GB/s; PAM3 3 levels not 3 bits',async()=>{
    await predict(page);
+   if((await page.locator('.a05-canvas-header').innerText()).includes('관찰'))throw Error('UI claims observed answer before numeric quiz');
    await page.getByRole('button',{name:'24 Gb/s/pin'}).click();
    if(await page.locator('.a05-readouts').count())throw Error('numeric answers revealed before quiz');
    const quiz24=page.locator('.a05-gpu-controls .a05-control-buttons').nth(2);
    const quiz32=page.locator('.a05-gpu-controls .a05-control-buttons').nth(3);
+   // A07 negative: no numeric result in SVG, readouts, explanatory copy, Voice/ARIA, even after wrong attempts.
+   async function assertVeiled(stage){
+     if(await page.locator('.a05-readouts').count())throw Error(stage+': numeric readouts leaked');
+     if(!await page.locator('.a05-veiled').count())throw Error(stage+': numeric canvas not veiled');
+     const canvas=await page.locator('.a05-canvas-col').innerText();
+     if(/384\\s*GB\\/s|512\\s*GB\\/s/.test(canvas))throw Error(stage+': results leaked in canvas');
+     const aria=await page.locator('.a05-canvas-col').locator('[aria-label]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')).join(' '));
+     if(/384\\s*GB\\/s|512\\s*GB\\/s/.test(aria))throw Error(stage+': results leaked in ARIA');
+     const body=await page.locator('.a05-result,.a05-model-limit,.a05-why').allInnerTexts();
+     if(body.some(x=>/384\\s*GB\\/s|512\\s*GB\\/s/.test(x)))throw Error(stage+': numeric answer exposed in answer feedback/model assumption');
+   }
+   await assertVeiled('pre-numeric-attempt');
    await quiz24.getByRole('button',{name:'192 GB/s'}).click();
-   if(await page.locator('.a05-readouts').count())throw Error('numeric answer revealed after only first try');
+   await assertVeiled('wrong-24-only');
    await quiz24.getByRole('button',{name:'384 GB/s'}).click();
+   await assertVeiled('correct-24-only');
    await page.getByRole('button',{name:'32 Gb/s/pin'}).click();
+   await assertVeiled('before-32-answer');
    await quiz32.getByRole('button',{name:'384 GB/s'}).click();
+   await assertVeiled('wrong-32-with-24-correct');
    await answer(page,'이론 GB/s=bit폭');
    await page.getByRole('button',{name:'조건별로 확인하기'}).click();
    if(!await page.getByText('빠진 조건이 있는지').count())throw Error('wrong 32Gb/s selection wrongly passed');
+   await assertVeiled('wrong-32-after-feedback');
+   await page.getByRole('button',{name:'피드백 듣기'}).click();
+   const voice=await page.locator('[data-testid="gpu-voice-text"]').allInnerTexts();
+   if(voice.some(x=>/384\\s*GB\\/s|512\\s*GB\\/s/.test(x)))throw Error('spoken feedback leaked correct numeric values');
    await page.screenshot({path:out+'/05a-wrong-32Gbps-quiz.png',fullPage:true});
    await quiz32.getByRole('button',{name:'512 GB/s'}).click();
    await page.getByRole('button',{name:'PAM3 3레벨'}).click();
