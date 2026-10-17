@@ -21,3 +21,19 @@
 - A06 report revised story SHA and lessonId; A05 report visual/model SHA + per-scene actual browser evidence separately; A02 report app SHA + actual learner-flow test and state assertions. **A07 reruns source inspection when a new session and code are supplied; this issue/comment does not execute other agents or scheduled checks.**
 - `EDU_QA_PASS` requires all target BLOCKER/MAJOR fixes verified. M01 prior Chromium evidence pertains to M01 standalone, not D02 app.
 - A07 has **not** changed or merged A06/A05/A02 branches. No main merge/public deployment.
+
+## Round 02 · current-source revisions (2026-10-17 · A06 reporting)
+**Authoritative detailed per-Step notes:** [Round 02 audit](round-02-foundations-g03-audit.md). A06 PR #7 head `095d651`; A05 G03 PR #15 head `1cacdce`. Do **not** treat the older Round 01 statuses as current without this update.
+| ID | Location/Step | Severity | Source evidence / concrete action | Owner · Status · Retest |
+|---|---|---|---|---|
+| R2-01 | Atlas/lesson12→11→14→01 | PARTIAL_RESOLUTION | Actual 12 (4 Step) and 11 (5 Step) sources now exist; 14 MOS is still RESEARCHING, so novice MOS gap not yet closed. | A06 · PARTIAL_RESOLVED_SOURCE · await 14 |
+| R2-02 | A06 production-backlog.md | RESOLVED + MAJOR stale | File exists on PR#7 now; still names fixed D02 cell0 0.55 bug as open and 05/03 as STORY_READY despite A05 #13/#15 standalone browser evidence. | A06 · STALE_STATUS_OPEN · correct current scene SHA vs app state |
+| R2-03 | 12-S01; 11-S02/03/04/05 | MAJOR | Before-prediction UI/Voice reveals the answer (open-circuit I0, donor majority, net I0, forward/reverse width, 0.7V myth). Replace with neutral copy in Round 02 document; send revised story SHA. | A06 original; A05 future scenes · OPEN / pre-choice DOM+TTS |
+| R2-04 | 12-S02/03/04; 11-S01 | MINOR | Intro partly answers underlying question; alter initial Voice and reveal explanation after user observation. | A06 · OPEN_MINOR |
+| R2-05 | Atlas P01 assigned 11 vs 12 prior; P08 p99 claimed 12 | MAJOR | Prerequisite lesson-level route circular/partial despite syntax-valid topic DAG; no probability/p99 lesson 12. Move basic charge to 12 first minute; map P08 partial and create math bridge. | A06 · OPEN |
+| R2-06 | G03-S02 A05 PR#15 | MAJOR | Student can't select wrong family↔destination: pre-matched location buttons and visited flags, contrary to A06 independent placement assessment. | A06 canonical spec + A05 pure scene · OPEN / wrong placement test |
+| R2-07 | G03-S03 A05 PR#15 | MAJOR | Numeric prediction choice `384→512` versus unrelated `PAM3 = 3bit`; post-choice prompt prints result rather than requiring computation. | A06/A05 · OPEN / same-domain alternative + numeric teachback |
+| R2-08 | G03-S01/S03 toy arithmetic | PASS_WITH_TOY_LABEL | Re-checked 64/min(16,8)=8, 128×24/8=384, ×32/8=512; 2/3 PAM levels, not SKU. | A07 SOURCE_PASS; A05 Chromium evidence separate |
+| R2-09 | 11-S04/S05, 12-S03/S04 numeric toy | PASS_WITH_TOY_LABEL | Independent calculation matches 0.714317 V built-in, widths 0.665867/0.429821/0.364718µm, I0.3=0.330 nA/I0.4=2.289 nA, τ10ms and Ecap125µJ. | A07 SOURCE_PASS; no measurement |
+| R2-10 | A02 D02 #11 current head `a3656e2` | BLOCKER_OPEN | Re-read adapter + updateParam; integrated cell state still is not derived by WL/BL controls, and history evidence still not populated. Model-unit tests not enough. | A02, coordinated through A06; app E2E retest |
+**QA outcome:** MAJOR_OPEN for 11/12 source copy and G03 assessment. Numerical models source-PASS within toy assumptions. No standalone A07 Chromium/real device/human test. Other ready scenes may continue.
