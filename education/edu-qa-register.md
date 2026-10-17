@@ -169,3 +169,14 @@ A07 completed initial 08/10 scientific copy source review + latest GPU HEAD stat
 | **MOS14 A05 #40** HEAD `2f938b07cce225a7b4374a748dacf1d300e7b772`, model blob `10f9c133589f27a9c0c684fb26bf0976024cb9eb` | **Source/static physical math broadly okay / MINOR R12**: `cdepToy=0.5*Cox` artificially makes silicon depletion capacitance proportional to oxide thickness in tox slider, despite fixed substrate; not measured C–V. UI marks toy; no P1 science blocker, but clarify arbitrary schematic or derive independent Cdep from Wdep. | **A05 P2** explicitly disambiguate in model/UI; A07 actual scene QA remains [ ]. |
 
 A07 detailed report goes directly to A06 #6 and PR #7/14, A05 technical #15/#40, and hub #21 plus #38/#24/#28 card check updates. A05/A02 live browser tests, real audio/reader, hardware and student trials **not** independently performed by A07. No main merge/deploy.
+
+## Round13 · 2026-10-17 · Voice #41 / A02 PR#44 independent scientific speech-normalizer QA
+**Full exact-source regex reproduction, corrected Korean unit/term pronunciation, official 2026 deprecation factcheck:** [round-13-voice41-normalizer-factual-qa.md](round-13-voice41-normalizer-factual-qa.md).
+
+| Source | Current SHA | Independent A07 result / NEXT |
+|---|---|---|
+| **A02 PR#44 current Head** | `6c48cbfbf9e81d6967962bcf5bb7fa7c7cc09510`; `src/lib/voice/textNormalizer.ts` blob `a24c0b9817dc59d847aedf23ab44f6de27cd8bf3` | **SOURCE_STATIC_MAJORS_OPEN** — regex `6T SRAM`→`6개 치차 SRAM` physically false; `VGS`→gate voltage/`VDS`→drain voltage deletes **relative-to-source** meaning; `10 µA`/`3 kOhm` capture alternate has empty $1 and whitespace, potential reading discontinuity. P1 NEXT:A02 fix/targeted Vitest+real browser voice on new HEAD. |
+| **A02 Neural comparison doc** | `docs/tts-neural-voice-comparison.md` blob `9efb5c4d35e90261728cecec836320f640a0ca9a` | **SOURCE FACT P2** official 2026-10-01 OpenAI deprecated `tts-1`/`tts-1-hd` with Jan6 2027 shutdown; vendor “0ms”, hard latency, no-conditional unlimited reuse/caching and tone claims not empirically A/B demonstrated. NEXT:A02 revise source/date/license and cite official docs; no paid calls or signups. |
+| **A06 requested #41 natural narration script** | **No A06 10–20 line source blob returned yet** (as checked #41 recent comments) | **A07 SCRIPT_QA_PENDING** [ ] — NEXT:A06 commit exact A06 source SHA with before/hint/why lines, after gating, then A07 pronun/factual/educational QA and A02 handoff. Do not mark fake PASS on text not received. |
+
+**Complete distinct QA gate:** source code inspection and direct regex reproductions [x], live WebSpeech auditory cross-browser [ ] A02, A06 approved source utterance [ ] author, A07 independent 10–20 speech lines [ ] pending, A02 app E2E [ ] separate, owner vendor account/charge/deploy HOLD. A07 reports only to A06 educational workflow, technical defects direct to A02 PR#44 and Issue#41, status #21.
