@@ -122,7 +122,7 @@ try{
   if(!x.includes('PASS0.9ns')||!x.includes('PASS0.1ns'))throw Error('buffer9 should pass '+x);
   await p.getByRole('button',{name:'입력이 클록 에지에 가까이 변경 (위험 확인)'}).click();
   x=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
-  if(!x.includes('unknown/possible metastability'))throw Error('forced deterministic bit under hazard');
+  if(!x.includes('unknown/possiblemetastability'))throw Error('forced deterministic bit under hazard');
   await keyedWrongAndComplete(p,'10-setup-hold');
   await overflow(p);
  });
