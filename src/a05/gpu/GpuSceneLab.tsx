@@ -62,13 +62,13 @@ const LESSON:Record<GpuSceneId,Story>={
       {id:'theoretical-pam3',text:'이론 GB/s=bit폭×Gb/s/pin÷8; PAM3는 신호 레벨 3개이지 3bit/clk 아님.'},
       {id:'same-gb',text:'Gb/s와 GB/s는 똑같은 단위예요.',correction:'대문자 B는 바이트이고 8비트=1바이트이므로 ÷8 해야 해요.'},
       {id:'three-bits',text:'PAM3이면 신호 한 개당 정확히 3비트를 보내요.',correction:'3개의 진폭 레벨을 의미하며 3비트는 8상태가 필요해요.'},
-      {id:'measured',text:'384/512 GB/s는 실제 모든 GDDR GPU의 측정값이에요.',correction:'폭·핀당 속도 모두 가상, 100% 효율 이론상 상한이며 실효값 아님.'},
+      {id:'measured',text:'이론 공식으로 계산한 값이 실제 모든 GDDR GPU의 측정값이에요.',correction:'폭·핀당 속도 모두 가상, 100% 효율 이론상 상한이며 실효값 아님.'},
     ],
     hints:['1바이트가 몇 비트였나요?','128×24÷8을 직접 계산해 보세요.','NRZ는 두 레벨, PAM3는 세 레벨이지 비트 3개가 아니에요.'],
     why:'단일 가상 128bit 인터페이스에서 24Gb/s/pin이면 (128×24)/8=384GB/s, 32이면 512GB/s (십진 표기). PAM3는 3개의 신호 진폭이며 3bit/cycle을 의미하지 않고 실제 선로 부호화와 실효값·SKU는 별도입니다.',
     next:'HBM처럼 연결을 아주 넓게 만들면 어떤 어려움이 새로 생길까요?',
     speech:'전송률과 바이트 단위를 구분해 계산해 보세요. 결과는 실제 GPU 제품의 속도가 아닌 가상 이론치예요.',
-    assumptions:'가상 128-bit ×24/32 Gb/s/pin, 100% 모델 효율; 384/512 GB/s 십진 이론 상한 · 실제 SKU 데이터 아님',
+    assumptions:'가상 128-bit ×24/32 Gb/s/pin, 100% 모델 효율; 십진 이론 상한 계산 모델 · 실제 SKU 데이터 아님',
   },
   'hbm-tradeoffs':{
     title:'HBM을 GPU 곁에 쌓으면 전부 해결될까요?',
@@ -135,6 +135,10 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
   function constraints(){change({...state,showConstraints:true},'constraints');obs('constraints');}
   function speak(text:string){emit('voice.requested',{text});onSpeech?.(sceneId,text);}
   const reveal=prediction!==null;
+  // Both *correct* numerical selections are required before revealing derived readouts or aria values.
+  // A wrong answer must never unlock the correct answer through a graph, Voice or explanatory caption.
+  const numericUnlocked=rateAnswers[24]===384&&rateAnswers[32]===512;
+  const sceneRevealed=reveal&&(sceneId!=='gddr-width-rate'||numericUnlocked);
   const action=(text:string,fn:()=>void,active:boolean)=>(
     <button type="button" aria-pressed={active} className={active?'selected':''} onClick={fn}>{text}</button>
   );
@@ -193,9 +197,9 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
               <div className="a05-control-buttons">{([384,192,3072] as const).map(v=>action(v+' GB/s',()=>numericChoice(24,v),rateAnswers[24]===v))}</div>
               <strong>독립 계산 ② 128bit × 32Gb/s/pin ÷ 8 = ? GB/s</strong>
               <div className="a05-control-buttons">{([512,384,4096] as const).map(v=>action(v+' GB/s',()=>numericChoice(32,v),rateAnswers[32]===v))}</div>
-              <p className="a05-note" role="status">{rateAnswers[24]===null||rateAnswers[32]===null?
-                '두 문제의 숫자를 직접 선택하면 계기판과 정답 확인 단계가 열립니다.':
-                '이제 이론 모형 계기판을 비교하고 답을 검증하세요.'}</p>
+              <p className="a05-note" role="status">{!numericUnlocked?
+                '두 문제의 계산 결과를 직접 선택하세요. 오답을 고를 때는 계기판 숫자·음성을 공개하지 않습니다.':
+                '두 계산을 확인했어요. 이제 이론 모형 계기판을 비교하고 답을 검증하세요.'}</p>
               </div>}
             {sceneId==='hbm-tradeoffs'&&<div className="a05-gpu-controls">
               <div className="a05-control-buttons">
@@ -232,9 +236,8 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
         {feedback?.passed&&index===3&&<div className="a05-why"><p className="a05-next">{story.next}</p><p>A02 앱 통합은 별도입니다.</p></div>}
       </section>
       <section className="a05-canvas-col" aria-label="2.5D GPU 메모리 인터랙티브 시각화">
-        <div className="a05-canvas-header"><span>LIVE GPU 2.5D · G03</span><span>{reveal?'관찰':'예측 먼저'}</span></div>
-        <GpuSceneVisual sceneId={sceneId} state={state} revealed={
-          reveal&&(sceneId!=='gddr-width-rate'||(rateAnswers[24]!==null&&rateAnswers[32]!==null))}/>
+        <div className="a05-canvas-header"><span>LIVE GPU 2.5D · G03</span><span>{sceneRevealed?'관찰':'정답 계산 전 — 수치 은닉'}</span></div>
+        <GpuSceneVisual sceneId={sceneId} state={state} revealed={sceneRevealed}/>
         <div className="a05-model-limit"><strong>모형 범위</strong> {story.assumptions}</div>
         <div className="a05-source">A06 PR #7 G03 스토리보드 / A05 직접 구현 / 공인 제품 수치 아님</div>
       </section>
