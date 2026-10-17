@@ -143,6 +143,7 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
  }
  function speak(text:string){emit('voice.requested',{text});onSpeech?.(sceneId,text);}
  const shown=prediction!==null;
+ const physicalReady=evaluateElectricity(sceneId,seen,null).conditions.slice(0,-1).every(x=>x.passed);
  const control=(text:string,fn:()=>void,selected:boolean)=>(
   <button type="button" onClick={fn} aria-pressed={selected} className={selected?'selected':''}>{text}</button>
  );
@@ -162,23 +163,57 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
     <span className="a05-eyebrow">{sceneId} · STEP {index+1}/4</span>
     <h2>{story.title}</h2>
     {sceneId==='charge-voltage-current-arrows'&&<p className="a05-note">선수 개념 40초: 전자는 음전하예요. 전하 Q는 쿨롱(C), 전류 I는 초당 이동한 전하(C/s)예요. 금속의 전자 이동 방향은 양전하 기준 관습전류와 반대예요. 스위치 결과는 직접 예상해 보세요.</p>}
-    <p className="a05-hook">{story.hook}</p><p className="a05-question">{story.question}</p>
-    <div className="a05-box">
+    <p className="a05-hook">{story.hook}</p><p className="a05-question">{!shown?story.question:physicalReady?'관찰한 사실을 바탕으로 이유를 골라보세요.':'지금은 실험 조작 단계입니다. 회로를 직접 바꿔 관찰하세요.'}</p>
+    {!shown&&<div className="a05-box">
      <h3>예측을 먼저 기록해요</h3><p>{story.prediction}</p>
      <div className="a05-choice-set">{story.choices.map(c=><button key={c.id} type="button"
       aria-pressed={prediction===c.id} disabled={shown} className={prediction===c.id?'selected':''}
       onClick={()=>{setPrediction(c.id);emit('prediction.recorded',{answer:c.id});}}>{c.text}</button>)}</div>
-    </div>
+    </div>}
     {shown&&<>
-     <div className="a05-box"><h3>직접 조작하기</h3><p>{story.prompt}</p>
+     {physicalReady?<div className="a05-box"><h3>무엇을 알아냈나요?</h3>
+      <div className="a05-choice-set">{story.answers.map(c=><button key={c.id} type="button"
+       aria-pressed={answer===c.id} className={answer===c.id?'selected':''}
+       onClick={()=>{setAnswer(c.id);setFeedback(null);setWhy(false);}}>{c.text}</button>)}</div>
+      <button className="a05-primary" type="button" onClick={()=>{
+       const f=evaluateElectricity(sceneId,seen,answer);setFeedback(f);emit('answer.checked',{passed:f.passed});
+      }}>관찰 조건으로 확인하기</button>
+     </div>:<div className="a05-box a05-experiment-guidance" role="status"><h3>실험 진행 중</h3><p>회로 그림 바로 아래의 ‘실험 조작’에서 변수를 바꾸고 직접 관찰한 뒤 설명 문제로 이동해요.</p></div>}
+    </>}
+    <div className="a05-tools"><button type="button" onClick={()=>speak(story.speech)}>한국어 질문 듣기</button>
+     {shown&&<button type="button" disabled={hint>=3} onClick={()=>{
+      setHint(Math.min(3,hint+1));emit('hint.opened',{level:Math.min(3,hint+1)});
+     }}>힌트 {hint}/3</button>}
+    </div>
+    {hint>0&&<div className="a05-hint" role="status">{story.hints.slice(0,hint).map((x,i)=><p key={i}>{i+1}. {x}</p>)}</div>}
+    {feedback&&<div className="a05-result" role="status" aria-live="polite">
+     <h3>{feedback.passed?'이유까지 발견했어요!':'아직 확인할 실험 조건이 있어요.'}</h3>
+     {feedback.conditions.map(c=><p key={c.label}><strong>{c.passed?'✓':'△'} {c.label}</strong>
+      {' — '}{c.passed?'직접 확인했어요.':c.explanation}</p>)}
+     {!feedback.passed&&<p>{story.answers.find(x=>x.id===answer)?.whyWrong}</p>}
+     <button type="button" onClick={()=>speak(feedback.passed?story.nextHook:feedback.conditions.filter(c=>!c.passed).map(c=>c.explanation).join(' '))}>피드백 듣기</button>
+     {feedback.passed&&<button type="button" onClick={()=>setWhy(!why)}>{why?'원리 접기':'왜? 원리 보기'}</button>}
+    </div>}
+    {feedback?.passed&&why&&<div className="a05-why"><h3>왜 그럴까요?</h3><p>{story.why}</p>
+     {feedback.passed&&<p className="a05-next">{story.nextHook}</p>}</div>}
+    {feedback?.passed&&index<3&&<button type="button" className="a05-primary" onClick={()=>enter(index+1)}>다음 질문으로 →</button>}
+    {feedback?.passed&&index===3&&<div className="a05-why"><p className="a05-next">{story.nextHook}</p>
+     <p>이 샘플은 A02 공식 레슨 진행·저장 엔진과 분리되어 있습니다.</p></div>}
+   </section>
+   <section className="a05-canvas-col" aria-label="전기 회로 2.5D 실시간 시뮬레이터">
+    <div className="a05-canvas-header"><span>LIVE ELECTRICITY 2.5D</span><span>{shown?'관찰 가능':'예측 먼저'}</span></div>
+    <ElectricitySceneVisual sceneId={sceneId} state={state} revealed={shown}/>
+    {shown&&<div className="a05-experiment-dock" data-testid="electricity-experiment-dock" aria-label="실험 조작">
+     <h3>실험 조작 <span>현재 장면의 물리 변수</span></h3>
+     <p className="a05-dock-instruction">{story.prompt}</p>
       {sceneId==='charge-voltage-current-arrows'&&<div className="a05-electricity-controls">
        <strong>전원</strong><div className="a05-control-buttons">
         {control('5 V',()=>change({...state,volts:5},'source 5V'),state.volts===5)}
         {control('0 V',()=>change({...state,volts:0},'source 0V'),state.volts===0)}</div>
-       <strong>스위치</strong><div className="a05-control-buttons">
-        {control('OPEN · OFF',()=>circuit(false),!state.closed)}
-        {control('CLOSED · ON',()=>circuit(true),state.closed)}</div>
-       <strong>화살표 기준</strong><div className="a05-control-buttons">
+       <strong>회로 스위치</strong><div className="a05-control-buttons">
+        {control('열림 (OPEN)',()=>circuit(false),!state.closed)}
+        {control('닫힘 (CLOSED)',()=>circuit(true),state.closed)}</div>
+       <strong>흐름 방향 보기 (관찰 보조)</strong><div className="a05-control-buttons">
         {control('관습전류',()=>direction('conventional'),state.direction==='conventional')}
         {control('전자 이동',()=>direction('electron'),state.direction==='electron')}</div>
       </div>}
@@ -190,7 +225,7 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
        <strong>상태</strong><div className="a05-control-buttons">
         {control('현재 전압에서 충전',()=>modeFromCurrent('charge'),state.mode==='charge')}
         {control('현재 전압에서 방전',()=>modeFromCurrent('discharge'),state.mode==='discharge')}</div>
-       <button type="button" className="a05-primary" onClick={()=>rcReset('discharge')}>5V 완충 후 새 방전 실험</button>
+       <button type="button" className="a05-reset-action" onClick={()=>rcReset('discharge')}>5V 완충 후 새 방전 실험</button>
        <strong>R / C (변경 시 새 실험으로 재설정)</strong><div className="a05-control-buttons">
         {control('R=1kΩ',()=>rcReset(state.mode,1000,state.cMicroFarads),state.rOhms===1000)}
         {control('R=2kΩ',()=>rcReset(state.mode,2000,state.cMicroFarads),state.rOhms===2000)}
@@ -214,39 +249,7 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
         {control('10초',()=>powerChange({...state,seconds:10},'t10'),state.seconds===10)}</div>
        <p className="a05-note">이 화면에서 V와 I는 각각 설정해 볼 수 있는 가상 부하예요. 언제나 같은 고정 저항이라는 뜻은 아닙니다.</p>
       </div>}
-     </div>
-     <div className="a05-box"><h3>무엇을 알아냈나요?</h3>
-      <div className="a05-choice-set">{story.answers.map(c=><button key={c.id} type="button"
-       aria-pressed={answer===c.id} className={answer===c.id?'selected':''}
-       onClick={()=>{setAnswer(c.id);setFeedback(null);setWhy(false);}}>{c.text}</button>)}</div>
-      <button className="a05-primary" type="button" onClick={()=>{
-       const f=evaluateElectricity(sceneId,seen,answer);setFeedback(f);emit('answer.checked',{passed:f.passed});
-      }}>관찰 조건으로 확인하기</button>
-     </div>
-    </>}
-    <div className="a05-tools"><button type="button" onClick={()=>speak(story.speech)}>한국어 질문 듣기</button>
-     {shown&&<button type="button" disabled={hint>=3} onClick={()=>{
-      setHint(Math.min(3,hint+1));emit('hint.opened',{level:Math.min(3,hint+1)});
-     }}>힌트 {hint}/3</button>}
-    </div>
-    {hint>0&&<div className="a05-hint" role="status">{story.hints.slice(0,hint).map((x,i)=><p key={i}>{i+1}. {x}</p>)}</div>}
-    {feedback&&<div className="a05-result" role="status" aria-live="polite">
-     <h3>{feedback.passed?'이유까지 발견했어요!':'아직 확인할 실험 조건이 있어요.'}</h3>
-     {feedback.conditions.map(c=><p key={c.label}><strong>{c.passed?'✓':'△'} {c.label}</strong>
-      {' — '}{c.passed?'직접 확인했어요.':c.explanation}</p>)}
-     {!feedback.passed&&<p>{story.answers.find(x=>x.id===answer)?.whyWrong}</p>}
-     <button type="button" onClick={()=>speak(feedback.passed?story.nextHook:feedback.conditions.filter(c=>!c.passed).map(c=>c.explanation).join(' '))}>피드백 듣기</button>
-     <button type="button" onClick={()=>setWhy(!why)}>{why?'원리 접기':'왜? 원리 보기'}</button>
     </div>}
-    {feedback&&why&&<div className="a05-why"><h3>왜 그럴까요?</h3><p>{story.why}</p>
-     {feedback.passed&&<p className="a05-next">{story.nextHook}</p>}</div>}
-    {feedback?.passed&&index<3&&<button type="button" className="a05-primary" onClick={()=>enter(index+1)}>다음 질문으로 →</button>}
-    {feedback?.passed&&index===3&&<div className="a05-why"><p className="a05-next">{story.nextHook}</p>
-     <p>이 샘플은 A02 공식 레슨 진행·저장 엔진과 분리되어 있습니다.</p></div>}
-   </section>
-   <section className="a05-canvas-col" aria-label="전기 회로 2.5D 실시간 시뮬레이터">
-    <div className="a05-canvas-header"><span>LIVE ELECTRICITY 2.5D</span><span>{shown?'관찰 가능':'예측 먼저'}</span></div>
-    <ElectricitySceneVisual sceneId={sceneId} state={state} revealed={shown}/>
     <div className="a05-model-limit"><strong>공학 가정 및 단위</strong> {story.assumption}</div>
     <div className="a05-source">A06 교육 PR #7 / 12 전기·RC 원고 · A05 오리지널 SVG · 실물 회로 측정 아님</div>
    </section>
