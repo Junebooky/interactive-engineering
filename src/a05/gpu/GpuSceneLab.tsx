@@ -232,8 +232,10 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
           <button type="button" onClick={()=>speak(feedback.passed?story.next:feedback.conditions.filter(c=>!c.passed).map(c=>c.help).join(' '))}>피드백 듣기</button>
           <button type="button" onClick={()=>setWhy(!why)}>{why?'원리 접기':'왜? 원리 보기'}</button>
         </section>}
-        {why&&feedback&&<div className="a05-why"><h3>왜 그럴까요?</h3><p>{story.why}</p>
-          {feedback.passed&&<p className="a05-next">{story.next}</p>}</div>}
+        {why&&feedback&&<div className="a05-why" data-testid="g03-why-panel"><h3>왜 그럴까요?</h3>
+          {feedback.passed?<><p>{story.why}</p><p className="a05-next">{story.next}</p></>:
+            <p>아직 관찰이 완료되지 않았어요. 현재 조건의 오답 원인과 미관찰 조건을 확인한 뒤 각 가족을 직접 비교하세요. {feedback.conditions.filter(c=>!c.passed).map(c=>c.help).join(" ")}</p>}
+        </div>}
         {feedback?.passed&&index<3&&<button type="button" className="a05-primary" onClick={()=>enter(index+1)}>다음 질문으로 →</button>}
         {feedback?.passed&&index===3&&<div className="a05-why"><p className="a05-next">{story.next}</p><p>A02 앱 통합은 별도입니다.</p></div>}
       </section>
