@@ -91,3 +91,24 @@ A05 [DRAM Draft PR #10](https://github.com/Junebooky/interactive-engineering/pul
 **공통 필드:** `sceneId`, `learningGoal`, `priorKnowledge`, `storyHook`, `question`, `prediction`, `learnerAction`, `modelInputs`, `expectedObservation`, `correctIncorrectCriteria`, 오답 m1-3별 피드백, 힌트 1~3, 왜?(심화), nextHook, displayText/speechText, physicsAssumptions, sourceRefs. Lesson URL은 [07](lessons/07-server-memory-tiers.md) / [08](lessons/08-ai-fabric-rdma-optics.md) / [09](lessons/09-essd-reliability.md) / [10](lessons/10-ai-datacenter-end-to-end.md).
 
 A05는 현재 M01/D02 검증·수정과 각 Scene 독립 구현을 우선, 새 레슨은 별도 신규 branch/PR 선택 가능(매 레슨 A01 사전승인 불필요). “새 장면 코드를 만들었다” ≠ A02 앱 진도/Voice 통합. 본 파일의 숫자는 toy, 제품 스펙/실제 latency/PLP SLA로 재사용 금지. **병합·배포 금지.**
+
+
+## A06 v1 첫 두 기초 레슨 즉시 제작 인계 — 2026-10-17
+이전 10개 원고는 01~10 source-of-truth이며 **새로 빈 기초 2개(11·12) 합계 9개 scene / 50 Step 교육 명세**. [전체 Atlas v1](curriculum-atlas-v1.md)와 [production state backlog](production-backlog.md). 신규 원고는 자체 수식/언어 QA 완료, 실제 A05 2.5D 구현/브라우저/학습자 검증은 미실시.
+
+**Lesson 12: [전기·RC·W/J 4-Step](lessons/12-electricity-rc-foundations.md) → [source & unit QA](deep-dives/12-electricity-rc-foundations.md)**
+- `charge-voltage-current-arrows` — 5V, 1kΩ, open I=0/closed I=5mA, electron vs conventional arrows.
+- `resistors-series-parallel-kcl` — series 2kΩ=2.5mA; parallel 500Ω=10mA, each branch5mA; nodal sum.
+- `capacitor-rc-charge-discharge` — τ=1kΩ×10µF=10ms, Vcharge(τ)=3.16V/Vdischarge(τ)=1.84V, charging current decreases. 10ms=**toy RC**, NOT real DRAM retention.
+- `power-energy-joules-heat` — 5V×10mA=50mW, 10s=0.5J; C10µF 5V=>Ecap=125µJ. Configurable load I may be independent of V in toy; fixed resistor interpretation invalid.
+
+**Lesson 11: [밴드·도핑·PN 5-Step](lessons/11-doping-pn-foundations.md) → [MIT/OpenStax senior QA](deep-dives/11-pn-foundations.md)**
+- `semiconductor-band-gap` — 3 band cartoons, Eg≈1.1eV Si conceptual, hole is missing electron state not positron.
+- `silicon-donor-acceptor-doping` — P donor n-type electron majority / B acceptor p-type hole majority; bulk charge neutrality, minority not 0.
+- `pn-diffusion-drift-equilibrium` — n→p electron diffusion, fixed ions n(+)/p(−), electric field n→p; drift vs diffusion balanced net 0. Built-in potential ≠ battery terminal output.
+- `pn-bias-depletion-calculator` — Va(p relative n) -1/0/+0.2V => W 0.6659/0.4298/0.3647µm toy for 300K, NA=ND=1e16 cm^-3; avoid high-injection extrapolation.
+- `pn-diode-current-to-mos` — Is1pA/n2/VT25.852mV toy, I(0.3V)=0.330nA, I(0.4V)=2.289nA, no fixed 0.7V turn-on; oxide MOS gate field not PN forward-current path.
+
+**A05 action order:** finish ongoing [DRAM Draft PR #10](https://github.com/Junebooky/interactive-engineering/pull/10) bit0 text=0.45 (currently static 0.55) / restoration timing label / actual mobile/browser evidence, then separate PR(s) for 12→11; A05 no lesson-by-lesson approval wait. Later 14 MOS capacitor will be handed off only after A06 STORY_READY. For all nine scenes: pre-prediction answer/readout veil, controlled state/Voice, 3 misconception branches/3 hints, keyboard/44px/reduced motion, product numbers tagged toy, no XP/reward.
+
+**NOT DONE:** A05 scene implementation of 11/12, A02 integration, app/device/user QA, main merge or deploy. A06 role limited to science/education.
