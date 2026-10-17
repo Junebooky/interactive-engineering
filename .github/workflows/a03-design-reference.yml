@@ -1,0 +1,35 @@
+name: A03 Design Reference Screenshots
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "design/prototypes/**"
+      - ".github/workflows/a03-design-reference.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  render-design-reference:
+    name: Render A03 HTML reference (not app E2E)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install only Playwright for reference rendering
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Render HTML design prototype at desktop and mobile sizes
+        run: node design/prototypes/capture-reference.mjs
+      - name: Attach 8 reference PNGs (DESIGN CONCEPT ONLY)
+        uses: actions/upload-artifact@v4
+        with:
+          name: a03-mosfet-v2-design-reference-png
+          path: design/reference-captures/a03-mosfet-v2/*.png
+          if-no-files-found: error
+          retention-days: 14
