@@ -1,9 +1,9 @@
 import {spawn} from 'node:child_process';
 import {mkdir} from 'node:fs/promises';
 import {chromium,devices} from 'playwright';
-const url='http://127.0.0.1:4190/a05-logic16-preview.html',out='browser-evidence/logic16';
+const url='http://127.0.0.1:4189/a05-logic16-preview.html',out='browser-evidence/logic16';
 await mkdir(out,{recursive:true});
-const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4190','--strictPort'],{stdio:['ignore','inherit','inherit']});
+const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4189','--strictPort'],{stdio:['ignore','inherit','inherit']});
 let browser;const passed=[],failed=[];
 async function qa(name,fn){try{await fn();passed.push(name);console.log('PASS '+name);}catch(e){failed.push({name,error:String(e)});console.error('FAIL '+name,e);}}
 async function ready(){
