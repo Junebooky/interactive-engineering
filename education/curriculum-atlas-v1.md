@@ -1,7 +1,9 @@
-> **A07 협력 품질 게이트 v1.1 (2026-10-17):** 11·12의 예측 전 UI/Voice를 중립 문구로 교정했으며 **A07 재검증 대기**. 14 MOS capacitor 원고 4 Step 작성/공학 자가 QA 후 **A07 독립 QA 대기**, STORY_READY / A05 인계 승격은 A07 BLOCKER·MAJOR 해결 후 진행. 문서 총량 13/54와 검증·구현 완료를 혼동하지 않는다. [ID 네임스페이스 교차표](id-namespace-crosswalk.md): `topic:D02`는 캐리어 개념, `lesson:D02`는 DRAM; topic DAG 115개 무순환과 lesson-level 선수 연결을 별도로 QA한다.
+> **2026-10-17 A06 신규 라운드:** A07이 11·12·14 및 다른 레슨을 독립 검수하는 동안 **16 CMOS 논리·래치/플립플롭·클록 4-Step**을 자율 조사·작성. [16 lesson](lessons/16-logic-clock-registers.md) + [MIT 6.004/TI 공학 검산](deep-dives/16-digital-logic-clock-timing.md). A06 자체 QA만 완료, A07 독립 검토/EDU_QA_PASS는 **미완료**. 따라서 01→16→05 경로의 교육 자료는 존재해도 16의 SCENE_READY/앱 출시를 뜻하지 않음. 현재 총 원고 **14개/58 Step**.
+
+> **A07 협력 품질 게이트 v1.1 (2026-10-17):** 11·12의 예측 전 UI/Voice를 중립 문구로 교정했으며 **A07 재검증 대기**. 14 MOS capacitor 원고 4 Step 작성/공학 자가 QA 후 **A07 독립 QA 대기**, STORY_READY / A05 인계 승격은 A07 BLOCKER·MAJOR 해결 후 진행. 문서 총량 14/58과 검증·구현 완료를 혼동하지 않는다. [ID 네임스페이스 교차표](id-namespace-crosswalk.md): `topic:D02`는 캐리어 개념, `lesson:D02`는 DRAM; topic DAG 115개 무순환과 lesson-level 선수 연결을 별도로 QA한다.
 
 # Curriculum Atlas v1 · 반도체 전체 학습지도
-> A06 · checkedAt 2026-10-17 · **115개 기술 topic / 115개 순환 없는 DAG 노드 / 01~32 번호 체계의 코어·확장 레슨 계획**. 범위 지도 != 모든 레슨·기술의 완성 또는 실기기 검증. 기존 10레슨·41 Step에서 11 PN 5 Step + 12 전기 4 Step + **14 MOS cap 4 Step A07_REVIEW_PENDING**를 작성해 **총 13개 레슨/54 Step 원고(14는 미승인)**로 확장했다.
+> A06 · checkedAt 2026-10-17 · **115개 기술 topic / 115개 순환 없는 DAG 노드 / 01~32 번호 체계의 코어·확장 레슨 계획**. 범위 지도 != 모든 레슨·기술의 완성 또는 실기기 검증. 기존 10레슨·41 Step에서 11 PN 5 Step + 12 전기 4 Step + **14 MOS cap 4 Step A07_REVIEW_PENDING**를 작성해 **총 14개 레슨/58 Step 원고(14·16 A07 검토 대기)**로 확장했다.
 > 2026년 새 기술 UCIe **3.0**, PCIe **7.0**, imec GAA/CFET 연구를 확인하되 표준 발표와 상용제품 출하를 구분한다.
 > **레슨 번호는 고정 파일 식별자**라서 정규 학습 순서는 12→11→14→01→...; 문서번호 순서로 암기하지 않는다.
 
@@ -16,7 +18,7 @@
 | 2 | U0 **11 밴드/도핑/PN 다이오드** | 12 첫 10분 | 반도체 물질/접합과 드리프트·확산 | 도핑, Vbi, 공핍폭, I–V | 45~55분 | STORY_READY |
 | 3 | U1 **14 MOS 커패시터·표면반전** | 11,12 | 산화막 전계·축적·공핍·반전→MOSFET | 게이트 전압·Cox 4-Step | 35~45분 | **A07_EDU_QA_PENDING (A06_SELF_QA)** |
 | 4 | U1 **01 MOSFET→CMOS NOT** | 11,14 | VGS, VDS, logic bit 구분 | MOSFET 4 Step | 40~50분 | STORY_READY/A05 |
-| 5 | U1 **16 논리/클록·레지스터** | 01,12 | 조합/순차 논리와 타이밍 | NAND/DFF/clock | 40~50분 | P0 미작성 |
+| 5 | U1 **16 논리/클록·레지스터** | 01,12 | NAND/NOR→래치→DFF→setup/hold | 4-Step timing·truth table 실험 | 40~55분 | **A06_SELF_QA / A07_REVIEW_PENDING** |
 | 6 | U2 **05 SRAM/CPU cache** | 01,16 | 6T 저장과 hit/miss | latch/LRU | 40~50분 | STORY_READY |
 | 7 | U2 **02 DRAM bitcell** | 01,11,12 | 전하공유·감지·복원·refresh | DRAM 4 Step | 45~55분 | STORY_READY/A05 |
 | 8 | U3 **04 NAND/eSSD/NVMe** | 02,11 | 비휘발 저장과 PCIe 데이터 경로 | NAND/FTL/NVMe 5 Step | 45~60분 | STORY_READY |
