@@ -1,0 +1,17 @@
+.a05-gpu-lab{background:radial-gradient(ellipse at 85% 5%,#27586b 0,#102638 45%,#081626 100%)}
+.a05-gpu-controls{display:grid;gap:13px}
+.a05-gpu-controls>button:not(.a05-primary){
+  border:1px solid #5893a4;border-radius:11px;background:#1b3d52;color:#edfffa;
+  min-height:48px;padding:12px 14px;cursor:pointer;text-align:left;font:inherit;
+}
+.a05-gpu-controls>button[aria-pressed="true"]{background:#235b59;border-color:#9bf4df}
+.a05-gpu-controls strong{font-size:.89rem;color:#b4fcec}
+.a05-gpu-visual svg{display:block;width:100%}
+.a05-gpu-lab .a05-result button{margin:8px 9px 0 0;min-height:44px}
+.a05-gpu-lab button:focus-visible{outline:3px solid #ffe4ac;outline-offset:3px}
+.a05-gpu-voice-status,.a05-gpu-transcript{background:#123247;color:#dbffed;font-family:system-ui,sans-serif;margin:0;padding:12px 20px}
+@media(max-width:510px){
+  .a05-gpu-lab .a05-control-buttons{grid-template-columns:1fr}
+  .a05-gpu-lab .a05-readouts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){.a05-gpu-lab *{animation:none!important;transition:none!important}}

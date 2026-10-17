@@ -1,0 +1,31 @@
+name: A05 G03 Real Browser QA
+on:
+  push:
+    branches:
+      - feat/a05-gpu-memory-bottleneck
+  workflow_dispatch:
+jobs:
+  chromium-g03:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install isolated Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run live G03 desktop/mobile browser scenes
+        run: node scripts/a05-gpu-browser.mjs
+      - name: Archive screenshots even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a05-g03-browser-evidence
+          path: browser-evidence/g03/
+          if-no-files-found: warn
+          retention-days: 14
