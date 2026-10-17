@@ -6,7 +6,16 @@ await mkdir(out,{recursive:true});
 const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4190','--strictPort'],{stdio:['ignore','inherit','inherit']});
 let browser;const passed=[],failed=[];
 async function qa(name,fn){try{await fn();passed.push(name);console.log('PASS '+name);}catch(e){failed.push({name,error:String(e)});console.error('FAIL '+name,e);}}
-async function ready(){for(let i=0;i<80;i++){try{if((await fetch(url)).ok)return;}catch{}await new Promise(r=>setTimeout(r,300));}throw Error('Vite not available');}
+async function ready(){
+ let last='not-started';
+ for(let i=0;i<80;i++){
+  try{const response=await fetch(url);last='HTTP '+response.status+' '+(await response.text()).slice(0,280);
+    if(response.ok)return;
+  }catch(e){last=String(e);}
+  await new Promise(r=>setTimeout(r,300));
+ }
+ throw Error('Vite URL '+url+' not available: '+last);
+}
 async function overflow(p){const w=await p.evaluate(()=>[document.documentElement.clientWidth,document.documentElement.scrollWidth]);if(w[1]>w[0]+2)throw Error('root horizontal scroll '+w);}
 async function prediction(p,scene){
  if(!((await p.locator('.a05-copy .a05-eyebrow').innerText()).includes(scene)))throw Error('wrong scene '+scene);
