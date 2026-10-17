@@ -84,8 +84,8 @@ export function Power31SceneVisual({sceneId,state,revealed,evidence=[]}:{sceneId
     <Arrow x1={424} x2={477} y={179}/>
     <Unit x={481} y={142} w={126} title={dc.overheadMW.toFixed(1)+'MW'} sub="overhead"/>
     <Text x={62} y={253} size={15}>{evidence.includes('pue14')&&evidence.includes('pue12')?'24h 동일 IT 기준: 시설 에너지 차이 4.8MWh':'동일 IT·기간의 두 PUE 조건을 각각 실험한 뒤 차이를 공개해요'}</Text>
-    <Unit x={75} y={276} w={214} h={61} title={'site '+state.site+' / PUE '+dc.sitePue.toFixed(2)} sub="site facility / IT"/>
-    <Unit x={346} y={276} w={241} h={61} title={'WUE '+dc.siteWue.toFixed(2)+' L/kWh'} sub="site makeup water / IT kWh" accent="#a1d8ff"/>
+    <Unit x={75} y={276} w={214} h={61} title={evidence.includes('site'+state.site)?'site '+state.site+' / PUE '+dc.sitePue.toFixed(2):'site 계측 미관찰'} sub="site facility / IT"/>
+    <Unit x={346} y={276} w={241} h={61} title={evidence.includes('site'+state.site)?'WUE '+dc.siteWue.toFixed(2)+' L/kWh':'site WUE 미관찰'} sub="site makeup water / IT kWh" accent="#a1d8ff"/>
     <Text x={64} y={359} size={12}>{evidence.includes('siteA')&&evidence.includes('siteB')?'A: PUE1.2/WUE2.0 vs B: PUE1.35/WUE0.5 · 순위 서로 다름':'사이트 A와 B를 모두 조작한 뒤 두 지표의 순위를 비교해요'}</Text>
    </>}
    <Text x={61} y={387} size={11} color="#adcbd1">2.5D 원본 교육 모형 · 실장치 성능·안전 인증·현장 계측 아님</Text>
@@ -100,7 +100,7 @@ export function Power31SceneVisual({sceneId,state,revealed,evidence=[]}:{sceneId
    </>:sceneId==='cdu-water-loop-heat-flow'?<>
     <span>열<b>{state.heat} kW</b></span><span>냉각수 상승<b>{state.deltaT} K</b></span><span>재순환<b>{cool.flowKgPerS} kg/s</b></span><span>site 보충수<b>미정 (별도)</b></span>
    </>:<>
-    <span>시설<b>{dc.facilityMW} MW</b></span><span>동일 시간 energy<b>{dc.facilityMWh} MWh</b></span><span>site PUE<b>{dc.sitePue}</b></span><span>site WUE<b>{dc.siteWue} L/kWh</b></span>
+    <span>시설<b>{dc.facilityMW} MW</b></span><span>동일 시간 energy<b>{dc.facilityMWh} MWh</b></span><span>site PUE<b>{evidence.includes('site'+state.site)?dc.sitePue:'미관찰'}</b></span><span>site WUE<b>{evidence.includes('site'+state.site)?dc.siteWue+' L/kWh':'미관찰'}</b></span>
    </>}
   </div>
   <p className="a05-note">실제 벤더 전원/전력·냉각 데이터가 아닌 A06 교육용 상수로만 계산합니다. 열/순환 kg/s와 site 물 L/kWh는 다른 물리량입니다.</p>
