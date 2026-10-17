@@ -74,8 +74,8 @@ try{
   if(e1.includes('kv-offload'))throw Error('offload evidence without supported action');
   await p.getByRole('button',{name:'KV LPDDR offload'}).click();
   if(!(await probe(p)).includes('OFFLOAD_PATH_UNSUPPORTED'))throw Error('unsupported LPDDR allowed');
-  const e2=await p.getByTestId('dc10-evidence').innerText();
-  if(e2.includes('kv-offload'))throw Error('failed path created evidence');
+  if(await p.locator('.a05-readouts').count())throw Error('unsupported offload rendered fictitious accepted KV visual');
+  if(await p.locator('.a05-box').last().innerText().then(s=>s.includes('kv-offload')))throw Error('failed path created evidence');
   await p.getByRole('button',{name:'LPDDR 경로 ON'}).click();
   await probe(p);
   if(!((await p.getByTestId('dc10-evidence').innerText()).includes('kv-offload')))throw Error('valid offload not recorded');
