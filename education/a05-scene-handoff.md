@@ -63,3 +63,31 @@
 - `compute-feeding`: 완전 파이프라인 겹침 모형이면 feed=8 unit/s에서 compute 16→32에도 64/8≈8toy s 유지. 직렬 두 단계라면 12→10toy s로 바뀜. 구현 시 **모형을 선택하고 가정 표시**.
 - `ssd-ftl-reliability`: PLP-항상 / DRAM cache-항상 / ECC-무오류 세 선택지에 각각 다른 오류 메시지+원리 힌트 필요; [N04-S03](lessons/04-nand-essd-data-center.md) 참조.
 - `nvme-transfer`: **host→PCIe→SSD controller 명령**, **NAND→controller→PCIe DMA→host DDR read data**, **host DDR→GPU 별도 데이터 이동**을 각기 다른 방향/레이블로 그림. 캐시/DMA 직접 전달/GPUDirect Storage 등 대안 별도.
+
+
+## A06 direct handoff v0.3 · 신규 4레슨 16개 Scene (2026-10-17)
+기존 A05 PR #8의 M01 QA 피드백은 [source verification](a05-m01-cross-qa.md), 이후 A05가 실제 Chromium CI 증거를 제출했다([A05 PR #8](https://github.com/Junebooky/interactive-engineering/pull/8)); A06는 browser 직접 재실행하지 않았다.
+A05 [DRAM Draft PR #10](https://github.com/Junebooky/interactive-engineering/pull/10) D02 source-level 교차 QA는 [D02 검증 문서](a05-d02-cross-qa.md). **D02-S02 cell 0일 때 문구 0.55 고정 오류(실제 0.45)** 수정 우선.
+
+| 새 sceneId (Lesson) | 물리/시스템 시각조작 | 계산/오개념 체크 |
+|---|---|---|
+| `ddr5-data-rate-vs-latency` (07) | DDR5 channel vs ACT/READ latency | 64×6400/8=51.2GB/s; first access 별개 |
+| `server-rdimm-mrdimm-ecc` (07) | CPU CA→RCD, ranks→MRDIMM data buffers, ECC error location | on-die ECC != system ECC, module/CPU 호환 |
+| `lpddr-socamm2-kv-cache` (07) | HBM+LPDDR tier에 weights/KV placement | SOCAMM2 LPDDR, HBM 전체 대체 아님 |
+| `cxl-memory-tiering` (07) | hot/cold local DDR vs CXL pool, page migration | toy 11 vs25; 128GT/s !=128GB/s |
+| `nic-rdma-data-route` (08) | CPU mediated vs RDMA/GPUDirect packet path | NIC DMA/registration and CPU overhead |
+| `ethernet-roce-vs-infiniband` (08) | Ethernet RoCEv2/InfiniBand, packet queue, ECN/PFC | PFC가 무조건 lossless·0 tail 아님 |
+| `nccl-allreduce-traffic` (08) | GPU ring 2/4/8 and sync | ideal 2(N-1)/N ring bound |
+| `fiber-transceiver-energy` (08) | copper/optic, optical tx/rx, watts/cable | 100Gb/s ideal 1GB serialization 0.08s |
+| `nand-cell-voltage-windows` (09) | SLC/TLC/QLC Vth levels | 2/8/16 states, toy voltage window |
+| `ssd-write-amplification` (09) | NAND page GC relocation, FTL logical vs physical | 1GiB host+0.6GiB GC=>WAF1.6 |
+| `ssd-plp-power-loss` (09) | ACK→cache→NAND, PLP optional | 0.1F×(25−9)/2=0.8J toy |
+| `essd-dwpd-tail-latency` (09) | endurance budget and p99 distribution | 2TB,1DWPD,5years→3.65PB; avg1.95/p9920ms toy |
+| `ai-roofline-bottleneck` (10) | 4TFLOP/s and memory BW roofline | ridge=40FLOP/B toy, lower of two constraints |
+| `llm-prefill-decode-kv` (10) | prefill vs decode, token/cache growth, offload | TTFT vs tokens/s, memory capacity vs motion |
+| `rack-power-pue-thermal` (10) | facility power IT/PSU/cooling, PUE | IT1MW PUE1.4=>1.4MW facility toy |
+| `ai-dc-end-to-end-resilience` (10) | server-storage-network-GPU routes, fault injection | shared switch single-point-failure |
+
+**공통 필드:** `sceneId`, `learningGoal`, `priorKnowledge`, `storyHook`, `question`, `prediction`, `learnerAction`, `modelInputs`, `expectedObservation`, `correctIncorrectCriteria`, 오답 m1-3별 피드백, 힌트 1~3, 왜?(심화), nextHook, displayText/speechText, physicsAssumptions, sourceRefs. Lesson URL은 [07](lessons/07-server-memory-tiers.md) / [08](lessons/08-ai-fabric-rdma-optics.md) / [09](lessons/09-essd-reliability.md) / [10](lessons/10-ai-datacenter-end-to-end.md).
+
+A05는 현재 M01/D02 검증·수정과 각 Scene 독립 구현을 우선, 새 레슨은 별도 신규 branch/PR 선택 가능(매 레슨 A01 사전승인 불필요). “새 장면 코드를 만들었다” ≠ A02 앱 진도/Voice 통합. 본 파일의 숫자는 toy, 제품 스펙/실제 latency/PLP SLA로 재사용 금지. **병합·배포 금지.**
