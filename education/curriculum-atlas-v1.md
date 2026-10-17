@@ -1,9 +1,9 @@
-> **2026-10-17 A06 신규 라운드:** A07이 11·12·14 및 다른 레슨을 독립 검수하는 동안 **16 CMOS 논리·래치/플립플롭·클록 4-Step**을 자율 조사·작성. [16 lesson](lessons/16-logic-clock-registers.md) + [MIT 6.004/TI 공학 검산](deep-dives/16-digital-logic-clock-timing.md). A06 자체 QA만 완료, A07 독립 검토/EDU_QA_PASS는 **미완료**. 따라서 01→16→05 경로의 교육 자료는 존재해도 16의 SCENE_READY/앱 출시를 뜻하지 않음. 현재 총 원고 **14개/58 Step**.
+> **2026-10-17 A06 신규 라운드:** A07이 11·12·14 및 다른 레슨을 독립 검수하는 동안 **16 CMOS 논리·래치/플립플롭·클록 4-Step**을 자율 조사·작성. [16 lesson](lessons/16-logic-clock-registers.md) + [MIT 6.004/TI 공학 검산](deep-dives/16-digital-logic-clock-timing.md). A06 자체 QA만 완료, A07 독립 검토/EDU_QA_PASS는 **미완료**. 따라서 01→16→05 경로의 교육 자료는 존재해도 16의 SCENE_READY/앱 출시를 뜻하지 않음. 현재 총 원고 **15개/63 Step**.
 
 > **A07 협력 품질 게이트 v1.1 (2026-10-17):** 11·12의 예측 전 UI/Voice를 중립 문구로 교정했으며 **A07 재검증 대기**. 14 MOS capacitor 원고 4 Step 작성/공학 자가 QA 후 **A07 독립 QA 대기**, STORY_READY / A05 인계 승격은 A07 BLOCKER·MAJOR 해결 후 진행. 문서 총량 14/58과 검증·구현 완료를 혼동하지 않는다. [ID 네임스페이스 교차표](id-namespace-crosswalk.md): `topic:D02`는 캐리어 개념, `lesson:D02`는 DRAM; topic DAG 115개 무순환과 lesson-level 선수 연결을 별도로 QA한다.
 
 # Curriculum Atlas v1 · 반도체 전체 학습지도
-> A06 · checkedAt 2026-10-17 · **115개 기술 topic / 115개 순환 없는 DAG 노드 / 01~32 번호 체계의 코어·확장 레슨 계획**. 범위 지도 != 모든 레슨·기술의 완성 또는 실기기 검증. 기존 10레슨·41 Step에서 11 PN 5 Step + 12 전기 4 Step + **14 MOS cap 4 Step A07_REVIEW_PENDING**를 작성해 **총 14개 레슨/58 Step 원고(14·16 A07 검토 대기)**로 확장했다.
+> A06 · checkedAt 2026-10-17 · **115개 기술 topic / 115개 순환 없는 DAG 노드 / 01~32 번호 체계의 코어·확장 레슨 계획**. 범위 지도 != 모든 레슨·기술의 완성 또는 실기기 검증. 기존 10레슨·41 Step에서 11 PN 5 Step + 12 전기 4 Step + **14 MOS cap 4 Step A07_REVIEW_PENDING**를 작성해 **총 15개 레슨/63 Step 원고(14 SOURCE PASS, 16·29 A07 검토 대기)**로 확장했다.
 > 2026년 새 기술 UCIe **3.0**, PCIe **7.0**, imec GAA/CFET 연구를 확인하되 표준 발표와 상용제품 출하를 구분한다.
 > **레슨 번호는 고정 파일 식별자**라서 정규 학습 순서는 12→11→14→01→...; 문서번호 순서로 암기하지 않는다.
 
@@ -27,7 +27,7 @@
 | 11 | U4 **03 GPU/DDR/GDDR/HBM** | 02,17 | 계산량과 데이터 공급 | GPU BW 4 Step | 40~50분 | STORY_READY |
 | 12 | U4 **07 RDIMM/LPDDR/CXL** | 02,03 | 서버 메모리의 목적 차이 | 4 Step | 40~50분 | STORY_READY |
 | 13 | U5 **06 제조·칩렛·HBM 패키징** | 11,03 | mask→yield→TSV→열 | 4 Step | 45~55분 | STORY_READY |
-| 14 | U5 **29 SerDes/PCIe/IOMMU** | 12,17 | 보드/서버 데이터 경로 | PHY/link/DMA | 40~50분 | P0 미작성 |
+| 14 | U5 **29 SerDes/PCIe/IOMMU** | 12,17 | 고속 신호·FLIT·주소/DMA·CXL | 5-Step 실험 | 45~60분 | **A06_SELF_QA / A07_REVIEW_PENDING** |
 | 15 | U5 **08 RDMA/RoCE/IB/optics** | 07,29 | GPU 간 통신의 비용 | 4 Step | 40~50분 | STORY_READY |
 | 16 | U6 **31 VRM/PSU/냉각** | 06,12 | 전기를 처리량·열과 연결 | switch losses/PUE | 45~55분 | P0 미작성 |
 | 17 | U6 **10 AI 데이터센터 E2E** | 03,04,07,08,09,31 | 입출력→서버→추론→복구 | 4 Step | 45~55분 | STORY_READY |
