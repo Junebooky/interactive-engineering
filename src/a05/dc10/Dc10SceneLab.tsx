@@ -89,7 +89,7 @@ export function Dc10SceneLab({onEvent,onSpeech}:Dc10LabProps){
   setAnswer(null);setFeedback(null);setWhy(false);emit('parameter.changed',{key,physical:next});
  }
  function probe(){
-  const x=dc10Probe(sceneId,state);setHasProbe(true);setStatus(x.display);
+  const x=dc10Probe(sceneId,state);setHasProbe(x.evidence!==null);setStatus(x.display);
   if(x.evidence)setEvidence(prev=>prev.includes(x.evidence!)?prev:[...prev,x.evidence!]);
   emit('observation.recorded',{accepted:x.evidence!==null,evidence:x.evidence,display:x.display,physical:state,result:x.result});
  }
@@ -148,17 +148,24 @@ export function Dc10SceneLab({onEvent,onSpeech}:Dc10LabProps){
        {ctl('Switch A 정상',()=>change({switch1Healthy:true},'switchAHealthy'),state.switch1Healthy)}
        {ctl('Switch A 장애',()=>change({switch1Healthy:false},'switchAFailed'),!state.switch1Healthy)}
        {ctl('서버 1대',()=>change({servers:1},'servers1'),state.servers===1)}
-       {ctl('서버 2대',()=>change({servers:2},'servers2'),state.servers===2)}</div>
+       {ctl('서버 2대',()=>change({servers:2},'servers2'),state.servers===2)}
+       {ctl('주 회선 연결',()=>change({routeAConnected:true},'routeAOn'),state.routeAConnected)}
+       {ctl('주 회선 단절',()=>change({routeAConnected:false},'routeAOff'),!state.routeAConnected)}</div>
       <strong>백업 스위치와 진짜 회선/설정 (서로 독립)</strong><div className="a05-control-buttons">
        {ctl('Switch B 미설치',()=>change({switch2Installed:false},'switchBAbsent'),!state.switch2Installed)}
        {ctl('Switch B 설치',()=>change({switch2Installed:true},'switchBInstalled'),state.switch2Installed)}
+       {ctl('Switch B 정상',()=>change({switch2Healthy:true},'switchBHealthy'),state.switch2Healthy)}
+       {ctl('Switch B 장애',()=>change({switch2Healthy:false},'switchBFailed'),!state.switch2Healthy)}
        {ctl('B 회선 연결',()=>change({routeBConnected:true},'routeBConnected'),state.routeBConnected)}
        {ctl('B 회선 분리',()=>change({routeBConnected:false},'routeBDisconnected'),!state.routeBConnected)}
        {ctl('B 경로 구성 ON',()=>change({routeBConfigured:true},'routeBConfigOn'),state.routeBConfigured)}
-       {ctl('B 경로 구성 OFF',()=>change({routeBConfigured:false},'routeBConfigOff'),!state.routeBConfigured)}</div>
+       {ctl('B 경로 구성 OFF',()=>change({routeBConfigured:false},'routeBConfigOff'),!state.routeBConfigured)}
+       {ctl('백업 서버 정상',()=>change({backupHealthy:true},'backupHealthy'),state.backupHealthy)}
+       {ctl('백업 서버 장애',()=>change({backupHealthy:false},'backupFailed'),!state.backupHealthy)}</div>
       <strong>장애 후 복구 정책·세션 (하드웨어 수와 별개)</strong><div className="a05-control-buttons">
        {ctl('Failover 없음',()=>change({failoverPolicy:'none'},'policyNone'),state.failoverPolicy==='none')}
        {ctl('Failover 자동',()=>change({failoverPolicy:'automatic'},'policyAuto'),state.failoverPolicy==='automatic')}
+       {ctl('Failover 재시도',()=>change({failoverPolicy:'retry'},'policyRetry'),state.failoverPolicy==='retry')}
        {ctl('Local-only state',()=>change({sessionState:'localOnly'},'stateLocal'),state.sessionState==='localOnly')}
        {ctl('Replicated state',()=>change({sessionState:'replicated'},'stateReplica'),state.sessionState==='replicated')}
        {ctl('Stateless',()=>change({sessionState:'stateless'},'stateless'),state.sessionState==='stateless')}
