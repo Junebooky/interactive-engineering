@@ -24,7 +24,7 @@ const STORIES:Record<PnSceneId,Story>={
   hints:['밴드 그림의 높이 축은 거리인가요 에너지인가요?','전자 하나가 올라갔을 때 원래 있던 자리는?','실리콘의 빛·열 여기와 도핑의 변화를 구별하세요.'],
   why:'실리콘 300K 밴드갭 약 1.1eV는 교과서 근사예요. 금속/절연체/반도체는 에너지띠 점유와 이동도 등도 영향을 받습니다. 정공은 양전하처럼 기술하는 전자 빈자리이며 실제 양전하 전자 입자는 아닙니다.',
   next:'실리콘에 인(P)이나 붕소(B)를 조금 섞으면 다수 운반자는 어떻게 될까요?',
-  speech:'금속, 실리콘, 절연체를 비교하고 빛을 비춰보세요. 밴드갭은 공간 구멍이 아닌 에너지 차이예요.',
+  speech:'금속, 실리콘, 절연체를 나란히 놓고 온도와 빛을 바꿔보세요. 왜 다른 결과가 날까요?',
   assumption:'정성적 밴드 카툰, Si Eg≈1.1eV/절연체 5eV 예시, 광·온도 별 캐리어 수 정량화 금지'
  },
  'silicon-donor-acceptor-doping':{
@@ -62,7 +62,7 @@ const STORIES:Record<PnSceneId,Story>={
   hints:['캐리어가 떠난 자리에는 고정 이온이 남겠죠?','n 쪽 양 이온에서 p 쪽 음 이온으로 E 화살표를 그려요.','+1 toy 확산과 −1 toy 드리프트를 더해 보세요.'],
   why:'접합 직후 농도차에 따른 확산으로 이동 캐리어가 줄어들고 고정 donor(+)·acceptor(−) 이온이 남아 내부 E가 n→p로 생깁니다. 평형에서는 확산/드리프트에 해당하는 전류가 같고 반대여서 순 DC가 0이며, 내장 전압은 외부 단자용 배터리 출력이 아니에요.',
   next:'PN에 양/음 바이어스를 걸면 공핍층 넓이가 어떻게 바뀔까요?',
-  speech:'n형과 p형을 연결해 보세요. 전자와 정공이 퍼진 다음 남은 이온이 전기장을 만들어요.',
+  speech:'n형과 p형을 만나게 해 볼까요? 접합 주변에 어떤 변화가 생길지 먼저 예상해 보세요.',
   assumption:'내장 전계 n+→p−, 전류 +1/−1은 무차원 설명용 snapshot, 1D 평형·외부 0V'
  },
  'pn-bias-depletion-calculator':{
@@ -85,7 +85,7 @@ const STORIES:Record<PnSceneId,Story>={
   assumption:'300K Si 1D abrupt/Na,Nd=1e16/cm³ 기본, ni=1e10/cm³, Va<Vbi, W µm. 실제 실측값 아님'
  },
  'pn-diode-current-to-mos':{
-  title:'다이오드 전류는 직선이 아니라 곡선이에요',
+  title:'다이오드는 어떤 전압-전류 곡선을 그릴까요?',
   hook:'0.3V에서 0.4V로 조금 올렸는데 흐름이 몇 배로 커질까요?',
   question:'0.7V 미만은 전류가 정확히 0이고 MOS도 PN 전류만 쓸까요?',
   prediction:'+0.3V와 +0.4V의 다이오드 전류는 비슷할까요?',
@@ -100,7 +100,7 @@ const STORIES:Record<PnSceneId,Story>={
   hints:['다이오드 전류는 Shockley 지수식을 떠올려요.','내장전위와 개별 다이오드 켜짐 전압을 혼동하지 마세요.','MOS에서 O는 oxide, 절연막이에요.'],
   why:'Shockley 교육용 Is=1pA, n=2, VT=25.852mV, T300K에서는 I(0.3V)=0.330nA, I(0.4V)=2.289nA, 역−1V에서는 약−1pA입니다. 역항복/직렬저항/고주입은 모델 밖이에요. MOS는 전계로 채널을 제어하며 PN 순방향 전류만으로 작동하는 게 아니에요.',
   next:'산화막 아래 전하를 모으는 MOS capacitor 14 레슨이 STORY_READY가 되면 그 원리를 더 깊이 실험할 수 있어요.',
-  speech:'0.3볼트와 0.4볼트의 전류를 비교해 보세요. MOS 게이트와 PN 다이오드의 길도 달라요.',
+  speech:'전압을 조금 올리면 다이오드 전류는 비슷하게 늘까요, 갑자기 늘까요? 두 값을 먼저 예상해 주세요.',
   assumption:'Is=1pA, n=2, VT25.852mV, T300K Shockley toy, −1V breakdown·발열 미모형, MOS 게이트 이상 DC 절연'
  }
 };
