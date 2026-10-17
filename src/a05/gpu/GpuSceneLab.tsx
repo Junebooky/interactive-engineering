@@ -117,7 +117,8 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
     setMatching(correct?'정합: '+state.family+' → '+state.site:
       state.family==='HBM'?'오답: HBM은 대표적으로 GPU 패키지 가까운 적층 DRAM이에요.':
       state.family==='DDR/RDIMM'?'오답: DDR/RDIMM은 이 서버 모형에서 CPU DIMM 쪽에 놓여요.':
-      '오답: GDDR6과 GDDR7은 이 모형에서 GPU 보드 DRAM이에요.');
+      state.family==='GDDR6'?'오답: GDDR6은 이 모형에서 GPU 보드 DRAM이에요.':
+      '오답: GDDR7은 이 모형에서 GPU 보드 DRAM이에요.');
     if(correct)obs('pair-'+state.family);
     emit('parameter.changed',{description:'pair graded',family:state.family,site:state.site,correct});
   }
@@ -182,7 +183,8 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
                 {action('GPU 패키지',()=>memorySite('gpu-package'),state.site==='gpu-package')}
               </div>
               <button type="button" className="a05-primary" onClick={gradeMatch}>선택한 짝 검사하기</button>
-              {matching&&<p className="a05-note" role="status">{matching}</p>}
+              {matching&&<><p className="a05-note" role="status" aria-live="polite" data-testid="gpu-family-match-feedback">{matching}</p>
+              <button type="button" onClick={()=>speak(matching)}>현재 가족 매칭 피드백 듣기</button></>}
               <p className="a05-note">먼저 가족과 위치를 각자 고른 다음 짝을 검사하세요. 정답 위치는 이 가족을 검사한 뒤에만 확인할 수 있습니다. 실제 메모리 지원은 제품마다 다릅니다.</p>
             </div>}
             {sceneId==='gddr-width-rate'&&<div className="a05-gpu-controls">
