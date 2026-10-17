@@ -29,3 +29,31 @@
 - **teachBack:** (초보) 전계 vs 전자 통과 / (중급) steady vs changing current / (시니어) oxide leakage, EOT and TDDB 검증 방법 1개.
 - **sourceRefs:** [MOS-A][MOS-B][MOS-E]
 - **nextHook:** “아래쪽이 p형 실리콘이라면, 게이트 전압을 올릴 때 어떤 캐리어가 몰려올까요?”
+
+## 14-S02 · `mos-accumulation-depletion-inversion`
+### ① 기초: 예측 먼저
+- **sceneId:** `mos-accumulation-depletion-inversion`
+- **learningGoal:** p형 Si bulk는 그대로여도 표면 정공/전자 비율이 gate potential에 의해 accumulation→depletion→inversion으로 달라지는 원리를 설명.
+- **priorKnowledge:** 14-S01와 11 p형 다수 캐리어·고정 acceptor ion.
+- **storyHook:** “p형 실리콘 표면에서 정공 대신 전자가 많아질 수도 있을까요?”
+- **question:** 게이트 전압을 음→양으로 움직이면 실리콘의 겉부분에 남는 것들은 무엇일까요?
+- **prediction:** VGB −0.5 /0 /+0.3 /+1.1 V 각 스냅샷에서 정공·고정 이온·전자 중 표면 주역 먼저 배치.
+- **learnerAction:** gate bias 4단 조작, mobile holes/ electrons와 fixed acceptor separate symbols; 도핑카드 수/원소는 고정. VFB·VT marker와 state status는 **예측 전 숨김**.
+- **modelInputs:** *이 한 장면 전용* toy Si p-type NA=1e16cm^-3, ni=1e10cm^-3, T300K, tox5nm, εSi=11.7ε0, εox=3.9ε0, **VFB=0V** workfunction/charge 가정, dynamically derived Vt≈0.7848V. Values bias∈{−0.5,0,+0.3,+1.1}V; discrete visual states, not carrier-density TCAD.
+- **displayTextBeforePrediction:** “게이트 전압을 네 번 바꾼 뒤 표면을 살펴볼까요?”
+- **speechTextBeforePrediction:** “p형이라는 이름은 그대로예요. 게이트 전압을 바꿀 때 겉부분의 전하가 어떻게 될지 먼저 예상해 보세요.”
+### ② 관찰·오개념
+- **expectedObservation:** VGB< VFB=0: 다수 hole accumulation; VGB=VFB=0 flatband(특별 모형); +0.3 depletion(정공 밀려남, 음의 고정 acceptor ion), +1.1 strong inversion(전자 수 증가). 실제 약한 inversion은 문턱 이전부터 연속적.
+- **correctIncorrectCriteria:** 네 상태 순서·고정이온 부호/이동 캐리어 차이, "0V universal flat-band"가 잘못임을 말할 것. 선택과 조작 증거 모두 필요.
+- **misconceptions:** [m1] p형 표면이 반전되면 acceptor 원자가 donor 원자로 바뀐다; [m2] 모든 MOS에서 VGB=0은 flatband, VT는 반드시0.7V다; [m3] depletion은 전자·정공·고정 이온이 모두 사라진 진공이다.
+- **hints:** L1 도핑 원자를 바꾼 건가요, 캐리어가 이동한 건가요? / L2 flatband는 일함수/고정전하 영향도 받을까요? / L3 움직이는 정공이 밀려나면 acceptor ion은 남을까요?
+- **feedback/incorrect keyed:** m1 “표면 캐리어 조성이 바뀐 거예요. 도핑 원자가 변한 건 아니에요.” / m2 “실제 VFB·VT는 구조/재료에 달라요. 여기 0V flatband는 특별히 택한 toy 가정이에요.” / m3 “공핍 근사는 이동정공이 감소한다는 뜻이지 공간이 텅 빈 게 아니에요.”
+- **feedback/correct:** “도핑된 p형 bulk를 유지하면서 표면 상태만 바뀌는 것을 설명했어요.”
+- **displayTextAfterObservation:** “p형은 그대로여도 표면 캐리어는 달라져요.”
+- **speechTextAfterObservation:** “음의 게이트 전압에선 정공이 표면에 모이고, 양으로 올리면 정공이 밀려나요. 더 올리면 전자가 모여 반전이 나타나죠. 하지만 p형 원자가 바뀐 건 아니에요.”
+- **explanation:** p형 기판 nMOS용 MOS cap은 negative relative VFB에서 accumulation, increasing positive gate depletion then inversion. `VFB≠0` in general. 1D Vt has flat-band + surface potential+depletion drop contributions. A02 M01 Vth=0.7 toy is **별도 독립 교육모형**, 충돌된 실제 제품 문턱 수치가 아님.
+### ③ 엔지니어 경계
+- **physicsAssumptions:** chosen special VFB0, T300K, abrupt p bulk, 1D depletion approximate. Calculated Vt0.784825V; not a true MOSFET technology threshold guarantee; weak inversion continuous, nonideal interface/charge, body bias ignored.
+- **teachBack:** (초보) 음/양 gate 시 표면 이동정공/전자 예측 / (중급) 고정 acceptor charge와 flatband marker 구분 / (시니어) workfunction shift/oxide charge changes VFB and Vt.
+- **sourceRefs:** [MOS-A][MOS-B]
+- **nextHook:** “산화막을 더 두껍게 만들면 전계로 전하를 제어하기 쉬워질까요?”
