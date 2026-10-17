@@ -21,8 +21,8 @@ function Chip({x,y,w=150,h=75,name,detail,accent='#7df5cf'}:{
   <T x={x+10} y={y+30} size={16}>{name}</T>
   <T x={x+10} y={y+50} size={12} color="#c7e7ec">{detail}</T>
 </g>}
-export function GpuSceneVisual({sceneId,state,revealed}:{
-  sceneId:GpuSceneId;state:GpuVisualState;revealed:boolean;
+export function GpuSceneVisual({sceneId,state,revealed,familyMatchChecked=false}:{
+  sceneId:GpuSceneId;state:GpuVisualState;revealed:boolean;familyMatchChecked?:boolean;
 }){
   const uid=useId().replace(/:/g,'');
   if(!revealed)return <div className="a05-veiled" aria-label="GPU 실험 결과는 예측 전 숨겨져 있습니다">
@@ -58,13 +58,13 @@ export function GpuSceneVisual({sceneId,state,revealed}:{
       </>}
       {sceneId==='memory-family-roles'&&<>
         <T x={69} y={88} size={20} color="#8ef4dc">DRAM 가족은 같아도 설치 위치는 달라요</T>
-        <Chip x={69} y={126} w={155} name="CPU 소켓" detail="DDR / RDIMM" accent="#ffd18c"/>
-        <Chip x={245} y={126} w={155} name="GPU 보드" detail="GDDR6 / GDDR7" accent="#71d4fa"/>
-        <Chip x={420} y={126} w={160} name="GPU 패키지" detail="HBM stack" accent="#83efd9"/>
+        <Chip x={69} y={126} w={155} name="CPU 소켓" detail="위치 후보 A" accent="#ffd18c"/>
+        <Chip x={245} y={126} w={155} name="GPU 보드" detail="위치 후보 B" accent="#71d4fa"/>
+        <Chip x={420} y={126} w={160} name="GPU 패키지" detail="위치 후보 C" accent="#83efd9"/>
         <path d="M91 225 H540" stroke="#638da6" strokeDasharray="6 7" strokeWidth="3"/>
         <rect x={73} y="246" width="478" height="54" rx="11" fill="#254f5a" stroke="#87d8cb"/>
-        <T x={86} y={269} color="#dffff6" size={14}>{state.family} → {placement[state.family].site}</T>
-        <T x={85} y={289} color="#cbe9ea" size={12}>{placement[state.family].disclaimer}</T>
+        <T x={86} y={269} color="#dffff6" size={14}>{familyMatchChecked?state.family+' → '+placement[state.family].site:'선택한 가족과 위치를 먼저 검사해 보세요'}</T>
+        <T x={85} y={289} color="#cbe9ea" size={12}>{familyMatchChecked?placement[state.family].disclaimer:'검사 전: 정답 위치/짝 정보 비공개'}</T>
       </>}
       {sceneId==='gddr-width-rate'&&<>
         <T x={70} y={88} size={20} color="#8af1d8">이론 대역폭 = 버스 폭 × 핀 전송률 ÷ 8</T>
@@ -99,7 +99,7 @@ export function GpuSceneVisual({sceneId,state,revealed}:{
         <span>실효 처리율<b>{rate.throughput}/s toy</b></span><span>예상 시간<b>{rate.toySeconds} toy s</b></span>
       </>:sceneId==='memory-family-roles'?<>
         <span>선택 계열<b>{state.family}</b></span><span>장치 자리<b>{state.site}</b></span>
-        <span>정합 여부<b>{placement[state.family].site===state.site?'맞음':'재확인'}</b></span><span>저장 방식<b>모두 DRAM</b></span>
+        <span>정합 여부<b>{familyMatchChecked?(placement[state.family].site===state.site?'맞음':'재확인'):'미검사'}</b></span><span>저장 방식<b>모두 DRAM</b></span>
       </>:sceneId==='gddr-width-rate'?<>
         <span>버스 폭<b>128 bit</b></span><span>핀 속도<b>{state.pinRate} Gb/s</b></span>
         <span>이론 대역폭<b>{bandwidth.maxGBps} GB/s</b></span><span>전압 레벨<b>{signalLevels(state.signal)} levels</b></span>
