@@ -82,6 +82,7 @@ export function nand04Ssd(writePattern:'hot'|'cold',ecc:boolean,plp:boolean,dram
 }
 export function nand04Transport(stage:NandTransportStage,history:readonly string[]=[]){
  const command=history[0]==='command',dma=command&&history[1]==='read-data';
+ if(stage==='command'&&!command)return {from:'Host queue',via:'awaiting READ',to:'SSD idle',label:'No READ request yet',kind:'idle' as const,detail:'student has not issued a command; no DMA payload exists'};
  if(stage==='read-data'&&!command)return {from:'Host queue',via:'not submitted',to:'NO_REQUEST',label:'DMA blocked: NO_REQUEST',kind:'blocked' as const,detail:'READ command not submitted'};
  if(stage==='to-gpu'&&!dma)return {from:'Host DDR empty',via:'no DMA',to:'DATA_NOT_READY',label:'GPU copy blocked',kind:'blocked' as const,detail:'host DDR read payload not ready'};
  if(stage==='command')return {from:'Host software/queue',via:'PCIe',to:'SSD controller → NAND media',
