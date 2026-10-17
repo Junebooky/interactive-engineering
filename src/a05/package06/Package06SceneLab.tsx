@@ -10,7 +10,7 @@ const SCRIPT:Record<Package06SceneId,Script>={
  'fab-pattern-to-die':{
  title:'웨이퍼에 한 번 빛을 쏘면 완성 칩인가요?',hook:'마스크와 여러 층을 정렬해 회로를 만들고 검사합니다.',
  question:'포토 뒤 식각과 도핑, 금속배선, 테스트는 어떤 순서일까요?',
- prediction:'웨이퍼→포토→식각/막/주입→배선→검사→절단의 원인 순서를 예상하세요.',
+ prediction:'웨이퍼 준비 뒤 사진 패턴, 막 형성, 배선, 검사와 분리 카드의 진행 순서를 정답 공개 전에 스스로 예측하세요.',
  predictions:['여러 단계와 검사, 반복 층이 필요할 것 같아요.','포토 공정 1회만으로 완성칩이라고 생각해요.'],
  task:'단계 버튼을 실제 순서대로 눌러 진행하세요. 틀린 단계는 진행에 포함하지 않습니다. 층1/2와 결함 없음/있음도 각각 비교하세요.',
  options:[
@@ -184,7 +184,7 @@ export function Package06SceneLab({onEvent,onSpeech}:Package06LabProps){
   </section>
   <section className="a05-canvas-col" aria-label="웨이퍼·칩렛·HBM 2.5D 원본 도식">
    <div className="a05-canvas-header"><span>A05 PACKAGING 06 · ORIGINAL SVG</span><span>{revealed&&observed?'학생 조작 결과':'정답/숫자 조작 전 숨김'}</span></div>
-   <Package06SceneVisual sceneId={sceneId} state={state} revealed={revealed&&observed}/>
+   <Package06SceneVisual sceneId={sceneId} state={state} revealed={revealed&&observed} evidence={seen}/>
    <div className="a05-model-limit"><strong>물리 범위</strong> {revealed&&observed?story.physics:'학생이 직접 예상하고 독립 조건을 조작한 다음에야 교육용 수치와 제한을 공개합니다.'}</div>
    <div className="a05-source">A06 06 authoritative blob 7a40bec1 · A07 EDU_QA_PASS_SOURCE · 실제 실리콘 패키지 수율·온도 실측이 아닌 교육용 모형</div>
   </section></main></div>;
