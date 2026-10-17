@@ -65,3 +65,18 @@ Full reproducible controls, authoritative owner, physics references, ready-to-pa
 | R4-08 A05 SRAM current head | PR#13 `292c574` | **R3 BLOCKERS_STILL_OPEN** | No new source SHA; avoid presenting standalone original browser happy path as science signoff. |
 
 **Separation:** A06 story source clearance ≠ A05 2.5D clearance ≠ A02 integrated app/user/physical-device/Voice QA. A07 reviewer reports to A06 Issue#6, no A01 progress/approval, no main merge/deploy.
+
+## Round 05 · A06 new 16 logic/clock QA (2026-10-17)
+**Full independent source audit and copy-ready Korean corrections:** [round-05-logic-clock-16-audit.md](round-05-logic-clock-16-audit.md). A06 author source at PR #7 head `7dd78027cb5509b9d2edbdeeb56d350efb5821ba`, lesson16 blob `d73533118566ed61b7b7bc9d18939c9c19a5798d`, deep dive blob `2fd3f20ffb8b0303290bb2e50712469f91f90168`.
+
+| ID | Status | Target / reproducible evidence | Owner and retest |
+|---|---|---|---|
+| R5-01 | **MAJOR_OPEN, source handoff risk** | 16-S03 `prediction (must save before output reveals)` explicitly states latch Q follows / rising-edge DFF holds: student's correct answer printed; Before UI/Voice copy themselves neutral, **not observed in browser** | A06 neutral `predictionPrompt`, teacher-only result; retest revised blob; A05 actual Voice/aria gate later |
+| R5-02 | **MAJOR_OPEN, source handoff risk** | 16-S04 `prediction` declares T8 setup-pass/hold-fail, buffer flips them, T9 both-pass before question | A06 neutral three-case question; post observation numbers remain gated; retest blob |
+| R5-03 | **MAJOR_OPEN, grading fairness** | 16-S01 `correctIncorrectCriteria` requires **one incorrect topology selected by learner** to graduate | A06 learner can pass correct first try; intentional wrong-case belongs to A05 QA tests, not mandatory mistake |
+| R5-04 | **MINOR** | Lesson16 intro claims inverter cannot "calculate"; NOT is unary Boolean calculation | A06 revised intro “NOT로 하나의 비트를 뒤집는 계산은 가능…” |
+| R5-05 | **MINOR SceneSpec** | S01 invalid complementary topology may create rails contention or floating output rather than a trustworthy opposite 0/1 | A05 safe invalid/wrong wiring state; source clarification A06 |
+| R5-06 | **PASS_SOURCE physics/numerics** | NAND 1110, NOR 1000, nonassociative NAND; D latch vs DFF event; T8 setup+0.5 hold−0.3; buffer then T8 setup−0.1/hold+0.1; T9 setup+0.9/hold+0.1ns. Metastability only risk; 2FF never 100% | MIT 6.004 Ch3–6 official HTML independently cross-checked; no simulation/real-device or A07 browser QA |
+| R5-07 | **RESEARCHING only, no final lesson QA** | A06 note 29 blob `61ee5d2e`; PCIe7 bidirectional aggregate correctly framed but 29 not STORY_READY | A06 continues authoring + official standards verification; separate new SHA for independent full QA |
+
+**Combined verdict**: 16 **MAJOR_OPEN / NOT STORY_READY** pending A06 lesson-source correction and A07 SHA recheck. Physics deep dive PASS_SOURCE. This does not reopen older resolved 14 MOS story source signoff (Round04); previous 05 SRAM and 04 NAND findings not silently closed. A07 reports directly to A06 Issue#6; A05 scene and A02 app browser gates are distinct.
