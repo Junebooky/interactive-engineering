@@ -76,3 +76,8 @@
 ## A06 Round06 next gap scan (2026-10-17)
 **Newly addressed at authored-story level:** 16 CMOS gates→combinational vs sequential→level D latch/rising-edge DFF→timing/CDC (4 Step, [source](lessons/16-logic-clock-registers.md), [MIT/TI deep dive](deep-dives/16-digital-logic-clock-timing.md)). A07 independent review pending; not complete production.
 **Still pending:** 29 high-speed PCIe SerDes/DMA/IOMMU/CXL interplay [source research kickoff](research-notes/29-serdes-pcie-cxl-research.md); 31 VRM/rack PSU/heat/energy; 32 AI DC end-to-end SLO; 13 units/p99 mini bridge; 17 CPU pipeline; 15 FinFET/GAA/CFET; 20 EDA/STA & signoff; 05 SRAM A07 power-up/write persistence source blocker; 04 NAND targeted feedback source updates; 12 A05 PR#18 science/Voice cross QA. Plan after 29: select 31 vs 17 based on missing prerequisites/downstream impact, not A01 per lesson gate.
+
+## Round07 · PCIe/SerDes/DMA/CXL education coverage updates
+- Lesson29 [5 Step educational draft](lessons/29-serdes-pcie-dma-cxl.md) closes narrative gap among SSD/NVMe vs PCIe transport, DMA/IOMMU map, SerDes/PAM4, PCIe6/7 bidirectional headline and CXL memory semantics **at AUTHOR stage only**. A07 independently review pending; exact PCIe7 packet byte layout/SKU-app performance must not be inferred from PCIe6. CXL evaluation restricted spec not processed.
+- 14 MOS has A07 SOURCE PASS (scene still open); 11/12 source leaks corrected to gated teacher answer awaiting A07 recheck. Existing SRAM05 source blocker and NAND04 targeted feedback remain separate.
+- Next new content priority: 31 PSU/VRM/cooling because GPU/AI DC needs Joule/Watt/Thermal precursor; alternative after 29 A07 review is 13 unit/p99 bridge. Atlas remains coverage graph, not fully implemented course.
