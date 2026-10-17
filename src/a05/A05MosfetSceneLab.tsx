@@ -25,7 +25,7 @@ const STORIES: Record<A05SceneId, Story> = {
     finalChoices: [
       { id: 'oxide', label: '전자들이 산화막을 뚫고 게이트로 넘어갔어요.', misconception: '산화막은 절연체예요. 전기장은 영향을 주지만, 전자가 산화막을 통과하는 모습은 아니에요.' },
       { id: 'surface', label: '게이트 아래 실리콘 표면에 전자들이 모였어요.' },
-      { id: 'zero', label: '0.7 V 이하는 실제로 모든 전류가 완벽하게 0이에요.', misconception: '문턱 아래에도 미세한 전류가 존재할 수 있어요. 이 화면에서만 단순화했어요.' },
+      { id: 'zero', label: 'VDS가 있어도 문턱 아래의 드레인 전류는 항상 정확히 0이에요.', misconception: 'VDS가 걸린 실제 소자에는 문턱 아래 미세 전류가 있을 수 있어요. 하지만 이 장면은 VDS=0이므로 순 DC 전류는 0이 맞아요.' },
       { id: 'universal', label: '모든 MOSFET의 문턱은 언제나 0.7 V예요.', misconception: '문턱 전압은 실제 소자·공정·온도에 따라 달라요. 0.7 V는 이 실험의 가정이에요.' },
     ],
     displayText: '전압을 올리면 산화막 바로 아래가 어떻게 달라질까요?',
@@ -106,7 +106,7 @@ const STORIES: Record<A05SceneId, Story> = {
       '이상적인 정지 상태의 관통경로와 실제 스위칭·누설 전력은 다르답니다.',
     ],
     why: 'CMOS는 pMOS 풀업과 nMOS 풀다운을 상보적으로 구동해 안정 상태에서 직접 VDD→GND 관통 경로를 억제해요. 실제 회로에는 누설 및 스위칭 전력이 존재합니다. 이는 이전의 저항형 nMOS 회로와 다른 토폴로지예요.',
-    nextHook: '이제 논리 1을 만들었어요. 그 1을 오랫동안 기억하려면 무엇이 필요할까요? → DRAM',
+    nextHook: 'CMOS 인버터 두 개를 되먹임하면 SRAM이 돼요. 커패시터 하나에 저장하는 DRAM과 무엇이 다를까요?',
     assumptions: '5 V 이상적인 CMOS 정지 논리 예제 · 실제 트랜지스터 곡선/누설/과도 응답은 생략',
     misconceptions: [
       'CMOS의 소비 전력이 항상 0은 아니에요. 실제 누설과 전환 중 전력이 남아요.',
