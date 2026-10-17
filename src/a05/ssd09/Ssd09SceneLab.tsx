@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {Ssd09SceneVisual} from './Ssd09SceneVisual';
-import {fresh09,gradeSsd09,latencyModel,latencyPick,plpAdvance,plpConfigure,plpEnergy,ssd09Order,ssdEndurance} from './ssd09Model';
+import {fresh09,gradeSsd09,latencyModel,latencyPick,plpAdvance,plpConfigure,ssd09Order,ssdEndurance} from './ssd09Model';
 import type {BitsPerCell,LatencySet,OpPercent,PlpAction,PlpAckMode,PlpTrial,Relocated,Ssd09Event,Ssd09Grade,Ssd09Id,Ssd09State} from './ssd09Model';
 import '../a05Scenes.css';
 import './ssd09.css';
