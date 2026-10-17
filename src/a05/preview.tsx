@@ -7,7 +7,7 @@ function M01StandalonePreview() {
   function voicePreview(_sceneId:string,text:string) {
     const available=typeof window !== 'undefined' &&
       typeof window.speechSynthesis?.speak==='function' &&
-      typeof window.SpeechSynthesisUtterance==='function';
+      typeof SpeechSynthesisUtterance==='function';
     if(!available){
       setVoiceNotice('이 브라우저에서는 음성 재생을 지원하지 않아요. 화면의 문장을 읽으며 계속 진행할 수 있어요.');
       return;
