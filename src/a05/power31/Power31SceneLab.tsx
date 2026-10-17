@@ -26,17 +26,17 @@ const STORIES:Record<Power31SceneId,Story>={
  },
  'gpu-buck-vrm-duty-ratio':{
  title:'12V에서 4V를 얻는 스위치 비율과 전류는?',hook:'전압 변환 비율과 에너지 효율은 서로 다른 경계예요.',
- question:'duty 1/4, 0.3333333333333333, 1/2는 이상적 연속전류 buck의 전압을 어떻게 바꾸나요?',
- prediction:'이상적 Vin12V, D=1/4·0.3333333333333333·1/2 카드의 Vout을 예상하고 Iout10A와 Iin이 같은지 생각하세요.',
+ question:'duty 1/4, 1/3, 1/2는 이상적 연속전류 buck의 전압을 어떻게 바꾸나요?',
+ prediction:'이상적 Vin12V, D=1/4·1/3·1/2 카드의 Vout을 예상하고 Iout10A와 Iin이 같은지 생각하세요.',
  options:['스위치 비율과 입출력 전력/전류를 따로 비교할게요.','전압을 낮추면 입력과 출력 전류도 항상 똑같을 거예요.'],
  task:'D=25%,33.33%,50%를 각각 실험하고, 별도 η90% 전력 모델을 켜 Vin/Iin vs Vout/Iout을 비교하세요.',
  answers:[
  {id:'buck-ideal-vs-power-efficiency',label:'이상적 CCM buck에서 Vout≈D×Vin이고, 별도 손실η는 Pin=Pout/η와 Iin=Pin/Vin으로 계산해요.'},
- {id:'m1',label:'손실형 buck이라도 duty0.3333333333333333이면 어느 부하·상태에서나 정확히4V예요.',feedback:'Vout=D×Vin은 이상적인 안정된 연속 인덕터 전류의 모형입니다. 실제 리플·손실·제어 상태에서 항상 등식은 아닙니다.'},
+ {id:'m1',label:'손실형 buck이라도 duty 1/3이면 어느 부하·상태에서나 정확히4V예요.',feedback:'Vout=D×Vin은 이상적인 안정된 연속 인덕터 전류의 모형입니다. 실제 리플·손실·제어 상태에서 항상 등식은 아닙니다.'},
  {id:'m2',label:'Vout4V에서 Iout10A면 Vin12V의 Iin도 항상10A예요.',feedback:'입력 전력은 출력 전력과 효율로 결정됩니다. 입력12V에서 전류가 출력10A와 같을 이유는 없어요.'},
  {id:'m3',label:'스위치를 빠르게 하면 인덕터 리플과 전력손실이 반드시0이에요.',feedback:'스위칭 손실·인덕터 리플·도통 손실은 실제 설계에서 남습니다. 이상화의 범위를 지켜야 해요.'}],
  hints:['이상적 인덕터 volt-second balance를 생각하세요.','입력 전력은 출력 전력 나누기 효율이에요.','D·Vin과 η·전류를 다른 식으로 계산하세요.'],
- why:'이상적 CCM에서 Vin12V×D1/4,0.3333333333333333,1/2→Vout3,4,6V입니다. Vout4V·Iout10A면 Pout40W. 별도 가상 η90%이면 Pin44.444W, Iin≈3.704A, 변환손실4.444W. η90%를 ideal Vout=D×Vin에 다시 곱하지 않습니다.',
+ why:'이상적 CCM에서 Vin12V×D1/4,1/3,1/2→Vout3,4,6V입니다. Vout4V·Iout10A면 Pout40W. 별도 가상 η90%이면 Pin44.444W, Iin≈3.704A, 변환손실4.444W. η90%를 ideal Vout=D×Vin에 다시 곱하지 않습니다.',
  next:'GPU 배선이 1V에서 더 큰 전류를 견뎌야 하는 이유는 무엇일까요?',
  voice:'스위치를 켜는 시간 비율과 입력/출력 전류가 같은지 서로 나눠 예상해 보세요.',
  bounds:'Vin12V, 이상적 정상상태 CCM buck 전압만. 별도 η90% 전력모형은 가정; 과도·DCM·PFM·전압 리플·칩 모델 아님.'
