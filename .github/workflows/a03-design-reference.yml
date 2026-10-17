@@ -8,7 +8,7 @@ on:
       - ".github/workflows/a03-design-reference.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   render-design-reference:
@@ -17,6 +17,9 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: design/a03-mosfet-discovery-v1
+          persist-credentials: true
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -33,3 +36,14 @@ jobs:
           path: design/reference-captures/a03-mosfet-v2/*.png
           if-no-files-found: error
           retention-days: 14
+      - name: Archive screenshot assets on A03 design branch only (never main)
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'design/a03-mosfet-discovery-v1'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add design/reference-captures/a03-mosfet-v2/*.png
+          if ! git diff --cached --quiet; then
+            git commit -m "docs(a03): store permanent V2 design reference PNGs [skip ci]"
+            git push origin HEAD:refs/heads/design/a03-mosfet-discovery-v1
+          fi
