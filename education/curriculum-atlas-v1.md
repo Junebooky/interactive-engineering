@@ -1,0 +1,224 @@
+# Curriculum Atlas v1 · 반도체 전체 학습지도
+> A06 · checkedAt 2026-10-17 · **115개 기술 topic / 115개 순환 없는 DAG 노드 / 32개 번호 레슨 학습계획**. 범위 지도 != 모든 레슨·기술의 완성 또는 실기기 검증. 기존 10레슨·41 Step을 출발점으로 채택하고 **11번 PN 기초 신규 원고**를 추가했다.
+> 2026년 새 기술 UCIe **3.0**, PCIe **7.0**, imec GAA/CFET 연구를 확인하되 표준 발표와 상용제품 출하를 구분한다.
+> **레슨 번호는 고정 파일 식별자**라서 정규 학습 순서는 12→11→14→01→...; 문서번호 순서로 암기하지 않는다.
+
+## 학습 목적·레벨·품질 게이트
+학생은 최초 전기 경험 없이 시작해 “왜 전하를 움직이고 → 회로가 기억하고 → 반도체가 계산하고 → CPU·GPU·메모리·스토리지가 데이터를 옮기고 → 네트워크/전력/냉각을 포함한 AI 데이터센터가 답을 반환하는지” 설명한다.
+**3겹:** ① 1분 질문→예측→조작 ② 숫자·물리식·단위 검산 ③ 설계 실패·트레이드오프·계측과 대안 비교. 교육용 TOY·실제 제품 SKU·표준 채택/상용화 구분. XP/랭킹/스트릭 없음.
+
+## 코어 Unit→Chapter→Lesson→Step 순서·예상 시간
+| 학습 순서(권장) | Unit / 레슨 | 선수 | 학습목표/핵심 질문 | 실험·평가 | 시간(기획 추정) | 상태 |
+|---|---|---|---|---|---|---|
+| 1 | U0 **12 전압·전류·RC 회로** | 없음 | V/I/R/RC/에너지 구분 | 옴·RC 장난감회로 | 40~50분 | P0 미작성 |
+| 2 | U0 **11 밴드/도핑/PN 다이오드** | 12 첫 10분 | 반도체 물질/접합과 드리프트·확산 | 도핑, Vbi, 공핍폭, I–V | 45~55분 | STORY_READY |
+| 3 | U1 **14 MOS 커패시터·표면반전** | 11,12 | 절연막 너머 전계로 표면 채널 만들기 | 게이트전압·전하 | 40~50분 | P0 미작성 |
+| 4 | U1 **01 MOSFET→CMOS NOT** | 11,14 | VGS, VDS, logic bit 구분 | MOSFET 4 Step | 40~50분 | STORY_READY/A05 |
+| 5 | U1 **16 논리/클록·레지스터** | 01,12 | 조합/순차 논리와 타이밍 | NAND/DFF/clock | 40~50분 | P0 미작성 |
+| 6 | U2 **05 SRAM/CPU cache** | 01,16 | 6T 저장과 hit/miss | latch/LRU | 40~50분 | STORY_READY |
+| 7 | U2 **02 DRAM bitcell** | 01,11,12 | 전하공유·감지·복원·refresh | DRAM 4 Step | 45~55분 | STORY_READY/A05 |
+| 8 | U3 **04 NAND/eSSD/NVMe** | 02,11 | 비휘발 저장과 PCIe 데이터 경로 | NAND/FTL/NVMe 5 Step | 45~60분 | STORY_READY |
+| 9 | U3 **09 SSD reliability** | 04 | QLC·GC·PLP·DWPD·p99 | 4 Step | 40~50분 | STORY_READY |
+| 10 | U4 **17 CPU ISA/pipeline** | 05,16 | 명령과 병렬·캐시 | opcode→pipeline | 40~50분 | P1 미작성 |
+| 11 | U4 **03 GPU/DDR/GDDR/HBM** | 02,17 | 계산량과 데이터 공급 | GPU BW 4 Step | 40~50분 | STORY_READY |
+| 12 | U4 **07 RDIMM/LPDDR/CXL** | 02,03 | 서버 메모리의 목적 차이 | 4 Step | 40~50분 | STORY_READY |
+| 13 | U5 **06 제조·칩렛·HBM 패키징** | 11,03 | mask→yield→TSV→열 | 4 Step | 45~55분 | STORY_READY |
+| 14 | U5 **29 SerDes/PCIe/IOMMU** | 12,17 | 보드/서버 데이터 경로 | PHY/link/DMA | 40~50분 | P0 미작성 |
+| 15 | U5 **08 RDMA/RoCE/IB/optics** | 07,29 | GPU 간 통신의 비용 | 4 Step | 40~50분 | STORY_READY |
+| 16 | U6 **31 VRM/PSU/냉각** | 06,12 | 전기를 처리량·열과 연결 | switch losses/PUE | 45~55분 | P0 미작성 |
+| 17 | U6 **10 AI 데이터센터 E2E** | 03,04,07,08,09,31 | 입출력→서버→추론→복구 | 4 Step | 45~55분 | STORY_READY |
+| 18 | U6 **32 capstone** | 10,31 | 전체 데이터 경로 실측 기준·SLO | 오류 주입/최적화 | 55~70분 | P0 미작성 |
+| 확장 A | 15 FinFET→GAA/CFET, 19 RowHammer | 01,02 | 미세화/신뢰성 | short channel, disturbance | 각 45~60분 | Research candidate |
+| 확장 B | 20 EDA, 23 DFT/ATE, 28 UCIe | 06,16 | 설계부터 테스트까지 | signoff/packaging | 각 45~60분 | Research candidate |
+| 확장 C | 18 ASIC/NPU,21 quantization/KV,25 PIM/MRAM | 03,10 | AI 가속기/차세대 메모리 | matrix/precision | 각 45~65분 | Research candidate |
+| 확장 D | 22 SiC/GaN,24 ADC/MEMS/opto,30 silicon photonics | 11,31 | 전력/광/센서·신뢰성 | bandgap/optics | 각 45~65분 | Research candidate |
+| 확장 E | 26 ZNS/NVMe-oF,27 스토리지 복제 | 04,08,09 | SSD 데이터/분산 일관성 | namespace/replica | 각 45~60분 | Research candidate |
+
+**Step 설계:** 각 planned lesson은 4~5 Step 예상, 개별 Step 예측→조작→관찰→원리→다음 질문, 오개념 3개 이상/힌트 3층/다른 원인별 피드백/UI Text vs Korean Voice/비유의 물리적 한계. 이미 STORY_READY인 01~11은 [기존 레슨](lessons/) 원고를 source-of-truth로 한다. 위 예상 시간은 학습자 시험 없이 정한 **기획값**. 추정 총 코어 학습시간 13~18시간, 깊이/분기별 달라진다.
+
+## 고유 Topic ID 기반 개념 그래프·학습자 질문·3겹 검증
+**표 검증:** 115개 ID 유일, 참조 선수 ID 누락 0, 순환 0 (A06 작성 세션 DAG 검산). 표 상태 STORY_READY*는 topic이 속한 01~11 교육 원고의 해당 개념이 일부 소개되었다는 뜻이며 심화 주제별 완전 구현 보장은 아니다. 'checkedAt'은 인벤토리 작성/분류 기준, 모든 기술 수치의 사실 검증 완료 표기가 아니다.
+
+### 물리·전기·수학·회로 — 10개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| P01 전하,전자/정공,전류 방향 | 없음 | core · 11 · **STORY_READY*** | 왜 전하,전자/정공,전류 방향이(가) 필요할까요? → **전하·전자 화살표 바꾸기** | 단위/지수/이상 RC 가정; [R1][R2]; 2026-10-17 학습 명세 보유; → **P02** |
+| P02 전압·전계·전위차 | P01 | core · 12 · **RESEARCH_CANDIDATE** | 왜 전압·전계·전위차이(가) 필요할까요? → **전원과 전계 화살표** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P03** |
+| P03 저항·옴의 법칙·KCL/KVL | P02 | core · 12 · **RESEARCH_CANDIDATE** | 왜 저항·옴의 법칙·KCL/KVL이(가) 필요할까요? → **V/I/R 연결·노드 보존** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P04** |
+| P04 커패시터·RC 충전/방전 | P03 | core · 12 · **RESEARCH_CANDIDATE** | 왜 커패시터·RC 충전/방전이(가) 필요할까요? → **RC 응답 곡선** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P05** |
+| P05 전력 W·에너지 J/Wh·열 | P03 | core · 12 · **RESEARCH_CANDIDATE** | 왜 전력 W·에너지 J/Wh·열이(가) 필요할까요? → **P=VI·J/Wh 변환** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P06** |
+| P06 bit·byte·GB/s·ns·MT/s·GT/s | P03 | core · 13 · **RESEARCH_CANDIDATE** | 왜 bit·byte·GB/s·ns·MT/s·GT/s이(가) 필요할까요? → **전송률·대역폭 계산** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P07** |
+| P07 밴드구조·밴드갭·결정 | P01 | core · 11 · **STORY_READY*** | 왜 밴드구조·밴드갭·결정이(가) 필요할까요? → **도체/절연체/반도체 밴드 그림** | 단위/지수/이상 RC 가정; [R1][R2]; 2026-10-17 학습 명세 보유; → **P08** |
+| P08 통계·로그·지수·확률·p99 | P03 | core · 12 · **RESEARCH_CANDIDATE** | 왜 통계·로그·지수·확률·p99이(가) 필요할까요? → **지수와 분포 조작** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P09** |
+| P09 드리프트·확산·이동도 | P02, P07 | core · 11 · **STORY_READY*** | 왜 드리프트·확산·이동도이(가) 필요할까요? → **확산·전계 분리** | 단위/지수/이상 RC 가정; [R1][R2]; 2026-10-17 학습 명세 보유; → **P10** |
+| P10 전자농도·페르미준위·온도 | P07, P08 | advanced · 11 · **STORY_READY*** | 왜 전자농도·페르미준위·온도이(가) 필요할까요? → **thermal population toy** | 단위/지수/이상 RC 가정; [R1][R2]; 2026-10-17 학습 명세 보유; → **D** |
+
+### 재료·소자·다이오드·광 — 15개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| D01 도핑·donor·acceptor | P07 | core · 11 · **STORY_READY*** | 왜 도핑·donor·acceptor이(가) 필요할까요? → **n/p 도핑 원자 카드** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 2026-10-17 학습 명세 보유; → **D02** |
+| D02 다수/소수 캐리어·재결합 | D01, P09 | core · 11 · **STORY_READY*** | 왜 다수/소수 캐리어·재결합이(가) 필요할까요? → **electron/hole density bar** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 2026-10-17 학습 명세 보유; → **D03** |
+| D03 PN 접합·내장 전계·공핍층 | D01, D02 | core · 11 · **STORY_READY*** | 왜 PN 접합·내장 전계·공핍층이(가) 필요할까요? → **확산/드리프트 상쇄** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 2026-10-17 학습 명세 보유; → **D04** |
+| D04 PN 순·역 바이어스·다이오드 I-V | D03, P08 | core · 11 · **STORY_READY*** | 왜 PN 순·역 바이어스·다이오드 I-V이(가) 필요할까요? → **바이어스·공핍폭·전류 토글** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 2026-10-17 학습 명세 보유; → **D05** |
+| D05 접합 Cj·breakdown·ESD | D04, P04 | advanced · 14 · **RESEARCH_CANDIDATE** | 왜 접합 Cj·breakdown·ESD이(가) 필요할까요? → **reverse C/W·항복 경계** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 세부 팩트 재검증 대기; → **D06** |
+| D06 MOS capacitor·산화막/표면반전 | D01, P02 | core · 14 · **RESEARCH_CANDIDATE** | 왜 MOS capacitor·산화막/표면반전이(가) 필요할까요? → **Vgate와 surface charge** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 세부 팩트 재검증 대기; → **D07** |
+| D07 MOSFET n/p·Vth·Id/Vds | D06, D04 | core · 01 · **STORY_READY*** | 왜 MOSFET n/p·Vth·Id/Vds이(가) 필요할까요? → **gate/drain dual slider** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 2026-10-17 학습 명세 보유; → **D08** |
+| D08 subthreshold/DIBL/short-channel | D07 | advanced · 15 · **RESEARCH_CANDIDATE** | 왜 subthreshold/DIBL/short-channel이(가) 필요할까요? → **leakage·Vds·temperature** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 세부 팩트 재검증 대기; → **D09** |
+| D09 planar MOS→FinFET→GAA/nanosheet | D07, D08 | core · 15 · **RESEARCH_CANDIDATE** | 왜 planar MOS→FinFET→GAA/nanosheet이(가) 필요할까요? → **gate 1/3/all sides** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 세부 팩트 재검증 대기; → **D10** |
+| D10 forksheet/CFET/백사이드전력 | D09 | advanced · 15 · **RESEARCH_CANDIDATE** | 왜 forksheet/CFET/백사이드전력이(가) 필요할까요? → **3D n/p 배치** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 세부 팩트 재검증 대기; → **D11** |
+| D11 BJT·IGBT·전력 MOS | D07, D04 | optional · 22 · **RESEARCH_CANDIDATE** | 왜 BJT·IGBT·전력 MOS이(가) 필요할까요? → **제어·캐리어 차이** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 세부 팩트 재검증 대기; → **D12** |
+| D12 Si·GaN·SiC bandgap/field/Ron | P07, D04 | optional · 22 · **RESEARCH_CANDIDATE** | 왜 Si·GaN·SiC bandgap/field/Ron이(가) 필요할까요? → **전압 vs 스위칭손실** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 세부 팩트 재검증 대기; → **D13** |
+| D13 LED·레이저·포토다이오드·태양전지 | D03, P07 | optional · 24 · **RESEARCH_CANDIDATE** | 왜 LED·레이저·포토다이오드·태양전지이(가) 필요할까요? → **광자 생성·전하 분리** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 세부 팩트 재검증 대기; → **D14** |
+| D14 MEMS·이미지센서·RF CMOS | D07, P04 | optional · 24 · **RESEARCH_CANDIDATE** | 왜 MEMS·이미지센서·RF CMOS이(가) 필요할까요? → **소리/빛/압력→전압** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 세부 팩트 재검증 대기; → **D15** |
+| D15 reliability: BTI/HCI/TDDB/ESD | D08, P05 | advanced · 23 · **RESEARCH_CANDIDATE** | 왜 reliability: BTI/HCI/TDDB/ESD이(가) 필요할까요? → **stress derating** | 캐리어·PVT·누설/항복; [R1][R2][R3]; 세부 팩트 재검증 대기; → **L** |
+
+### 논리·클록·CPU — 9개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| L01 저항형 nMOS inverter | D07, P03 | core · 01 · **STORY_READY*** | 왜 저항형 nMOS inverter이(가) 필요할까요? → **분압 Vout 조작** | 클록/타이밍·오개념·PPA; [R1][R3]; 2026-10-17 학습 명세 보유; → **L02** |
+| L02 CMOS NOT·noise margin | L01 | core · 01 · **STORY_READY*** | 왜 CMOS NOT·noise margin이(가) 필요할까요? → **p/n 교대** | 클록/타이밍·오개념·PPA; [R1][R3]; 2026-10-17 학습 명세 보유; → **L03** |
+| L03 NAND/NOR·Boolean 조합논리 | L02 | core · 16 · **RESEARCH_CANDIDATE** | 왜 NAND/NOR·Boolean 조합논리이(가) 필요할까요? → **진리표→게이트 연결** | 클록/타이밍·오개념·PPA; [R1][R3]; 세부 팩트 재검증 대기; → **L04** |
+| L04 latch·flip-flop·register | L03, P04 | core · 16 · **RESEARCH_CANDIDATE** | 왜 latch·flip-flop·register이(가) 필요할까요? → **clock/hold 비교** | 클록/타이밍·오개념·PPA; [R1][R3]; 세부 팩트 재검증 대기; → **L05** |
+| L05 setup/hold·metastability·CDC | L04, P08 | advanced · 16 · **RESEARCH_CANDIDATE** | 왜 setup/hold·metastability·CDC이(가) 필요할까요? → **setup-window toy** | 클록/타이밍·오개념·PPA; [R1][R3]; 세부 팩트 재검증 대기; → **L06** |
+| L06 CPU ISA·ALU·pipeline·branch | L04 | core · 17 · **RESEARCH_CANDIDATE** | 왜 CPU ISA·ALU·pipeline·branch이(가) 필요할까요? → **명령 stage scheduler** | 클록/타이밍·오개념·PPA; [R1][R3]; 세부 팩트 재검증 대기; → **L07** |
+| L07 cache-coherence/NUMA/TLB | L06 | advanced · 17 · **RESEARCH_CANDIDATE** | 왜 cache-coherence/NUMA/TLB이(가) 필요할까요? → **sharing/invalidation** | 클록/타이밍·오개념·PPA; [R1][R3]; 세부 팩트 재검증 대기; → **L08** |
+| L08 HDL/RTL synthesis·timing closure | L03, L04 | optional · 20 · **RESEARCH_CANDIDATE** | 왜 HDL/RTL synthesis·timing closure이(가) 필요할까요? → **RTL to gates** | 클록/타이밍·오개념·PPA; [R1][R3]; 세부 팩트 재검증 대기; → **L09** |
+| L09 ADC/DAC·PLL·analog mixed signal | D07, P03 | optional · 24 · **RESEARCH_CANDIDATE** | 왜 ADC/DAC·PLL·analog mixed signal이(가) 필요할까요? → **샘플링과 양자화** | 클록/타이밍·오개념·PPA; [R1][R3]; 세부 팩트 재검증 대기; → **M** |
+
+### 휘발성 메모리·계층 — 15개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| M01 6T SRAM·cross-coupled CMOS | L02, L04 | core · 05 · **STORY_READY*** | 왜 6T SRAM·cross-coupled CMOS이(가) 필요할까요? → **WL/BL/feedback** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M02** |
+| M02 cache hit/miss·LRU·locality | M01, L06 | core · 05 · **STORY_READY*** | 왜 cache hit/miss·LRU·locality이(가) 필요할까요? → **AABAC cache toy** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M03** |
+| M03 DRAM 1T1C write/charge-share/sense | D07, P04 | core · 02 · **STORY_READY*** | 왜 DRAM 1T1C write/charge-share/sense이(가) 필요할까요? → **Ccell:Cbitline 1:9** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M04** |
+| M04 DRAM restore/refresh·retention | M03 | core · 02 · **STORY_READY*** | 왜 DRAM restore/refresh·retention이(가) 필요할까요? → **leak/restore toy** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M05** |
+| M05 row/bank·ACT/PRE/timing | M04, P06 | core · 02 · **STORY_READY*** | 왜 row/bank·ACT/PRE/timing이(가) 필요할까요? → **row conflict timeline** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M06** |
+| M06 DDR4/DDR5 DIMM/rank/controller PHY | M05, P06 | core · 07 · **STORY_READY*** | 왜 DDR4/DDR5 DIMM/rank/controller PHY이(가) 필요할까요? → **MT/s vs tRCD/tCL** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M07** |
+| M07 RDIMM/MRDIMM·on-die vs host ECC | M06 | core · 07 · **STORY_READY*** | 왜 RDIMM/MRDIMM·on-die vs host ECC이(가) 필요할까요? → **RCD/rank-mux fault domain** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M08** |
+| M08 LPDDR/SOCAMM2 mobile/server | M06, P05 | core · 07 · **STORY_READY*** | 왜 LPDDR/SOCAMM2 mobile/server이(가) 필요할까요? → **capacity/watts/transfer** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M09** |
+| M09 GDDR6/GDDR7·PAM3·VRAM | M06 | core · 03 · **STORY_READY*** | 왜 GDDR6/GDDR7·PAM3·VRAM이(가) 필요할까요? → **pins/symbol bits** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M10** |
+| M10 HBM2/3/4·stacked DRAM | M06 | core · 03 · **STORY_READY*** | 왜 HBM2/3/4·stacked DRAM이(가) 필요할까요? → **wide channel vs clock** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M11** |
+| M11 HBM/GDDR/DDR trade-off | M08, M09, M10 | core · 03 · **STORY_READY*** | 왜 HBM/GDDR/DDR trade-off이(가) 필요할까요? → **Pareto bandwidth/latency/cost** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M12** |
+| M12 CXL.io/cache/mem pooled memory | M06 | advanced · 07 · **STORY_READY*** | 왜 CXL.io/cache/mem pooled memory이(가) 필요할까요? → **hot page local vs remote** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 2026-10-17 학습 명세 보유; → **M13** |
+| M13 DRAM RowHammer/TRR/ECC scrub | M05, M07 | advanced · 19 · **RESEARCH_CANDIDATE** | 왜 DRAM RowHammer/TRR/ECC scrub이(가) 필요할까요? → **row aggressor toy** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 세부 팩트 재검증 대기; → **M14** |
+| M14 emerging NVM MRAM/ReRAM/FeRAM | D07, M04 | optional · 25 · **RESEARCH_CANDIDATE** | 왜 emerging NVM MRAM/ReRAM/FeRAM이(가) 필요할까요? → **retention/endurance compare** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 세부 팩트 재검증 대기; → **M15** |
+| M15 processing/compute-in-memory PIM/CIM | M14 | optional · 25 · **RESEARCH_CANDIDATE** | 왜 processing/compute-in-memory PIM/CIM이(가) 필요할까요? → **compute vs data movement** | 용량 vs 대역폭 vs 지연·ECC 범위; [R5]; 세부 팩트 재검증 대기; → **S** |
+
+### NAND·스토리지·데이터 보존 — 11개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| S01 NOR/NAND Flash·FG/CT cells | D06 | core · 04 · **STORY_READY*** | 왜 NOR/NAND Flash·FG/CT cells이(가) 필요할까요? → **floating-gate threshold** | FTL/보증/쓰기도수·전원장애; [R5]; 2026-10-17 학습 명세 보유; → **S02** |
+| S02 3D NAND·SLC/MLC/TLC/QLC | S01 | core · 09 · **STORY_READY*** | 왜 3D NAND·SLC/MLC/TLC/QLC이(가) 필요할까요? → **2^b threshold windows** | FTL/보증/쓰기도수·전원장애; [R5]; 2026-10-17 학습 명세 보유; → **S03** |
+| S03 page/program·block/erase·read disturb | S02 | core · 04 · **STORY_READY*** | 왜 page/program·block/erase·read disturb이(가) 필요할까요? → **page/block actions** | FTL/보증/쓰기도수·전원장애; [R5]; 2026-10-17 학습 명세 보유; → **S04** |
+| S04 FTL wear-level/GC/OP/WAF | S03 | core · 09 · **STORY_READY*** | 왜 FTL wear-level/GC/OP/WAF이(가) 필요할까요? → **logical→physical relocation** | FTL/보증/쓰기도수·전원장애; [R5]; 2026-10-17 학습 명세 보유; → **S05** |
+| S05 SSD ECC/LDPC·controller/DRAMless | S04 | core · 04 · **STORY_READY*** | 왜 SSD ECC/LDPC·controller/DRAMless이(가) 필요할까요? → **ECC failure/inflight** | FTL/보증/쓰기도수·전원장애; [R5]; 2026-10-17 학습 명세 보유; → **S06** |
+| S06 NVMe queues/PCIe·host DMA | S05 | core · 04 · **STORY_READY*** | 왜 NVMe queues/PCIe·host DMA이(가) 필요할까요? → **command vs payload arrows** | FTL/보증/쓰기도수·전원장애; [R5]; 2026-10-17 학습 명세 보유; → **S07** |
+| S07 eSSD PLP/flush/FUA/ack | S06, P04 | core · 09 · **STORY_READY*** | 왜 eSSD PLP/flush/FUA/ack이(가) 필요할까요? → **power failure checkpoint** | FTL/보증/쓰기도수·전원장애; [R5]; 2026-10-17 학습 명세 보유; → **S08** |
+| S08 QoS p99/p999·DWPD/TBW | S07, P08 | core · 09 · **STORY_READY*** | 왜 QoS p99/p999·DWPD/TBW이(가) 필요할까요? → **percentile and endurance** | FTL/보증/쓰기도수·전원장애; [R5]; 2026-10-17 학습 명세 보유; → **S09** |
+| S09 ZNS·NVMe-oF TCP/RDMA namespaces | S04, S06 | advanced · 26 · **RESEARCH_CANDIDATE** | 왜 ZNS·NVMe-oF TCP/RDMA namespaces이(가) 필요할까요? → **zone stream vs random** | FTL/보증/쓰기도수·전원장애; [R5]; 세부 팩트 재검증 대기; → **S10** |
+| S10 RAID/EC/object store·data replicas | S06 | advanced · 27 · **RESEARCH_CANDIDATE** | 왜 RAID/EC/object store·data replicas이(가) 필요할까요? → **replica fault scenarios** | FTL/보증/쓰기도수·전원장애; [R5]; 세부 팩트 재검증 대기; → **S11** |
+| S11 checkpoint/dataset ETL pipeline | S08, S10 | core · 27 · **RESEARCH_CANDIDATE** | 왜 checkpoint/dataset ETL pipeline이(가) 필요할까요? → **checkpoint bursts** | FTL/보증/쓰기도수·전원장애; [R5]; 세부 팩트 재검증 대기; → **C** |
+
+### GPU·AI 컴퓨팅·소프트웨어 — 10개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| C01 CPU vs GPU SIMT/warp/divergence | L06 | core · 03 · **STORY_READY*** | 왜 CPU vs GPU SIMT/warp/divergence이(가) 필요할까요? → **lane execution divergent** | 메모리 병목/정밀도·utilization; [R5]; 2026-10-17 학습 명세 보유; → **C02** |
+| C02 matrix/tensor cores·NPU/ASIC/FPGA | C01 | optional · 18 · **RESEARCH_CANDIDATE** | 왜 matrix/tensor cores·NPU/ASIC/FPGA이(가) 필요할까요? → **dot-product throughput** | 메모리 병목/정밀도·utilization; [R5]; 세부 팩트 재검증 대기; → **C03** |
+| C03 arithmetic intensity/roofline | C01, M11 | core · 10 · **STORY_READY*** | 왜 arithmetic intensity/roofline이(가) 필요할까요? → **FLOP/B performance roofs** | 메모리 병목/정밀도·utilization; [R5]; 2026-10-17 학습 명세 보유; → **C04** |
+| C04 training vs inference/optimizer | C02, C03 | core · 21 · **RESEARCH_CANDIDATE** | 왜 training vs inference/optimizer이(가) 필요할까요? → **forward/backward timelines** | 메모리 병목/정밀도·utilization; [R5]; 세부 팩트 재검증 대기; → **C05** |
+| C05 numeric FP32/FP16/BF16/INT4/FP4 | C04 | advanced · 21 · **RESEARCH_CANDIDATE** | 왜 numeric FP32/FP16/BF16/INT4/FP4이(가) 필요할까요? → **accuracy/bitwidth slider** | 메모리 병목/정밀도·utilization; [R5]; 세부 팩트 재검증 대기; → **C06** |
+| C06 prefill/decode KV cache | C03, C04 | core · 10 · **STORY_READY*** | 왜 prefill/decode KV cache이(가) 필요할까요? → **context/batch KV growth** | 메모리 병목/정밀도·utilization; [R5]; 2026-10-17 학습 명세 보유; → **C07** |
+| C07 tensor/data/pipeline parallel & collective | C06 | advanced · 21 · **RESEARCH_CANDIDATE** | 왜 tensor/data/pipeline parallel & collective이(가) 필요할까요? → **all-reduce traffic** | 메모리 병목/정밀도·utilization; [R5]; 세부 팩트 재검증 대기; → **C08** |
+| C08 compiler·kernel fusion·scheduler | C05, C06 | advanced · 21 · **RESEARCH_CANDIDATE** | 왜 compiler·kernel fusion·scheduler이(가) 필요할까요? → **launch overhead toy** | 메모리 병목/정밀도·utilization; [R5]; 세부 팩트 재검증 대기; → **C09** |
+| C09 activation offload/quantization/sparsity | C05, C06 | advanced · 21 · **RESEARCH_CANDIDATE** | 왜 activation offload/quantization/sparsity이(가) 필요할까요? → **memory vs accuracy** | 메모리 병목/정밀도·utilization; [R5]; 세부 팩트 재검증 대기; → **C10** |
+| C10 GPU caching·registers/shared mem | C01, M02 | advanced · 18 · **RESEARCH_CANDIDATE** | 왜 GPU caching·registers/shared mem이(가) 필요할까요? → **locality and occupancy** | 메모리 병목/정밀도·utilization; [R5]; 세부 팩트 재검증 대기; → **F** |
+
+### 반도체 설계·웨이퍼·제조검사 — 11개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| F01 EDA/IP/RTL→layout·verification | L08 | optional · 20 · **RESEARCH_CANDIDATE** | 왜 EDA/IP/RTL→layout·verification이(가) 필요할까요? → **RTL→place route** | 마스크 반복/결함·제조수율; [R6]; 세부 팩트 재검증 대기; → **F02** |
+| F02 crystal/wafer/epitaxy | P07, D01 | core · 20 · **RESEARCH_CANDIDATE** | 왜 crystal/wafer/epitaxy이(가) 필요할까요? → **crystal defects** | 마스크 반복/결함·제조수율; [R6]; 세부 팩트 재검증 대기; → **F03** |
+| F03 oxidation/deposition ALD/CVD/PVD | F02 | core · 06 · **STORY_READY*** | 왜 oxidation/deposition ALD/CVD/PVD이(가) 필요할까요? → **thin film layer** | 마스크 반복/결함·제조수율; [R6]; 2026-10-17 학습 명세 보유; → **F04** |
+| F04 photolithography EUV/DUV/etch/implant | F03 | core · 06 · **STORY_READY*** | 왜 photolithography EUV/DUV/etch/implant이(가) 필요할까요? → **multi-mask cycles** | 마스크 반복/결함·제조수율; [R6]; 2026-10-17 학습 명세 보유; → **F05** |
+| F05 FEOL/MOL/BEOL·RC interconnect | F04, P04 | core · 20 · **RESEARCH_CANDIDATE** | 왜 FEOL/MOL/BEOL·RC interconnect이(가) 필요할까요? → **wiring parasitics** | 마스크 반복/결함·제조수율; [R6]; 세부 팩트 재검증 대기; → **F06** |
+| F06 process node label vs PPA | F04, D09 | core · 20 · **RESEARCH_CANDIDATE** | 왜 process node label vs PPA이(가) 필요할까요? → **notional 3nm myth** | 마스크 반복/결함·제조수율; [R6]; 세부 팩트 재검증 대기; → **F07** |
+| F07 yield·defects·Poisson/KGD sorting | F06, P08 | core · 06 · **STORY_READY*** | 왜 yield·defects·Poisson/KGD sorting이(가) 필요할까요? → **single die vs chiplet** | 마스크 반복/결함·제조수율; [R6]; 2026-10-17 학습 명세 보유; → **F08** |
+| F08 DFT/scan·ATPG·ATE/burn-in | F07, L05 | advanced · 23 · **RESEARCH_CANDIDATE** | 왜 DFT/scan·ATPG·ATE/burn-in이(가) 필요할까요? → **coverage vs fault** | 마스크 반복/결함·제조수율; [R6]; 세부 팩트 재검증 대기; → **F09** |
+| F09 wafer test/packaging test | F08 | advanced · 23 · **RESEARCH_CANDIDATE** | 왜 wafer test/packaging test이(가) 필요할까요? → **KGD vs final assembly** | 마스크 반복/결함·제조수율; [R6]; 세부 팩트 재검증 대기; → **F10** |
+| F10 semiconductor reliability FIT/variation | D15, F09 | advanced · 23 · **RESEARCH_CANDIDATE** | 왜 semiconductor reliability FIT/variation이(가) 필요할까요? → **failure margin test** | 마스크 반복/결함·제조수율; [R6]; 세부 팩트 재검증 대기; → **F11** |
+| F11 HBM/3D NAND process distinctions | F04, M10, S02 | advanced · 23 · **RESEARCH_CANDIDATE** | 왜 HBM/3D NAND process distinctions이(가) 필요할까요? → **stacked not identical** | 마스크 반복/결함·제조수율; [R6]; 세부 팩트 재검증 대기; → **K** |
+
+### 패키징·칩렛·반도체 I/O — 7개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| K01 monolithic chip vs chiplet costs | F07 | core · 06 · **STORY_READY*** | 왜 monolithic chip vs chiplet costs이(가) 필요할까요? → **chiplet yield vs package** | 칩렛 테스트·배선/열·신호무결성; [R4][R6]; 2026-10-17 학습 명세 보유; → **K02** |
+| K02 bump/TSV/interposer 2.5D | K01, M10 | core · 06 · **STORY_READY*** | 왜 bump/TSV/interposer 2.5D이(가) 필요할까요? → **vertical vs side links** | 칩렛 테스트·배선/열·신호무결성; [R4][R6]; 2026-10-17 학습 명세 보유; → **K03** |
+| K03 UCIe 3.0 die-to-die SerDes | K02 | advanced · 28 · **RESEARCH_CANDIDATE** | 왜 UCIe 3.0 die-to-die SerDes이(가) 필요할까요? → **64GT/s not app GB/s** | 칩렛 테스트·배선/열·신호무결성; [R4][R6]; 세부 팩트 재검증 대기; → **K04** |
+| K04 CoWoS/SoIC/hybrid bonding/RDL | K02 | advanced · 28 · **RESEARCH_CANDIDATE** | 왜 CoWoS/SoIC/hybrid bonding/RDL이(가) 필요할까요? → **bonding topology** | 칩렛 테스트·배선/열·신호무결성; [R4][R6]; 세부 팩트 재검증 대기; → **K05** |
+| K05 thermal stress/underfill/warpage | K04, P05 | advanced · 28 · **RESEARCH_CANDIDATE** | 왜 thermal stress/underfill/warpage이(가) 필요할까요? → **CTE thermal model** | 칩렛 테스트·배선/열·신호무결성; [R4][R6]; 세부 팩트 재검증 대기; → **K06** |
+| K06 package PDN/IR-drop decap | K04, P04 | advanced · 28 · **RESEARCH_CANDIDATE** | 왜 package PDN/IR-drop decap이(가) 필요할까요? → **voltage transient** | 칩렛 테스트·배선/열·신호무결성; [R4][R6]; 세부 팩트 재검증 대기; → **K07** |
+| K07 testing/known-good-die/assembly yield | K01, F09 | advanced · 28 · **RESEARCH_CANDIDATE** | 왜 testing/known-good-die/assembly yield이(가) 필요할까요? → **multi-stage yields** | 칩렛 테스트·배선/열·신호무결성; [R4][R6]; 세부 팩트 재검증 대기; → **N** |
+
+### PCIe·네트워크·광·IO — 11개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| N01 serial/parallel SerDes·PHY | P06, L09 | core · 29 · **RESEARCH_CANDIDATE** | 왜 serial/parallel SerDes·PHY이(가) 필요할까요? → **clock recovery/lanes** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 세부 팩트 재검증 대기; → **N02** |
+| N02 signal integrity/jitter/eye/FEC | N01 | advanced · 29 · **RESEARCH_CANDIDATE** | 왜 signal integrity/jitter/eye/FEC이(가) 필요할까요? → **eye closure** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 세부 팩트 재검증 대기; → **N03** |
+| N03 PCIe gen 5/6/7·root/switch/lane | N01 | core · 29 · **RESEARCH_CANDIDATE** | 왜 PCIe gen 5/6/7·root/switch/lane이(가) 필요할까요? → **128GT/s vs payload** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 세부 팩트 재검증 대기; → **N04** |
+| N04 DMA/IOMMU isolation/interrupts | N03, L06 | core · 29 · **RESEARCH_CANDIDATE** | 왜 DMA/IOMMU isolation/interrupts이(가) 필요할까요? → **registered memory rights** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 세부 팩트 재검증 대기; → **N05** |
+| N05 NUMA/CXL host topology | N03, M06 | core · 07 · **STORY_READY*** | 왜 NUMA/CXL host topology이(가) 필요할까요? → **local vs CXL paths** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 2026-10-17 학습 명세 보유; → **N06** |
+| N06 NIC/DPU·Ethernet·RDMA | N04 | core · 08 · **STORY_READY*** | 왜 NIC/DPU·Ethernet·RDMA이(가) 필요할까요? → **CPU copy vs direct DMA** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 2026-10-17 학습 명세 보유; → **N07** |
+| N07 RoCEv2/InfiniBand/PFC/ECN | N06 | core · 08 · **STORY_READY*** | 왜 RoCEv2/InfiniBand/PFC/ECN이(가) 필요할까요? → **packet queues** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 2026-10-17 학습 명세 보유; → **N08** |
+| N08 NCCL AllReduce·scale-up/scale-out | N07, C01 | core · 08 · **STORY_READY*** | 왜 NCCL AllReduce·scale-up/scale-out이(가) 필요할까요? → **ring factor N** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 2026-10-17 학습 명세 보유; → **N09** |
+| N09 fiber optic·CPO/NPO/pluggables | N02, N08 | advanced · 08 · **STORY_READY*** | 왜 fiber optic·CPO/NPO/pluggables이(가) 필요할까요? → **optical end power** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 2026-10-17 학습 명세 보유; → **N10** |
+| N10 optical Tx/Rx·silicon photonics | D13, N02 | optional · 30 · **RESEARCH_CANDIDATE** | 왜 optical Tx/Rx·silicon photonics이(가) 필요할까요? → **waveguide and PD** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 세부 팩트 재검증 대기; → **N11** |
+| N11 UCIe security/RAS, high-speed FEC | K03, N02 | advanced · 28 · **RESEARCH_CANDIDATE** | 왜 UCIe security/RAS, high-speed FEC이(가) 필요할까요? → **chiplet trust & bit errors** | GT/s와 GB/s·프로토콜 오버헤드; [R4][R7]; 세부 팩트 재검증 대기; → **W** |
+
+### 전력반도체·열·설비 — 8개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| W01 PSU/PDU/UPS efficiency/loss | P05 | core · 31 · **RESEARCH_CANDIDATE** | 왜 PSU/PDU/UPS efficiency/loss이(가) 필요할까요? → **AC/DC watts** | 전력/열/냉각효율·고장모드; [R6][R5]; 세부 팩트 재검증 대기; → **W02** |
+| W02 VRM/PMIC switching converters | W01, D07 | core · 31 · **RESEARCH_CANDIDATE** | 왜 VRM/PMIC switching converters이(가) 필요할까요? → **buck on/off** | 전력/열/냉각효율·고장모드; [R6][R5]; 세부 팩트 재검증 대기; → **W03** |
+| W03 GaN/SiC power transistors | W02, D12 | advanced · 22 · **RESEARCH_CANDIDATE** | 왜 GaN/SiC power transistors이(가) 필요할까요? → **tradeoff voltage/on-loss** | 전력/열/냉각효율·고장모드; [R6][R5]; 세부 팩트 재검증 대기; → **W04** |
+| W04 package TIM/thermal resistance | P05, K02 | core · 06 · **STORY_READY*** | 왜 package TIM/thermal resistance이(가) 필요할까요? → **P×Rth** | 전력/열/냉각효율·고장모드; [R6][R5]; 2026-10-17 학습 명세 보유; → **W05** |
+| W05 rack airflow/heat sinks/CDU liquid cooling | W04, W02 | core · 31 · **RESEARCH_CANDIDATE** | 왜 rack airflow/heat sinks/CDU liquid cooling이(가) 필요할까요? → **coolant and airflow** | 전력/열/냉각효율·고장모드; [R6][R5]; 세부 팩트 재검증 대기; → **W06** |
+| W06 data center PUE/WUE/CUE energy | W01, W05 | core · 10 · **STORY_READY*** | 왜 data center PUE/WUE/CUE energy이(가) 필요할까요? → **facility energy ratio** | 전력/열/냉각효율·고장모드; [R6][R5]; 2026-10-17 학습 명세 보유; → **W07** |
+| W07 PDN transient voltage droop/decap | W02, K06 | advanced · 31 · **RESEARCH_CANDIDATE** | 왜 PDN transient voltage droop/decap이(가) 필요할까요? → **I step and ΔV** | 전력/열/냉각효율·고장모드; [R6][R5]; 세부 팩트 재검증 대기; → **W08** |
+| W08 ESG material/energy/water lifecycle | W06 | optional · 32 · **RESEARCH_CANDIDATE** | 왜 ESG material/energy/water lifecycle이(가) 필요할까요? → **embodied plus operational** | 전력/열/냉각효율·고장모드; [R6][R5]; 세부 팩트 재검증 대기; → **Z** |
+
+### AI 데이터센터·안전·운영 — 8개 고유 topic ID
+| Topic ID / concept | 선수지식 DAG | 분류 · lesson · 상태 | ① 왜? → ② 조작 | ③ 시니어: 경계/검증 · 출처 · 다음 연결 |
+|---|---|---|---|---|
+| Z01 CPU/DDR→GPU/HBM/GDDR→SSD path | C03, M11, S06 | core · 10 · **STORY_READY*** | 왜 CPU/DDR→GPU/HBM/GDDR→SSD path이(가) 필요할까요? → **trace one inference** | TTFT/p99/PUE·RTO/RPO; [R5][R7]; 2026-10-17 학습 명세 보유; → **Z02** |
+| Z02 memory tier placement NUMA/CXL | Z01, M12 | advanced · 10 · **STORY_READY*** | 왜 memory tier placement NUMA/CXL이(가) 필요할까요? → **hot/cold page migration** | TTFT/p99/PUE·RTO/RPO; [R5][R7]; 2026-10-17 학습 명세 보유; → **Z03** |
+| Z03 AI data pipeline/checkpoint/rpo | Z01, S11 | core · 27 · **RESEARCH_CANDIDATE** | 왜 AI data pipeline/checkpoint/rpo이(가) 필요할까요? → **checkpoint pipeline** | TTFT/p99/PUE·RTO/RPO; [R5][R7]; 세부 팩트 재검증 대기; → **Z04** |
+| Z04 GPU/NIC/collectives topology | N08, Z01 | core · 10 · **STORY_READY*** | 왜 GPU/NIC/collectives topology이(가) 필요할까요? → **ring/bisection** | TTFT/p99/PUE·RTO/RPO; [R5][R7]; 2026-10-17 학습 명세 보유; → **Z05** |
+| Z05 energy-per-token·PUE·SLO latency | W06, Z04 | core · 10 · **STORY_READY*** | 왜 energy-per-token·PUE·SLO latency이(가) 필요할까요? → **power/performance Pareto** | TTFT/p99/PUE·RTO/RPO; [R5][R7]; 2026-10-17 학습 명세 보유; → **Z06** |
+| Z06 replicas/SLA/SLO/RTO/RPO·faults | Z03, Z05 | core · 10 · **STORY_READY*** | 왜 replicas/SLA/SLO/RTO/RPO·faults이(가) 필요할까요? → **single switch fail** | TTFT/p99/PUE·RTO/RPO; [R5][R7]; 2026-10-17 학습 명세 보유; → **Z07** |
+| Z07 supply chain/TCO/testing security | K07, Z06 | advanced · 32 · **RESEARCH_CANDIDATE** | 왜 supply chain/TCO/testing security이(가) 필요할까요? → **TCO/fault traces** | TTFT/p99/PUE·RTO/RPO; [R5][R7]; 세부 팩트 재검증 대기; → **Z08** |
+| Z08 end-to-end fault diagnosis capstone | Z05, Z06 | core · 32 · **RESEARCH_CANDIDATE** | 왜 end-to-end fault diagnosis capstone이(가) 필요할까요? → **one request debug** | TTFT/p99/PUE·RTO/RPO; [R5][R7]; 세부 팩트 재검증 대기; → **Z08** |
+
+
+## 지식의 연결 엣지·생략하면 안 되는 오개념
+- **도핑→PN→MOS gate→CMOS NOT**: 도핑 자체가 반도체를 항상 도체로 만드는 건 아니며 p형 정공≠'양전하 전자'. PN의 내장 전계/전압은 외부 배터리로 바로 꺼내 쓰는 전원이 아니다.
+- **CMOS→SRAM 6T/CPU 캐시 vs DRAM 1T1C→DDR/GDDR/HBM**: 셀 구조·주기적 refresh·위치·대역폭/지연/용량 축을 나눠본다. SRAM과 DRAM은 둘 다 일반적으로 휘발성.
+- **MOS/전하 주입→NAND/3D NAND→FTL→SSD/eSSD NVMe**: NAND는 비휘발 메모리, SSD는 컨트롤러 포함 장치, NVMe는 명령/호스트 인터페이스, PCIe는 물리/링크 프로토콜 계층. ACK, PLP, 내구성은 장치별.
+- **CPU ISA→SIMT GPU/NPU→tensor math→Roofline→KV/prefill/decode→collectives**: peak FLOP/s≠실제 request latency, 모든 토큰이 SSD에서 가중치 읽는다는 설명 금지.
+- **웨이퍼→노광/식각/증착→KGD·수율→TSV/칩렛/UCIe→SerDes/PDN**: UI 2.5D 그림과 실제 2.5D package 다르다. 개별 다이 수율과 전체 패키지 수율 혼동 금지.
+- **PCIe/CXL→NIC/DPU RDMA/InfiniBand/RoCE→광→랙/전력·냉각**: GT/s와 GB/s, FEC/클럭 오버헤드, p99/전력/냉각 조건 구분.
+- **전력반도체·GaN/SiC→VRM/PSU→IT 에너지 vs facility PUE/WUE**: 시스템 전체 효율을 제품 광고 숫자로 대체하지 않는다.
+- **분기 확장:** PN→LED/광검출/태양전지·RF·센서; 도핑→SiC/GaN 전력소자; NAND→ZNS/NVMe-oF; GPU→ASIC/FPGA; 공정→ESD/DFT/ATE; AI→TCO/security/disaster recovery.
+
+## 최신 공식·학술 자료 2026-10-17 및 검증 범위
+- [R1] https://openstax.org/books/university-physics-volume-3/pages/9-6-semiconductors-and-doping — 도핑·밴드·홀/전자(교재 한 문단의 p형 다수 carrier 표기와 상충 가능 부분은 MIT와 교차).
+- [R2] https://openstax.org/books/university-physics-volume-3/pages/9-7-semiconductor-devices — PN drift/diffusion·bias.
+- [R3] https://ocw.mit.edu/courses/3-024-electronic-optical-and-magnetic-properties-of-materials-spring-2013/833afa926e598523708318bdf7d6a4ed_MIT3_024S13_2012lec18.pdf — MIT OCW 2013 Lecture 18 pp4,5,7 확인; W, Vbi, I–V, forward/reverse.
+- [R4] https://www.uciexpress.org/specifications — UCIe **3.0 (2025-08)**, 48/64GT/s. 실물 상용 SKU·호환성은 따로.
+- [R5] [A06 accuracy-notes](accuracy-notes.md) + [시니어 deep dives](deep-dives/) — DRAM/DDR/eSSD/NCCL/PUE 등 본문에서 사용한 source ledger.
+- [R6] https://www.asml.com/en/technology/all-about-microchips/how-microchips-are-made — ASML 제조 계층 공정.
+- [R7] https://pcisig.com/specifications/pcie-70-specification-version-03-now-available-members — PCIe **7.0 2025-06**, 128GT/s raw, x16 bi-directional aggregate ≠ 단방향 앱 payload.
+- [R8] https://www.imec-int.com/en/articles/advancing-cfet-based-device-roadmap-novel-integration-modules-and-standard-cell — imec 2026 CFET R&D, 2026 출하된 모든 CPU가 CFET란 뜻 아님.
+- Source URL, version/checkedAt/high-medium-low/미열람 한계는 신규 [11 device deep dive](deep-dives/11-pn-foundations.md)와 [accuracy-notes](accuracy-notes.md)에 확장 기록. 많은 확장 topic은 현재 연구후보이며 개별 제품 데이터시트/표준 원문·수치 확인이 끝나지 않았다.
+
+## 작성 이후 반복 파이프라인
+[production backlog](production-backlog.md)에서 A06가 다음 미작성 highest priority를 선택해 1레슨 원고+deep dive+SceneSpec 작성→직접 [A05 Issue #4](https://github.com/Junebooky/interactive-engineering/issues/4) 인계. A05 Scene_READY 후 A02를 통합하게 하고 browser/device/학습자 QA가 끝날 때만 COMPLETE로 승격. **main merge/deploy 금지**.
