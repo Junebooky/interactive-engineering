@@ -57,7 +57,7 @@ try{
   for(const [button,expected] of [['D 25%','3'],['D 33.33%','4'],['D 50%','6']]){
    await p.getByRole('button',{name:button}).click();
    const observed=await p.locator('.a05-readouts').innerText();
-   if(!observed.includes('이상 CCM Vout'+expected+' V'))throw Error('buck duty '+button+' failed '+observed);
+   if(!observed.replace(/\s+/g,'').includes('이상CCMVout'+expected+'V'))throw Error('buck duty '+button+' failed '+observed);
   }
   await p.getByRole('button',{name:'D 33.33%'}).click();
   await p.getByRole('button',{name:'η 90% power example'}).click();
