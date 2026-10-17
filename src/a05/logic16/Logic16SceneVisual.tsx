@@ -58,7 +58,7 @@ export function Logic16SceneVisual({sceneId,state,revealed}:{sceneId:Logic16Scen
     <path d={Array.from({length:state.eventIndex+1},(_,i)=>`${i===0?'M':'L'}${120+i*76} ${145-(clockTimeline(i).d*24)}`).join(' ')} fill="none" stroke="#8de1ff" strokeWidth="3"/>
     <path d={Array.from({length:state.eventIndex+1},(_,i)=>`${i===0?'M':'L'}${120+i*76} ${207-(clockTimeline(i).clock*24)}`).join(' ')} fill="none" stroke="#aef9d6" strokeWidth="3"/>
     <Block x={83} y={291} w={205} h={61} top={'Latch Q '+clk.latchQ} bottom="HIGH 동안 D 따라감"/>
-    <Block x={341} y={291} w={227} h={61} top={'DFF Q '+clk.ffQ} bottom="실제 0→1 사건에서 샘플" tint="#f9d3a3"/>
+    <Block x={341} y={291} w={227} h={61} top={state.initialHigh?'DFF Q ?':'DFF Q '+clk.ffQ} bottom="실제 0→1 사건에서 샘플" tint="#f9d3a3"/>
    </>}
    {sceneId==='setup-hold-metastability-clock'&&<>
     <T x={58} y={96} size={21} color="#9dfbe5">한 클록 도메인 · T {tim.period}ns · 버퍼 {state.buffer?'ON':'OFF'}</T>
@@ -83,7 +83,7 @@ export function Logic16SceneVisual({sceneId,state,revealed}:{sceneId:Logic16Scen
     <span>전원<b>{state.powered?'ON':'OFF'}</b></span><span>단자<b>상태 피드백, 일반 CMOS 휘발</b></span>
    </>:sceneId==='d-latch-vs-d-flip-flop'?<>
     <span>toy 시간<b>{clk.t} ns</b></span><span>현재 D/CLK<b>{clk.d} / {clk.clock}</b></span>
-    <span>래치 Q<b>{clk.latchQ}</b></span><span>상승 DFF Q<b>{clk.ffQ}</b></span><span>현재 rising?<b>{clk.rising?'YES':'NO'}</b></span>
+    <span>래치 Q<b>{clk.latchQ}</b></span><span>상승 DFF Q<b>{state.initialHigh?'보증 불가':clk.ffQ}</b></span><span>현재 rising?<b>{state.initialHigh?'검증 안됨':clk.rising?'YES':'NO'}</b></span>
    </>:<>
     <span>Setup<b>{tim.setupPass?'PASS':'FAIL'} {tim.setupMargin.toFixed(1)}ns</b></span>
     <span>Hold<b>{tim.holdPass?'PASS':'FAIL'} {tim.holdMargin.toFixed(1)}ns</b></span>
