@@ -71,3 +71,29 @@
 - 질문 흐름: "CMOS NOT으로 1을 만들었어→그 1을 스스로 붙잡는 법은?→SRAM은 빠르지만 왜 작을까?→DRAM은 왜 전하로 바꾸지?→메모리 속도가 부족하면?→HBM은 왜 옆에서 적층되지?→수율과 열은 어떻게 풀지?→전원/냉각/서버 네트워크는 어떻게 이어질까?"
 - 업데이트된 산업 증거(검증일 2026-10-17): [S21] Hamburg 6T SRAM, [S22/S23] Arm CPU cache hierarchy, [S25] TSMC CoWoS package variants, [S26] Micron HBM stack, [S27] ASML 제조 레이어 반복. 상세 URL은 accuracy notes.
 - **남은 대형 필수 레슨:** PN junction 심화, DDR/RDIMM/LPDDR 상세, 네트워크 NIC/DPU/RDMA/광, 전력 VRM/PMIC·냉각/랙, 분산 AI 데이터센터 end-to-end 심화. 이들이 미완료인 상태에서 '모든 반도체 교육 완성' 선언 금지.
+
+
+## 2026-10-17 Research Round 03: 시스템에서 빠진 네 가지 다리 (v0.3)
+**정규 레슨 명세: 10개 / 41 Step** — 기존 6개·25 Step에 신규 4개·16 Step 추가. **시니어 deep dives 5개와 question bank로 증거/제약/고장 모드까지 확장**, A05 시각 구현 및 앱 통합은 별도.
+
+**새 07 → 08 → 09 → 10**
+- [07 DDR5/RDIMM/MRDIMM/LPDDR5X SOCAMM2/CXL 4.0](lessons/07-server-memory-tiers.md), 4 Step. DRAM bank→서버 DDR의 폭/지연→명령 register/RAS→저전력 LPDDR/SOCAMM2→CXL 원격 tier. **새 기술 발견: JEDEC SOCAMM2 2026-06, CXL 4.0(2025-11-18 공식 발표)**. CXL 3.2를 최신으로 잘못 가르치지 않는다. 주제별 [deep dive](deep-dives/07-memory-systems.md).
+- [08 NIC/DPU·RoCE/InfiniBand·NCCL allreduce·광 인터커넥트](lessons/08-ai-fabric-rdma-optics.md), 4 Step. 분산 GPU 전송→RDMA→혼잡→집합연산 통신량→광트랜시버/전력. [Deep dive](deep-dives/08-network-fabric.md).
+- [09 QLC/NAND·GC/WAF·eSSD PLP·DWPD/p99 QoS](lessons/09-essd-reliability.md), 4 Step. NAND 저장 밀도→쓰기 증폭→전원 장애 데이터 보호→tail latency. [Deep dive](deep-dives/09-ssd-reliability.md).
+- [10 AI roofline·prefill/decode·KV cache·PUE·end-to-end resilience](lessons/10-ai-datacenter-end-to-end.md), 4 Step. 메모리/계산 roofline→토큰/KV residency→전력/냉각→네트워크·스토리지 장애복구. [Deep dive](deep-dives/10-ai-systems.md).
+
+**인과 DAG 확대**:
+`02 D02 + 05 SRAM → 07 server memory tiers → 08 NIC/RDMA/collectives`;
+`04 NAND/eSSD → 09 SSD reliability`;
+`03 GPU bottleneck + 06 HBM packaging + 07 tiered memory + 08 fabric + 09 SSD reliability → 10 AI datacenter end-to-end`.
+기존 03 HBM/GDDR와 새 07 DDR/CXL은 대체관계가 아니라 서로 다른 데이터 이동·보존·용량계층. 실제 열/데이터센터 응용 시 **전력 06 → 10 PUE**로 연결.
+
+**유지보수 필수 구분**:
+- DDR5 on-die ECC ≠ system ECC; RDIMM command/address RCD ≠ MRDIMM data buffer/rank mux; LPDDR/SOCAMM2 ≠ HBM 적층.
+- GT/s ≠ GB/s; CXL 4.0 발표의 128GT/s ≠ 모든 CPU의 실효 대역폭/DDR 같은 지연 보증.
+- RDMA≠네트워크 없는 마법, ethernet RoCE와 IB는 다른 fabric, NCCL ring factor는 toy lower bound.
+- eSSD의 PLP와 제품별 ACK/Flush 계약은 모델별; NAND GC WAF, 99th QoS/수명·워크로드 필요.
+- roofline P≤min(compute, BW×intensity) upper bound ≠ 앱의 실제 TTFT. PUE는 site-to-IT energy ratio이지 IT 토큰/와트의 보증치 아님.
+- 제조사 마케팅의 상대 개선 숫자는 가정/시험조건/제품 SKU 검증 없이 어떤 모든 고객 사례에도 적용하지 않는다.
+
+**후속 과학 QA**: [D02 read/sense/refresh 물리 노트](deep-dives/02-dram-sense-timing.md), [A05 PR #10 검토](a05-d02-cross-qa.md). **연구 반복 질문:** [round-03 question bank](research-notes/round-03-question-bank.md). 구현 브랜치/PR은 A05·A02 소유, A06 원고만.
