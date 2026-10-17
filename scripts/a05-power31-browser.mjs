@@ -45,6 +45,15 @@ try{
   await p.goto(url);await p.screenshot({path:out+'/01-initial-questions-veiled.png',fullPage:true});
   await begin(p,'server-psu-loss-heat');
   await p.getByRole('button',{name:'PSU 90%'}).click();
+  // A07 R21-01: after only eta90 observed, student m1 failure+WHY cannot reveal unseen eta95 full numeric solution.
+  await p.locator('.a05-box').last().locator('.a05-choice-set button').nth(1).click();
+  await p.getByRole('button',{name:'관찰·WHY 조건 검증'}).click();
+  await p.getByRole('button',{name:'왜? 원리 보기'}).click();
+  const psuPartial=await p.getByTestId('power31-why-panel').innerText();
+  if(psuPartial.includes('105.263')||psuPartial.includes('5.263')||psuPartial.includes('η=0.95'))throw Error('R21-01 leaked unobserved PSU95 teacher math on wrong-first WHY: '+psuPartial);
+  await p.getByRole('button',{name:'피드백 듣기'}).click();
+  if((await p.getByTestId('power31-voice-text').innerText()).includes('105.263'))throw Error('R21-01 incomplete PSU95 leaked via Korean Voice');
+  await p.screenshot({path:out+'/02a-psu-failed-why-before-eta95.png',fullPage:true});
   let x=await p.locator('.a05-readouts').innerText();
   if(!x.includes('111.111111')||!x.includes('11.111111'))throw Error('PSU 90 efficiency denominator wrong');
   await p.getByRole('button',{name:'PSU 95%'}).click();
@@ -81,6 +90,12 @@ try{
  await qa('S04 CDU coolant kg/s inversely proportional ΔT, unlike unknown site makeup and WUE; wrong Voice',async()=>{
   await begin(p,'cdu-water-loop-heat-flow');
   await p.getByRole('button',{name:'Heat 100kW'}).click();
+  await p.locator('.a05-box').last().locator('.a05-choice-set button').nth(1).click();
+  await p.getByRole('button',{name:'관찰·WHY 조건 검증'}).click();
+  await p.getByRole('button',{name:'왜? 원리 보기'}).click();
+  const cduPartial=await p.getByTestId('power31-why-panel').innerText();
+  if(cduPartial.includes('2.3923')||cduPartial.includes('1.1962'))throw Error('R21-01 leaked untested coolant flow answer map in incomplete WHY');
+  await p.screenshot({path:out+'/06a-cdu-failed-why-untried-deltaT.png',fullPage:true});
   await p.getByRole('button',{name:'ΔT 5K'}).click();
   let x=await p.locator('.a05-readouts').innerText();
   if(!x.includes('4.784689')||!x.includes('미정 (별도)'))throw Error('coolant flow/site consumption confused '+x);
@@ -97,6 +112,10 @@ try{
   await p.getByRole('button',{name:'PUE 1.4'}).click();
   let textBeforeSecond=await p.locator('.a05-power31-visual').innerText();
   if(textBeforeSecond.includes('4.8MWh'))throw Error('unvisited second PUE delta leaked in student SVG');
+  if(/WUE 2\.00 L\/kWh|site A \/ PUE 1\.20|site WUE\s*2(?:\s|L\/kWh)/.test(textBeforeSecond)||!textBeforeSecond.includes('site 계측 미관찰'))
+    throw Error('R21-02 unattempted default site A PUE/WUE leaked after only PUE1.4: '+textBeforeSecond);
+  const preSiteAria=await p.locator('.a05-power31-visual [aria-label]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')).join(' '));
+  if(preSiteAria.includes('WUE2.0')||preSiteAria.includes('A PUE1.2'))throw Error('R21-02 site result leaked in ARIA');
   let x=await p.locator('.a05-readouts').innerText();
   if(!x.includes('1.4 MW')||!x.includes('33.6 MWh'))throw Error('facility PUE 1.4 wrong');
   await p.getByRole('button',{name:'PUE 1.2'}).click();x=await p.locator('.a05-readouts').innerText();
