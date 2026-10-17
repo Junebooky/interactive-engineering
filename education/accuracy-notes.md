@@ -66,3 +66,34 @@ CheckedAt: 2026-10-17 (KST) · Content version 0.1 · 기준 PR #5 head: 766339b
 - ΔT≈P×Rθ: 20W×0.2K/W=4K, 40W×0.4K/W=16K; 정상상태 한 경로 toy. 실제 고급 패키징 열저항은 일정 상수 하나로 완벽히 설명 불가.
 - GPU 공급 toy G03의 min(compute,feed) 모델은 **fully overlapped steady-state pipeline** 가정이다. 파이프라인 미가정 직렬 64/8+64/16=12→64/8+64/32=10 (toy sec). 두 모델을 섞어 설명하지 않는다.
 - enterprise SSD 기능은 개별 PLP/DRAM/ECC 사양 검증 필수. NVMe 명령과 payload DMA의 화살표는 반대 방향이다.
+
+
+## 2026-10-17 research round 03 · new source register (v0.3)
+출처 URL·checkedAt=2026-10-17(KST) · 아래 "high"는 **발표 존재·공식 문서에 적힌 구조**에 한정하고 실제 SKU 실효 성능을 보증하지 않음. 각 기술의 주장별 조건·반론·심화는 [07](deep-dives/07-memory-systems.md), [08](deep-dives/08-network-fabric.md), [09](deep-dives/09-ssd-reliability.md), [10](deep-dives/10-ai-systems.md) 참조.
+
+| ID | sourceUrl | verified status/confidence | version/claim | limitation |
+|---|---|---|---|---|
+| E4 | https://www.micron.com/products/memory/dram-modules/mrdimm | official / high | DDR5 MRDIMM ranks and data buffering | CPU/BIOS/DIMM SKU 지원·열제약 별도 |
+| E5 | https://www.micron.com/products/memory/lpddr-modules/socamm | official / high for existence, low for speed generalization | SOCAMM2 LPDDR5X server module | 특정 내부 AI 성능 개선율 일반화 금지 |
+| E6 | https://store.accuristech.com/standards/jedec-jesd328?product_id=3116332 | standard catalog / medium | JEDEC JESD328 2026-06 metadata | 원문 라이선스 전문 미열람 |
+| E8 | https://computeexpresslink.org/news/ | standards body official / high | CXL 4.0 announced 2025-11-18, rate 128GT/s | 128GT/s ≠ 128GB/s 앱·local DRAM latency |
+| E9 | https://computeexpresslink.org/cxl-specification/ | standard spec index / medium | CXL 4.0 availability/evaluation | 상세 원문 라이선스 동의 없이 미열람 |
+| N1 | https://networking-docs.nvidia.com/gpudirectrdma | vendor official / high for mechanism | RDMA/GPUDirect registration/topology | 지원 GPU/NIC/driver 환경마다 다름 |
+| N3 | https://docs.nvidia.com/networking-ethernet-software/cumulus-linux/Layer-1-and-Switch-Ports/Quality-of-Service/RDMA-over-Converged-Ethernet-RoCE/ | vendor operational / high for described behavior | Ethernet RoCE and QoS | PFC lossless 성능 보증 아님 |
+| N6 | https://github.com/NVIDIA/nccl-tests/blob/master/doc/PERFORMANCE.md | project primary / high | ring AllReduce bus factor 2(N−1)/N | 실제 NCCL 실행은 알고리즘·topology 달라질 수 있음 |
+| X2 | https://research.ibm.com/publications/write-amplification-analysis-in-flash-based-solid-state-drives | peer-reviewed paper abstract/publisher index / high for phenomenon | flash WAF/OP/GC | 특정 eSSD 펌웨어 또는 수치 예측 불가 |
+| A1 | https://developer.nvidia.com/blog/ai-model-co-design-hardware-friendly-llm-design/ | vendor engineering / medium | roofline and LLM hardware considerations, 2026 | 모델/하드웨어별 실효 성능은 별도 |
+| A4 | https://journal.uptimeinstitute.com/ask-the-expert-qa-follow-up-with-uptime-institute-cto-chris-brown/ | datacenter operations / high for KPI distinction | facility energy PUE vs GPU utilization | PUE가 앱 속도/요청당 에너지 직접 지표 아님 |
+| A5 | https://journal.uptimeinstitute.com/capacity-allocation-and-the-next-generation-of-ai-era-kpis/ | datacenter operations / high for caution | 2026 AI-era energy KPI context | 측정 경계·기간·IT 에너지 필요 |
+
+### Round 03 toy arithmetic checks (not measured SKUs)
+- DDR5 bus: 64 bits ×6.4×10^9 transfers/s ÷8 = **51.2 GB/s** (ideal, decimal, data pins only).
+- CXL announced **128GT/s** = unit of transfers/s, never guaranteed 128GB/s; width/encoding/flit/protocol/platform required.
+- Ideal ring AllReduce N=4 S=1GiB B=16GiB/s: (2×3÷4)×(1÷16)=**0.09375s**, not predicted real run latency.
+- SSD write amplification: host1GiB+physical relocation0.6GiB => WAF **1.6** toy; OP effect not fixed.
+- PLP energy: ½×0.1F×((5V)^2−(3V)^2)=**0.8J**; at constant 8W gives only ideal **0.1s**, no PLP guarantee.
+- Endurance and tail: 2TB ×1 DWPD×365days×5years=**3.65PB** decimal toy; 95×1ms +5×20ms gives avg **1.95ms**, nearest-rank p99 **20ms**.
+- Roofline: 4TFLOP/s ÷100GB/s = **40 FLOP/B** ridge; memory roof for I=10 FLOP/B is 1TFLOP/s, not actual measured latency.
+- Facility energy: IT 1MW, assumed steady facility PUE 1.4 => facility **1.4MW**, overhead 0.4MW. PUE standard reporting uses appropriately bounded energy/time.
+
+**Scientific QA limits:** Formal JEDEC/CXL licensed documents not read in full, marketed product speedups not accepted as universal, no device measurement/browser end-to-end execution by A06. Real board rank/population, DDR5 ECC fault coverage, SSD PLP/FUA contracts, CXL implementation, PUE annual measurements require dedicated verification.
