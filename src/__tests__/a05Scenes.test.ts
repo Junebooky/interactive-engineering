@@ -5,6 +5,18 @@ import {
 } from '../a05/scenePhysics';
 
 describe('A05 discovery lab scientific contracts', () => {
+  it('0.6/0.7/0.8V ideal threshold distinguishes boundary from visible channel', () => {
+    const below = mosfetObservation(0.6, 0);
+    const boundary = mosfetObservation(0.7, 0);
+    const above = mosfetObservation(0.8, 0);
+    expect(below.isChannelFormed).toBe(false);
+    expect(below.channelThickness).toBe(0);
+    expect(boundary.isChannelFormed).toBe(true);
+    expect(boundary.channelThickness).toBe(0);
+    expect(above.channelThickness).toBeGreaterThan(0);
+    expect([below.id, boundary.id, above.id]).toEqual([0, 0, 0]);
+    expect(mosfetObservation(0.6, 1).id).toBe(0); // the A02 toy ignores subthreshold leakage
+  });
   it('VGS changes surface channel but at VDS=0 net DC drain current stays zero', () => {
     expect(mosfetObservation(0, 0).isChannelFormed).toBe(false);
     expect(mosfetObservation(0.6, 0).id).toBe(0);
