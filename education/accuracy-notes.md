@@ -45,3 +45,24 @@ CheckedAt: 2026-10-17 (KST) · Content version 0.1 · 기준 PR #5 head: 766339b
 - [ ] A05 구현 이후 회로/애니메이션 계산 모델 테스트
 - [ ] 특정 SKU GDDR7/HBM/SSD의 제품 데이터시트 검증
 - [ ] 실제 초보자 이해도 실험/Voice·접근성·앱 통합 테스트
+
+
+## 추가 공식 자료(검증: 2026-10-17, version 0.2)
+| sourceRef | sourceUrl | checkedAt | confidence | scope |
+|---|---|---|---|---|
+| S21 | https://tams-www.informatik.uni-hamburg.de/applets/hades/webdemos/05-switched/40-cmos/sramcell_print.html | 2026-10-17 | high (대학 교육자료) | 6T SRAM cross-coupled inverters 4T + 2 access, WL, BL/BLB |
+| S22 | https://learn.arm.com/learning-paths/servers-and-cloud-computing/memory-subsystem/cache-hierarchy/ | 2026-10-17 | high (Arm 공식 기술 교육) | L1/L2/L3/cacheline/locality/miss/hit 개념 |
+| S23 | https://learn.arm.com/learning-paths/servers-and-cloud-computing/performix-memory-access/how-to-0/ | 2026-10-17 | high (Arm 공식 기술 교육) | CPU core/cache/DRAM 메모리 계층, NUMA의 변형 |
+| S24 | https://3dfabric.tsmc.com/english/dedicatedFoundry/technology/SoIC.htm | 2026-10-17 | high (TSMC 공식) | 3D Die stacking/heterogeneous SoIC, KGD 통합 |
+| S25 | https://3dfabric.tsmc.com/english/dedicatedFoundry/technology/cowos.htm | 2026-10-17 | high (TSMC 공식) | CoWoS-S Si interposer, CoWoS-R RDL, CoWoS-L LSI+RDL 등, GPU/HBM 연결 |
+| S26 | https://www.micron.com/products/memory/hbm | 2026-10-17 | high (Micron 공식) | HBM 3D stacked SDRAM, TSV/마이크로범프 및 wide I/O |
+| S27 | https://www.asml.com/en/technology/all-about-microchips/how-microchips-are-made | 2026-10-17 | high (ASML 공식) | deposition/포토/식각/주입/다층 반복·검사·다이싱 |
+
+### v0.2 공학 정확성 보강
+- SRAM 전형 6T=두 교차결합 CMOS 인버터(4T)+wordline 제어 접근 트랜지스터 2T. **정적**은 읽기/쓰기 외에 셀 내용을 주기적 refresh하지 않는다는 의미이지 전원 없이 영구 보존한다는 뜻 아님 [S21].
+- cache toy request A,A,B,A,C: 1 line LRU cost(10+1+10+10+10)=41, 2 lines (10+1+10+1+10)=32 units. Miss cost 10은 **총** 요청 지연, hit cost 1 추가 누적하지 않음. Arm 실제 cache hierarchy·라인 크기·hit latency는 제품/워크로드마다 다름 [S22][S23].
+- wafer Poisson toy Y=exp(-D×A): D=0.005/mm², A=100 mm² => 0.60653; A=25 mm² => 0.882497 **개별 다이** 수율. 단순히 4개 전부 조립에서 무작위 양품이면 (0.8825)^4=0.6065로 동일할 수도 있음; KGD 선별, assembly yield, 고정비·인터커넥트/패키지 비용을 넣어야 시스템 TCO 논의 가능. 반도체 제조 단계는 단발 직선 공정이 아닌 반복적 다층 공정 [S27].
+- HBM 내 수직 TSV/범프와 GPU-HBM 간 interposer/high-density routing은 **서로 다른 위치/구조**. CoWoS 모든 종류가 동일한 Si interposer를 쓰는 것은 아님 [S25][S26].
+- ΔT≈P×Rθ: 20W×0.2K/W=4K, 40W×0.4K/W=16K; 정상상태 한 경로 toy. 실제 고급 패키징 열저항은 일정 상수 하나로 완벽히 설명 불가.
+- GPU 공급 toy G03의 min(compute,feed) 모델은 **fully overlapped steady-state pipeline** 가정이다. 파이프라인 미가정 직렬 64/8+64/16=12→64/8+64/32=10 (toy sec). 두 모델을 섞어 설명하지 않는다.
+- enterprise SSD 기능은 개별 PLP/DRAM/ECC 사양 검증 필수. NVMe 명령과 payload DMA의 화살표는 반대 방향이다.
