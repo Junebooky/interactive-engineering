@@ -66,8 +66,9 @@ try {
     await voiceBtn.click(); // Toggle off/on
     await page.screenshot({ path: `${output}/01-app-step0-concept.png`, fullPage: true });
 
-    // Click continue to Step 1
+    // Click confirm then continue to Step 1
     await page.getByRole('button', { name: /이해했습니다/ }).click();
+    await page.getByRole('button', { name: /계속하기/ }).click();
   });
 
   // Step 1: MOS Channel Formation
