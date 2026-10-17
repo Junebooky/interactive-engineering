@@ -35,15 +35,20 @@ export function resistorNetwork(topology:CircuitTopology,volts=5,rOhms=1000){
     voltageLoopBalanceV:series?volts-2*(volts/2):0,
     assumption:'ideal Ohmic 1kΩ resistors and 5V DC source, steady state'};
 }
-export function rcModel(mode:ChargeMode,rOhms:1000|2000,cMicroFarads:10|20,timeMs:number,sourceV=5){
-  if(timeMs<0||!Number.isFinite(timeMs))throw Error('Time must be finite and nonnegative');
+export function rcModel(
+  mode:ChargeMode,rOhms:1000|2000,cMicroFarads:10|20,timeMs:number,sourceV=5,
+  initialVoltageV=mode==='charge'?0:sourceV,segmentStartMs=0,
+){
+  if(timeMs<0||!Number.isFinite(timeMs)||segmentStartMs<0||segmentStartMs>timeMs)
+    throw Error('Time must be finite, nonnegative, and not before RC segment start');
+  if(initialVoltageV<0||initialVoltageV>sourceV)throw Error('initial capacitor voltage outside model range');
   const tauMs=rOhms*cMicroFarads*1e-3; // ohms × µF → milliseconds
-  const exp=Math.exp(-timeMs/tauMs);
-  const voltageV=mode==='charge'?sourceV*(1-exp):sourceV*exp;
-  const currentMilliAmps=(mode==='charge'?1:-1)*(sourceV/rOhms)*1000*exp;
+  const exp=Math.exp(-(timeMs-segmentStartMs)/tauMs);
+  const voltageV=mode==='charge'?sourceV+(initialVoltageV-sourceV)*exp:initialVoltageV*exp;
+  const currentMilliAmps=(mode==='charge'?sourceV-voltageV:-voltageV)/rOhms*1000;
   return {mode,tauMs,voltageV,currentMilliAmps,
-    percentCharge:voltageV/sourceV*100, initialVoltageV:mode==='charge'?0:sourceV,
-    assumption:'ideal first-order RC, charge begins 0V, discharge begins 5V; physical retention/leakage ignored'};
+    percentCharge:voltageV/sourceV*100, initialVoltageV,segmentStartMs,
+    assumption:'first-order RC from explicit segment initial voltage; mode switching is continuous; leakage/ESR excluded'};
 }
 export function energyModel(volts:5|10,loadMilliAmps:5|10,seconds:1|10,cMicroFarads=10){
   const watts=volts*loadMilliAmps/1000;
