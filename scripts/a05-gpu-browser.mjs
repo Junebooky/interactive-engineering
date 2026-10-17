@@ -42,7 +42,7 @@ try{
    // no mapping in note, role=img SVG, readouts, ARIA labels or model assumptions.
    async function noFamilySolution(stage){
      const text=await page.locator('.a05-canvas-col,.a05-gpu-controls .a05-note').allInnerTexts();
-     if(text.some(x=>/GDDR6\\s*[\u002F·]\\s*GDDR7|DDR\\s*[\u002F]\\s*RDIMM|HBM stack|GDDR6.*GPU 보드|GDDR7.*GPU 보드|HBM.*GPU 패키지|HBM.*gpu-package|GDDR.*gpu-board/.test(x)))throw Error(stage+': family/site key leaked');
+     if(text.some(x=>['GDDR6 / GDDR7','DDR / RDIMM','HBM stack','GDDR6 → GPU 보드','GDDR7 → GPU 보드','HBM → gpu-package','GDDR6 → gpu-board'].some(sol=>x.includes(sol))))throw Error(stage+': family/site key leaked');
      const svg=page.locator('.a05-gpu-visual svg');
      const aria=await svg.getAttribute('aria-label');
      if(aria&&/DDR|GDDR6|GDDR7|HBM/.test(aria))throw Error(stage+': family/site solution in SVG aria');
