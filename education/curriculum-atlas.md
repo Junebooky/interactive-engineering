@@ -1,3 +1,5 @@
+> **2026-10-17 Canonical update:** 학습 순서/선수지식 DAG/전체 115-topic 기술 지도·32개 번호 체계는 새 [**Curriculum Atlas v1**](curriculum-atlas-v1.md)를 사용합니다. 이 파일의 v0.1–0.3 내용/하단 총계 10레슨·41 Step은 **역사 기록**이며 최신 상태는 **12레슨·50 Step 교육 명세**([production backlog](production-backlog.md), 신규 [11 PN](lessons/11-doping-pn-foundations.md), [12 전기·RC](lessons/12-electricity-rc-foundations.md)). 구현 완료 수치가 아님. 기존 설명 수정 대신 새 authoritative link로 향하도록 함.
+
 # A06 Curriculum Atlas v0.1 — 반도체부터 AI 데이터센터까지
 작성·검증: 2026-10-17 | 상태: 전체 지형도 구축, 초기 4개 스토리보드 우선 제작. **지형도 수록 ≠ 레슨 전체 제작 완료.**
 
