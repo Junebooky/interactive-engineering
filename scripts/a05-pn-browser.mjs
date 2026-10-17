@@ -7,6 +7,19 @@ const dev=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4187','--
 let browser;const passed=[],failed=[];
 async function qa(name,fn){try{await fn();passed.push(name);console.log('PASS '+name);}catch(e){failed.push({name,error:String(e)});console.error('FAIL '+name,e);}}
 async function ready(){for(let i=0;i<80;i++){try{if((await fetch(url)).ok)return;}catch{}await new Promise(r=>setTimeout(r,300));}throw Error('Vite unreachable');}
+const learnerPrompts={"semiconductor-band-gap":"금속처럼 에너지","silicon-donor-acceptor-doping":"5가 원자","pn-diffusion-drift-equilibrium":"접합 직후","pn-bias-depletion-calculator":"V_A=−1/0/+0.2","pn-diode-current-to-mos":"V_A=−1/0/+0.3/+0.4"};
+async function verifyNeutralBeforePredict(p){
+  const id=await p.locator('.a05-copy .a05-eyebrow').innerText();
+  const scene=Object.keys(learnerPrompts).find(k=>id.includes(k));
+  if(!scene)throw Error('unidentified pre-prediction step '+id);
+  if(await p.locator('.a05-readouts').count())throw Error(scene+' exposed numeric before prediction');
+  if(!await p.locator('.a05-veiled').count())throw Error(scene+' exposed SVG before prediction');
+  const question=await p.locator('.a05-box').first().innerText();
+  if(!question.includes(learnerPrompts[scene]))throw Error(scene+' canonical A06 learner prediction copy missing');
+  await p.getByRole('button',{name:'한국어 질문 듣기'}).click();
+  const speech=await p.getByTestId('pn-voice-transcript').innerText();
+  if(/teacherExpectedAnswer|correctIncorrectCriteria|3\\.16V|4\\.75V|2\\.289nA|0\\.330nA/.test(speech))throw Error(scene+' teacher numeric answer leaked through Korean voice');
+}
 async function predict(p){await p.locator('.a05-box').first().locator('.a05-choice-set button').first().click();}
 async function answer(p,contains){await p.locator('.a05-box').last().locator('.a05-choice-set button').filter({hasText:contains}).first().click();}
 async function noOverflow(p){const w=await p.evaluate(()=>[document.documentElement.clientWidth,document.documentElement.scrollWidth]);if(w[1]>w[0]+2)throw Error('horizontal overflow '+w);}
@@ -19,7 +32,7 @@ try{
   await p.goto(url);
   if(await p.locator('.a05-readouts').count())throw Error('results leaked before prediction');
   await p.screenshot({path:out+'/01-pn-prediction-veil.png',fullPage:true});
-  await predict(p);
+  await verifyNeutralBeforePredict(p);await predict(p);
  });
  await qa('S01 metal/Si/large gap, light, misconception and hints',async()=>{
   await p.getByRole('button',{name:'금속 겹침'}).click();
@@ -39,7 +52,7 @@ try{
   await p.getByRole('button',{name:'다음 질문으로'}).click();
  });
  await qa('S02 donor electrons/p holes, neutrality and minority',async()=>{
-  await predict(p);
+  await verifyNeutralBeforePredict(p);await predict(p);
   await p.getByRole('button',{name:'Donor P → n형'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('electron')))throw Error('donor majority electron absent');
   await p.screenshot({path:out+'/03-pn-donor.png',fullPage:true});
@@ -52,7 +65,7 @@ try{
   await p.getByRole('button',{name:'다음 질문으로'}).click();
  });
  await qa('S03 junction diffusion→equilibrium E n+→p- net0',async()=>{
-  await predict(p);
+  await verifyNeutralBeforePredict(p);await predict(p);
   await p.getByRole('button',{name:'접촉·확산'}).click();
   await p.getByRole('button',{name:'평형·순전류 0'}).click();
   const txt=await p.locator('.a05-readouts').innerText();
@@ -64,7 +77,7 @@ try{
   await p.getByRole('button',{name:'다음 질문으로'}).click();
  });
  await qa('S04 reverse/zero/forward W≈0.666/0.430/0.365 microns, Vbi≠battery',async()=>{
-  await predict(p);
+  await verifyNeutralBeforePredict(p);await predict(p);
   await p.getByRole('button',{name:'역 −1V'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('0.665')))throw Error('reverse W wrong');
   await p.screenshot({path:out+'/06-pn-reverse-w.png',fullPage:true});
@@ -79,7 +92,7 @@ try{
   await p.getByRole('button',{name:'다음 질문으로'}).click();
  });
  await qa('S05 diode continuous +0.3/+0.4 nA and -1pA vs MOS oxide',async()=>{
-  await predict(p);
+  await verifyNeutralBeforePredict(p);await predict(p);
   await p.getByRole('button',{name:'+0.3V'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('0.330 nA')))throw Error('0.3 current wrong');
   await p.screenshot({path:out+'/08-diode-0p3.png',fullPage:true});
