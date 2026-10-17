@@ -64,3 +64,11 @@
 | P1 | Advanced AI runtime: tensor parallel, MIG, paged KV, quantization NVFP4, queue scheduler | 05,08,10 | prefill/decode kernel 속도를 어떻게 실측/튜닝? |
 
 우선 탐색은 A01 Issue #6 기준: D02 감지·복원 정확성, 서버 DRAM/GDDR/HBM, enterprise SSD durability, AI DC GPU+전력/네트워크. **41개 Step은 교육 명세 개수일 뿐, 학생 실기기 QA/프로덕션 이행 비율로 환산 금지.**
+
+## Round 05 (2026-10-17) — 상태 및 새 교육 품질 공백
+- 11/12 foundational prerequisites 이제 story exists + pre-prediction text neutral 교정, **A07 독립 QA 재검증 대기**. P01 elementary charge moved to 12-S01 start; P08 exponent-only taught, log/probability/p99 not mastered, needs 13 or a short bridge before 09-S04.
+- 14 MOS capacitor has [four-step A06-authored storyboard](lessons/14-mos-capacitor-field-inversion.md), [MIT-based physical source](deep-dives/14-mos-capacitor-physics.md), **A07_REVIEW_PENDING**. Strong inversion, C–V high/low freq, VFB not always0, Vth not always0.7 addressed; not yet STORY_READY.
+- G03 S02 independent card/site actual assessment, S03 same-domain BW prediction repaired in A06 canonical, A05 PR#15 implementation/negative-case browser QA pending, no blanket G03 scene-education PASS.
+- ID crosswalk [namespace](id-namespace-crosswalk.md) added; typed A02 persisted key migration still an implementation question.
+- D02 A05 #10 standalone science copy correct/Chromium evidence; newer A02 #11 implements action adapter and reports app Chromium QA; **A07 retest newest SHA e0dfe83 pending**, source-only potential sequence-skip edge cases flagged (not tested failure).
+- New lesson16 [clock/sequential research note](research-notes/16-logic-clock-research.md) started while A07 reviews; flip-flop metastability/timing are missing novice→CPU bridge.
