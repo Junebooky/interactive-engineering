@@ -177,7 +177,7 @@ export function Power31SceneLab({onEvent,onSpeech}:Power31LabProps){
     <button type="button" onClick={()=>speak(feedback.passed?story.next:seen.length>0&&wrong?wrong:feedback.conditions.filter(c=>!c.passed).map(c=>c.hint).join(' '))}>피드백 듣기</button>
     <button type="button" onClick={()=>setWhy(!why)}>{why?'원리 접기':'왜? 원리 보기'}</button>
    </section>}
-   {why&&feedback&&<div className="a05-why"><h3>왜?</h3><p>{seen.length>0?story.why:'직접 실험을 진행한 뒤 계산 근거를 확인하세요.'}</p>{feedback.passed&&<p>{story.next}</p>}</div>}
+   {why&&feedback&&<div className="a05-why" data-testid="power31-why-panel"><h3>왜?</h3>{feedback.passed?<><p>{story.why}</p><p>{story.next}</p></>:<p>아직 두 조건의 비교가 완료되지 않았어요. 미관찰 물리 조건을 직접 조작하고 WHY를 다시 평가해 보세요. {feedback.conditions.filter(c=>!c.passed).map(c=>c.hint).join(' ')}</p>}</div>}
    {feedback?.passed&&index<4&&<button type="button" className="a05-primary" onClick={()=>enter(index+1)}>다음 장면으로 →</button>}
    {feedback?.passed&&index===4&&<p className="a05-why">GPU 전기·열·시설 계량의 원리를 발견했어요. 앱 진도 저장은 A02 별도 통합이 필요해요.</p>}
   </section>
