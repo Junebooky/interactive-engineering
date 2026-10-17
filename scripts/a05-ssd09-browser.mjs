@@ -83,6 +83,14 @@ try{
   await p.getByRole('button',{name:'사건 결과 한국어로 듣기'}).click();
   if(!((await p.getByTestId('ssd09-voice-text').innerText()).includes('OK_POWER_LOSS')))throw Error('ACK then power off status not voiced');
   await p.screenshot({path:out+'/05-volatile-ACK-then-powerloss-risk.png',fullPage:true});
+  // A07 R23-02: installing capacitor AFTER historical outage must be REJECTED; same incident remains AT_RISK.
+  await p.getByRole('button',{name:'PLP ON · 0.4J'}).click();
+  let locked=await p.getByTestId('ssd09-transaction').innerText();
+  if(!locked.includes('CONFIG_LOCKED'))throw Error('R23: PLP hardware magically installed after power outage');
+  if(!((await p.locator('.a05-readouts').innerText()).includes('at-risk')))throw Error('R23: old at-risk event retroactively relabelled');
+  await p.getByRole('button',{name:'사건 결과 한국어로 듣기'}).click();
+  if(!((await p.getByTestId('ssd09-voice-text').innerText()).includes('CONFIG_LOCKED')))throw Error('R23: retro configuration rejection lacks accessible Korean Voice');
+  await p.screenshot({path:out+'/05a-plp-retroactive-configuration-rejected.png',fullPage:true});
   await p.getByRole('button',{name:'RESET · 새 실험'}).click();
   await p.getByRole('button',{name:'1 호스트 WRITE'}).click();
   await p.getByRole('button',{name:'2 컨트롤러 ACK'}).click();
@@ -95,10 +103,37 @@ try{
   await p.getByRole('button',{name:'RESET · 새 실험'}).click();
   await p.getByRole('button',{name:'PLP ON · 0.4J'}).click();
   let x=await p.locator('.a05-ssd09-visual').innerText();
-  if(!x.includes('0.6J')||!x.includes('0.4J'))throw Error('PLP effective energy sufficient not visible');
+  if(!x.includes('0.6J')||!x.includes('0.4J'))throw Error('PLP 0.6J usable vs 0.4J configuration missing');
+  await p.getByRole('button',{name:'1 호스트 WRITE'}).click();
+  await p.getByRole('button',{name:'2 컨트롤러 ACK'}).click();
+  await p.getByRole('button',{name:'POWER LOSS'}).click();
+  if(!((await p.locator('.a05-readouts').innerText()).includes('energetically-possible-unverified')))throw Error('R23: after accepted PLP 0.4J outage, energy possibility must NOT guarantee durable');
+  await p.screenshot({path:out+'/07a-plp-0p4J-actual-outage-not-guarantee.png',fullPage:true});
+  await p.getByRole('button',{name:'PLP ON · 1.2J'}).click();
+  if(!((await p.getByTestId('ssd09-transaction').innerText()).includes('CONFIG_LOCKED')))throw Error('R23: 1.2J swapped into already recorded 0.4J outage');
+  if(!((await p.locator('.a05-readouts').innerText()).includes('energetically-possible-unverified')))throw Error('R23: immutable 0.4J verdict changed after rejected 1.2J swap');
+  await p.getByRole('button',{name:'RESET · 새 실험'}).click();
   await p.getByRole('button',{name:'PLP ON · 1.2J'}).click();
   x=await p.locator('.a05-ssd09-visual').innerText();
-  if(!x.includes('1.2J'))throw Error('PLP insufficient energy not visible');
+  if(!x.includes('1.2J'))throw Error('PLP insufficient work not selected');
+  await p.getByRole('button',{name:'1 호스트 WRITE'}).click();
+  await p.getByRole('button',{name:'2 컨트롤러 ACK'}).click();
+  await p.getByRole('button',{name:'POWER LOSS'}).click();
+  if(!((await p.locator('.a05-readouts').innerText()).includes('energy-insufficient')))throw Error('R23: 1.2J work must fail 0.6J usable');
+  await p.screenshot({path:out+'/07b-plp-1p2J-actual-outage-insufficient.png',fullPage:true});
+  // A07 R23-01: independently choose nonvolatile/bypassed cache + after-media ACK; ACK-before-commit must be REJECTED.
+  await p.getByRole('button',{name:'RESET · 새 실험'}).click();
+  await p.getByRole('button',{name:'휘발 캐시 OFF'}).click();
+  await p.getByRole('button',{name:'ACK: afterMediaCommit'}).click();
+  await p.getByRole('button',{name:'1 호스트 WRITE'}).click();
+  await p.getByRole('button',{name:'2 컨트롤러 ACK'}).click();
+  if(!((await p.getByTestId('ssd09-transaction').innerText()).includes('MEDIA_COMMIT_REQUIRED')))throw Error('R23: afterMediaCommit policy accepted premature ACK');
+  await p.screenshot({path:out+'/07c-after-media-ack-premature-rejected.png',fullPage:true});
+  await p.getByRole('button',{name:'별도 NAND media COMMIT'}).click();
+  await p.getByRole('button',{name:'2 컨트롤러 ACK'}).click();
+  if(!((await p.getByTestId('ssd09-transaction').innerText()).includes('OK_ACK')))throw Error('R23: legal after-media ACK rejected');
+  await p.getByRole('button',{name:'POWER LOSS'}).click();
+  if(!((await p.locator('.a05-readouts').innerText()).includes('durable-under-declared-policy')))throw Error('R23: confirmed media under declared policy lost durability');
   await wrongAndCorrect(p,'07-plp');await p.getByRole('button',{name:'다음 질문으로'}).click();
  });
  await qa('S04 two 100-card unsorted negative; sort rank99 vs max rank100 B, A/B mean + DWPD 3650TB; wrong Korean feedback',async()=>{
