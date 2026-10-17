@@ -1,0 +1,8 @@
+.a05-mos14-lab{background:radial-gradient(ellipse at 78% 6%,#1d5461 0%,#112b40 43%,#071523 100%)}
+.a05-mos14-controls{display:grid;gap:12px}
+.a05-mos14-controls strong{color:#c2ffe9;font-size:.94rem}
+.a05-mos14-visual svg{display:block;width:100%;max-width:100%;height:auto}
+.a05-mos14-lab button:focus-visible{outline:3px solid #ffe6a4;outline-offset:3px}
+.a05-mos14-transcript,.a05-mos14-voice-status{background:#143c51;padding:12px 18px;color:#e4fcff;margin:0}
+@media(max-width:520px){.a05-mos14-lab .a05-control-buttons{grid-template-columns:1fr}.a05-mos14-lab .a05-readouts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.a05-mos14-lab *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

@@ -1,0 +1,31 @@
+name: A05 14 MOS Capacitor Real Chromium QA
+on:
+  push:
+    branches:
+      - feat/a05-14-mos-capacitor-foundations
+  workflow_dispatch:
+jobs:
+  browser-mos14:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run actual 4-stage MOS lesson QA on Chromium
+        run: node scripts/a05-mos14-browser.mjs
+      - name: Preserve screenshots on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a05-mos14-chromium-screenshots
+          path: browser-evidence/mos14/
+          if-no-files-found: warn
+          retention-days: 14

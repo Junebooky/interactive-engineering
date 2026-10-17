@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, HelpCircle, Layers } from 'lucide-react';
+import { Volume2, VolumeX, HelpCircle, Layers, Settings2 } from 'lucide-react';
 import { useLearningEngine } from '../../engine/LearningContext';
 import { voiceEngine } from '../../lib/voice/webSpeechEngine';
 import { sfx } from '../../lib/sound/sfx';
+import { VoiceSettingsModal } from './VoiceSettingsModal';
 
 interface HeaderProps {
   onOpenCatalog: () => void;
@@ -22,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCatalog, onToggleQALab }) 
 
   const [voiceEnabled, setVoiceEnabled] = useState(voiceEngine.getEnabled());
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isVoiceSettingsOpen, setIsVoiceSettingsOpen] = useState(false);
 
   useEffect(() => {
     return voiceEngine.subscribe((state) => {
@@ -123,6 +125,21 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCatalog, onToggleQALab }) 
           </span>
         </button>
 
+        {/* Voice Settings Button (Issue #41) */}
+        <button
+          type="button"
+          className="voice-settings-btn"
+          onClick={() => {
+            sfx.playClick();
+            setIsVoiceSettingsOpen(true);
+          }}
+          title="한국어 음성 선택 및 배속 설정"
+          aria-label="음성 선택 및 배속 설정"
+        >
+          <Settings2 size={17} />
+          <span className="voice-settings-label">음성 설정</span>
+        </button>
+
         {/* Contextual Help Button */}
         <button
           type="button"
@@ -134,6 +151,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCatalog, onToggleQALab }) 
           <span className="help-btn-label">도움말</span>
         </button>
       </div>
+
+      <VoiceSettingsModal
+        isOpen={isVoiceSettingsOpen}
+        onClose={() => setIsVoiceSettingsOpen(false)}
+      />
     </header>
   );
 };

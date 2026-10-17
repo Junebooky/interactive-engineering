@@ -41,7 +41,11 @@ export type SimulatorType =
   | 'pn-doping'
   | 'pn-equilibrium'
   | 'pn-depletion-bias'
-  | 'pn-diode-to-mos';
+  | 'pn-diode-to-mos'
+  | 'mos14-oxide-field'
+  | 'mos14-accumulation-inversion'
+  | 'mos14-capacitance-cv'
+  | 'mos14-cap-to-nmosfet';
 
 export interface ScaffoldingHint {
   level: 1 | 2 | 3;

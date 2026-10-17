@@ -1,0 +1,47 @@
+name: A02 Lesson 14 MOS Capacitor App Real Browser QA
+on:
+  push:
+    branches:
+      - feat/a02-14-mos-capacitor-integration
+      - feat/a02-11-pn-doping-integration
+      - main
+  pull_request:
+    branches:
+      - feat/a02-14-mos-capacitor-integration
+      - feat/a02-11-pn-doping-integration
+      - main
+  workflow_dispatch:
+
+jobs:
+  chromium-app-qa:
+    name: Actual Lesson 14 MOS Capacitor App Chromium E2E QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install app dependencies
+        run: npm ci
+
+      - name: Install isolated Playwright runner (no lockfile modification)
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run real Lesson 14 MOS Capacitor app desktop + mobile browser QA
+        run: node scripts/mos-cap-app-browser-smoke.mjs
+
+      - name: Upload Browser QA Evidence Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mos-cap-app-browser-evidence
+          path: browser-evidence/mos-cap-app/
+          if-no-files-found: warn
+          retention-days: 14
