@@ -38,6 +38,21 @@ try{
  });
  await test('S02 DDR/GDDR/HBM are DRAM with distinct installation',async()=>{
    await predict(page);
+   // A07 negative regression: after concept prediction but before any family/site grading,
+   // no mapping in note, role=img SVG, readouts, ARIA labels or model assumptions.
+   async function noFamilySolution(stage){
+     const text=await page.locator('.a05-canvas-col,.a05-gpu-controls .a05-note').allInnerTexts();
+     if(text.some(x=>/GDDR6\\s*[\u002F·]\\s*GDDR7|DDR\\s*[\u002F]\\s*RDIMM|HBM stack|GDDR6.*GPU 보드|GDDR7.*GPU 보드|HBM.*GPU 패키지|HBM.*gpu-package|GDDR.*gpu-board/.test(x)))throw Error(stage+': family/site key leaked');
+     const svg=page.locator('.a05-gpu-visual svg');
+     const aria=await svg.getAttribute('aria-label');
+     if(aria&&/DDR|GDDR6|GDDR7|HBM/.test(aria))throw Error(stage+': family/site solution in SVG aria');
+     if(!((await page.locator('.a05-readouts').innerText()).includes('미검사')))throw Error(stage+': grade status revealed early');
+   }
+   await noFamilySolution('initial');
+   await page.getByRole('button',{name:'GDDR6',exact:true}).click();
+   await page.getByRole('button',{name:'GPU 보드',exact:true}).click();
+   await noFamilySolution('selected-but-not-graded');
+   await page.screenshot({path:out+'/04b-g03-s02-no-answer-before-grade.png',fullPage:true});
    // Wrong matching is now possible: old pre-matched controls hid this misconception.
    await page.getByRole('button',{name:'HBM',exact:true}).click();
    await page.getByRole('button',{name:'선택한 짝 검사하기'}).click();
