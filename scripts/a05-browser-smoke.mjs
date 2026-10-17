@@ -56,10 +56,17 @@ try {
       await page.screenshot({ path: output + '/02-gate-' + label + '.png', fullPage: true });
     }
   });
-  await assert('M01 S01 conceptual answer unlocks progression', async () => {
+  await assert('M01 S01 wrong misconception, three hints, Why and next-hook', async () => {
+    await choose(page, '전자들이 산화막을 뚫고');
+    await page.getByRole('button', { name: '관찰 결과 확인하기' }).click();
+    if (!await page.getByText('어느 조건이 다른지').count()) throw Error('wrong answer not diagnosed');
+    for (let i=0; i<3; i++) await page.getByRole('button', {name: /힌트 [0-2]\/3/}).click();
+    if (!await page.getByText('힌트 3:',{exact:false}).count()) throw Error('third hint hidden');
     await choose(page, '실리콘 표면에');
     await page.getByRole('button', { name: '관찰 결과 확인하기' }).click();
     if (!await page.getByText('원리를 연결했어요!').count()) throw Error('no correct feedback');
+    await page.getByRole('button', { name: '왜 그럴까요? 원리 보기' }).click();
+    if (!await page.getByText('통로가 열렸어요.',{exact:false}).count()) throw Error('nextHook not visible');
     await page.getByRole('button', { name: '다음 질문으로' }).click();
   });
   await assert('M01 S02 IV saturation and direction', async () => {
@@ -132,7 +139,11 @@ try {
   await assert('mobile prediction, touch and no overflow', async () => {
     await phone.goto(baseUrl);
     await choose(phone, '1.2 V');
-    await phone.locator('#a05-voltage').fill('1');
+    const touchSlider=phone.locator('#a05-voltage');
+    const touchBox=await touchSlider.boundingBox();
+    if(!touchBox) throw Error('touch slider has no mobile bounds');
+    await touchSlider.tap({position:{x:Math.round(touchBox.width*.6),y:Math.round(touchBox.height/2)}});
+    await touchSlider.fill('1');
     await phone.screenshot({ path: output + '/06-gate-mobile-375.png', fullPage: true });
     await checkViewport(phone, '375px mobile');
     await phone.setViewportSize({ width: 320, height: 700 });
