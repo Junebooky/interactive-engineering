@@ -1,0 +1,35 @@
+name: A05 Lesson10 AI Datacenter Real Chromium QA
+on:
+  push:
+    branches:
+      - feat/a05-10-ai-dc-2p5d
+  workflow_dispatch:
+jobs:
+  dc10-real-chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Type check, bundle and source science regressions
+        run: |
+          npm run build
+          npm run test -- --run src/__tests__/a05Dc10.test.ts
+      - name: Install Chromium and isolated Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Actual DOM aria Korean text/Voice fallback mobile and negative routes
+        run: node scripts/a05-dc10-browser.mjs
+      - name: Keep real screenshots even on failing tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a05-dc10-real-chromium-png
+          path: browser-evidence/dc10/
+          if-no-files-found: warn
+          retention-days: 14
