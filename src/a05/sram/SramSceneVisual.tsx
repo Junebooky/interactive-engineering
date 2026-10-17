@@ -4,7 +4,7 @@ import {access6T,dataLocality,latch,simulateLru} from './sramModel';
 import type {AccessMode,Bit,SramSceneId} from './sramModel';
 
 export interface SramVisualState{
-  q:Bit; feedback:boolean; supply:boolean;
+  q:Bit|null; feedback:boolean; supply:boolean;
   wl:Bit; bl:Bit; mode:AccessMode;
   cacheLines:1|2; cacheRan:boolean;
   resident:boolean; inputCount:number;
@@ -72,8 +72,8 @@ export function SramSceneVisual({sceneId,state,revealed}:Props){
         <path d="M118 144 V167 M528 144 V167" stroke={G} strokeWidth="3"/>
         <Label x={96} y={276} size={13} color={C}>BL {state.bl}</Label>
         <Label x={478} y={276} size={13} color={C}>BLB {1-state.bl}</Label>
-        <Label x={227} y={281} size={16} color={M}>Q {cell.q}</Label>
-        <Label x={360} y={281} size={16} color={C}>Q̅ {cell.qBar}</Label>
+        <Label x={227} y={281} size={16} color={M}>Q {cell.q??'?'}</Label>
+        <Label x={360} y={281} size={16} color={C}>Q̅ {cell.qBar??'?'}</Label>
         <Label x={98} y={308} size={12} color="#d0e9ed">{state.mode==='read'?'읽기 중: 실제 소자에서 read disturb 가능':'쓰기: WL ON 시 외부 bitline drive가 래치 상태를 이김'}</Label>
       </>}
       {sceneId==='cpu-cache-vs-dram'&&<>
