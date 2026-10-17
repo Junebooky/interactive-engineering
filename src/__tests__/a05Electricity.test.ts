@@ -25,6 +25,10 @@ describe('A06 12 electrical foundations scientific and grading contracts',()=>{
   expect(rcModel('charge',1000,10,30).voltageV).toBeCloseTo(4.751064658,6);
   expect(rcModel('charge',2000,10,10).tauMs).toBe(20);
   expect(rcModel('charge',1000,20,10).tauMs).toBe(20);
+  // Mid-charge discharge starts at the *observed* capacitor voltage, not an invented full charge.
+  const partial=rcModel('charge',1000,10,10).voltageV;
+  expect(rcModel('discharge',1000,10,10,5,partial,10).voltageV).toBeCloseTo(partial,10);
+  expect(rcModel('discharge',1000,10,20,5,partial,10).voltageV).toBeCloseTo(partial*Math.exp(-1),9);
  });
  it('power W vs energy J and capacitor 125uJ, 10V 500uJ',()=>{
   const p=energyModel(5,10,10),p2=energyModel(10,10,10);
