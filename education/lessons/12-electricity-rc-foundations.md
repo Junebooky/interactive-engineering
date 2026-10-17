@@ -5,15 +5,15 @@
 ## 12-S01 · `charge-voltage-current-arrows`
 ### ① 1분 훅
 - **learningGoal:** 전압(전하당 에너지), 전류(전하의 이동률), 양의 관습전류와 전자의 실제 이동을 구분.
-- **priorKnowledge:** 없음(최소: 두 점의 전위 개념).
+- **priorKnowledge:** 없음. **학습 시작 40초**: 전자 음전하, 한쪽에 전하가 많거나 적을 수 있음, Q 단위 C(쿨롱), 양전하 이동 방향을 관습전류(전류계 정의), 금속 전자의 실제 이동은 반대 방향. 이 카드도 예측 문제의 OPEN=0A 정답은 알려주지 않는다.
 - **storyHook:** “배터리가 5볼트인데, 전자 하나도 아직 흐르지 않을 수 있나요?”
 - **question:** 회로를 끊으면 전압과 전류가 둘 다 0일까요?
 - **prediction:** 5V ideal source와 R=1kΩ resistor, switch OFF/ON의 current 0 또는 5mA를 예상.
 - **learnerAction:** 5V source·1kΩ·switch를 연결. OFF/ON 토글한 후 전자 이동 화살표와 관습전류를 바꿔 관찰.
 - **modelInputs:** V=0/5 V; R=1kΩ; switch OPEN/CLOSED; ideal DC; no battery internal resistance.
 - **expectedObservation:** 5V ideal source를 연결해도 OPEN이면 I=0A; CLOSE면 I=V/R=5mA. 금속 저항 전자 이동과 관습전류는 반대 방향; 전압은 '초당 전하량'이 아님.
-- **displayText:** “5V인데도 전류 0? 스위치를 열어봐요.”
-- **speechText:** “전압이 걸려 있어도 길이 끊어지면 전류는 흐르지 않을 수 있어요. 두 개념을 따로 보세요.”
+- **displayText:** “5V 전원에 연결된 스위치를 열면 계기는 어떻게 바뀔까요?”
+- **speechText:** “스위치를 열었을 때와 닫았을 때를 먼저 예상해 보세요. 전압계와 전류계가 같은 값을 말해줄까요?”
 ### ② 조작/피드백
 - **correctIncorrectCriteria:** OFF=0A/ON=5mA, electron vs conventional current arrows 반대, V≠I를 모두 말해야 pass.
 - **misconceptions:** [m1] 5V가 있으면 언제나 5A 전류가 흐른다. [m2] 전자 이동과 관습전류 방향은 반드시 동일하다. [m3] 스위치 OPEN이면 이상적 배터리의 전압도 반드시 사라진다.
@@ -37,8 +37,8 @@
 - **learnerAction:** resistor placement series/parallel toggle, 각 가지 전류 화살표·노드 합계를 관찰하고 전압이 어떻게 분배되는지 고르기.
 - **modelInputs:** source V=5V, R1=R2=1kΩ, topology series/parallel, ideal wiring/DC steady state.
 - **expectedObservation:** series: Req=2000Ω, I=2.5mA, each VR=2.5V. parallel: Req=500Ω, I=10mA total, 각 branch 5mA, 각 VR=5V. node에서 유입전류=유출전류.
-- **displayText:** “갈라진 전류는 사라지지 않아요.”
-- **speechText:** “두 갈래를 만들면 길이 넓어져요. 전류가 어디로 나뉘는지 숫자로 확인해볼까요?”
+- **displayText:** “한 줄과 두 갈래, 전류 합은 얼마일까요?”
+- **speechText:** “저항 두 개를 직렬과 병렬로 바꿔 보세요. 각 갈래의 숫자를 더하면 어떤 규칙이 보일까요?”
 ### ② 조작/피드백
 - **correctIncorrectCriteria:** 두 토폴로지 전류값과 각 branch 전류/전압을 구별, KCL을 지킬 것.
 - **misconceptions:** [m1] 병렬 두 저항의 전체 전류는 언제나 한 저항과 같다. [m2] 직렬 회로에서는 두 저항을 지날 때 전류가 차례로 줄어든다. [m3] 전류가 갈라지면 전하가 생성된다.
@@ -62,8 +62,8 @@
 - **learnerAction:** R=1/2kΩ, C=10/20µF 및 t=0/10/30ms slider, charge/discharge switching, VC(t) and I(t) compare.
 - **modelInputs:** source=5V, R=1000/2000Ω, C=10e−6/20e−6F, time 0–100ms, ideal 1st-order no leakage.
 - **expectedObservation:** default τ=10ms; charge VC=5(1−exp(−t/τ)): VC(0)=0V, VC(τ)≈3.16V, VC(3τ)≈4.75V. discharge from full=5exp(−t/τ): VC(τ)≈1.84V. Icharge initially 5mA and decreases with t, not constant.
-- **displayText:** “반쯤 찬 다음에도 조금씩 더 차요.”
-- **speechText:** “전하가 늘수록 계속 같은 속도로 차는 건 아니네요. 저항과 용량을 바꿔 기다리는 시간을 비교해봐요.”
+- **displayText:** “5V까지 얼마나 빨리 가까워질까요?”
+- **speechText:** “시간 눈금을 움직이기 전에 10밀리초 뒤 전압을 예상해 보세요. 저항이나 커패시턴스도 바꿔볼까요?”
 ### ② 조작/피드백
 - **correctIncorrectCriteria:** τ in seconds/milliseconds, 63%/37%, R or C doubled doubles τ, 0ms/open switch state correctly; '전원 끊으면 항상 당장 0' 오답.
 - **misconceptions:** [m1] 10ms 후 항상 정확히 100% 충전된다. [m2] R·C를 두 배로 해도 충전속도는 같다. [m3] 모든 커패시터는 전원을 제거하면 반드시 즉시 0V가 된다.
@@ -87,8 +87,8 @@
 - **learnerAction:** source V=5/10V, load I=5/10mA toy, operation time 1/10s, capacitor 10µF, charger energy card; power/energy/heat channels separate.
 - **modelInputs:** V=5/10 V; I=5/10mA independent toy load (not fixed resistor); t=1/10s; C=10µF, Vcap=5/10V; steady DC ideal efficiency.
 - **expectedObservation:** 5V×0.010A=0.05W; 10s→0.5J. capacitor at5V: 0.5×10µF×25V²=125µJ; at10V: 500µJ (4x), though charger input energy/dissipation depends on circuit.
-- **displayText:** “와트는 지금 쓰는 속도, 줄은 쓴 양이에요.”
-- **speechText:** “GPU를 크게 만들면 전력과 발열도 신경 써야 해요. 와트와 줄을 섞지 않고 계산해볼까요?”
+- **displayText:** “50mW와 0.5J, 무엇이 다를까요?”
+- **speechText:** “5볼트, 10밀리암페어, 10초를 골라 보세요. 에너지와 소비 속도는 같은 단위일까요?”
 ### ② 조작/피드백
 - **correctIncorrectCriteria:** W=J/s, 50mW/0.5J/125µJ; capacitance held constant V doubling quadruples stored energy; source power not always all heat.
 - **misconceptions:** [m1] 50W와 50J는 같은 단위다. [m2] 커패시터 전압 2배면 저장 에너지도 반드시 2배다. [m3] GPU가 소비한 모든 전력은 동일 시점에 CPU 냉각 팬에서 발생한다.
@@ -116,3 +116,16 @@
 [EL4] https://openstax.org/books/university-physics-volume-2/pages/10-5-rc-circuits · RC τ, charge/discharge.
 [EL5] https://openstax.org/books/university-physics-volume-2/pages/8-3-energy-stored-in-a-capacitor · E=½CV².
 [EL6] https://openstax.org/books/university-physics-volume-2/pages/9-5-electrical-energy-and-power · watts and energy.
+
+## A07 Round 02 교정 · pre-/post-observation 분리와 선수지식 브리지
+원본 pre-prediction display/voice는 **중립적 질문만** 나오도록 수정. source [A07 round 02](https://github.com/Junebooky/interactive-engineering/blob/docs/a07-edu-qa-round-01/education/round-02-foundations-g03-audit.md).
+| Scene | after-observation displayText | after-observation speechText |
+|---|---|---|
+| charge-voltage-current-arrows | 전원 5V와 회로 전류 0A는 동시에 가능해요 | 열린 회로에서도 이상적 전원 양단의 전압은 5볼트지만 직류 전도전류는 0이에요. 닫힌 1킬로옴 회로는 5밀리암페어예요. |
+| resistors-series-parallel-kcl | 직렬 2.5mA, 병렬은 5+5=10mA | 직렬은 같은 전류가 흐르고, 병렬은 전류가 두 갈래로 나뉘어요. 노드에서 유입과 유출은 같아요. |
+| capacitor-rc-charge-discharge | RC=10ms, 한 시정수 후 약 3.16V | 기본 1킬로옴과 10마이크로패럿은 시정수 10밀리초예요. 충전 10밀리초에는 약 3.16볼트죠. 진짜 DRAM 보존시간은 아니에요. |
+| power-energy-joules-heat | 50mW×10초=0.5J예요 | 전력은 순간 에너지 사용률이에요. 5볼트에서 10밀리암페어를 10초 쓰면 0.5줄입니다. 축전기 자체 저장 에너지는 회로가 공급한 총 에너지와 다를 수 있어요. |
+**Visibility:** 아직 예측하지 않은 상태의 readout·TTS·aria 및 정답 조건 힌트에서 post 정량값/원리 노출 금지. 사용자가 조작을 한 뒤 현재 모델 결과와 일치하는 after-observation 문구만 보여준다.
+**Charge concept map:** Atlas `P01`의 *공통 Q, C, e− charge sign, conventional current* 부분은 **12-S01 처음 40초**. hole·carrier 도핑의 상세는 11-S01/S02로 이어진다. 전하라는 말 자체를 처음 만나는 사람을 위해 용어 카드(정답 노출 없는)를 제공.
+**RC action state:** 충전→방전 전환 시 직전 실제 `Vcap(t0)`을 `V0`로 사용: `V(t0+Δt)=V0 exp(−Δt/RC)`; R/C 변경 시 τ 재계산. "다 찬 5V에서만 방전"은 **preset fully charged** 시나리오로 명시, 임의 시점 전환과 혼동 금지.
+**Math gap:** `P08`의 확률·p99/로그 개념은 이 레슨이 가르치지 않으므로 `P08=PARTIAL`, 추천 13 lesson bridge 또는 09-S04 전 짧은 학습카드를 배정한다.
