@@ -8,10 +8,11 @@
 - **priorKnowledge:** 없음. **학습 시작 40초**: 전자 음전하, 한쪽에 전하가 많거나 적을 수 있음, Q 단위 C(쿨롱), 양전하 이동 방향을 관습전류(전류계 정의), 금속 전자의 실제 이동은 반대 방향. 이 카드도 예측 문제의 OPEN=0A 정답은 알려주지 않는다.
 - **storyHook:** “배터리가 5볼트인데, 전자 하나도 아직 흐르지 않을 수 있나요?”
 - **question:** 회로를 끊으면 전압과 전류가 둘 다 0일까요?
-- **prediction:** 5V ideal source와 R=1kΩ resistor, switch OFF/ON의 current 0 또는 5mA를 예상.
+- **predictionPrompt (learner-visible only):** 이상적 전원 5V·저항 1kΩ에서 스위치 OPEN/CLOSED 각각의 전원단자 전압과 회로 전류를 예상해 보세요.
 - **learnerAction:** 5V source·1kΩ·switch를 연결. OFF/ON 토글한 후 전자 이동 화살표와 관습전류를 바꿔 관찰.
 - **modelInputs:** V=0/5 V; R=1kΩ; switch OPEN/CLOSED; ideal DC; no battery internal resistance.
 - **expectedObservation:** 5V ideal source를 연결해도 OPEN이면 I=0A; CLOSE면 I=V/R=5mA. 금속 저항 전자 이동과 관습전류는 반대 방향; 전압은 '초당 전하량'이 아님.
+- **teacherExpectedAnswer (gated; never pre-prediction/aria/Voice):** 5V ideal source와 R=1kΩ resistor, switch OFF/ON의 current 0 또는 5mA를 예상.
 - **displayText:** “5V 전원에 연결된 스위치를 열면 계기는 어떻게 바뀔까요?”
 - **speechText:** “스위치를 열었을 때와 닫았을 때를 먼저 예상해 보세요. 전압계와 전류계가 같은 값을 말해줄까요?”
 ### ② 조작/피드백
@@ -33,10 +34,11 @@
 - **priorKnowledge:** 12-S01.
 - **storyHook:** “길을 두 갈래로 나누면 전기가 두 배로 생길까요?”
 - **question:** 같은 1kΩ 저항 두 개를 직렬 또는 병렬로 연결하면 전류는?
-- **prediction:** V=5V, 직렬 Req=2kΩ·I=2.5mA vs 병렬 Req=500Ω·Itotal=10mA. 분기 전류 5mA+5mA.
+- **predictionPrompt (learner-visible only):** 5V, 1kΩ 저항 2개를 직렬/병렬로 놓았을 때 각 저항 전압과 전원 총 전류를 숫자로 예상해 보세요.
 - **learnerAction:** resistor placement series/parallel toggle, 각 가지 전류 화살표·노드 합계를 관찰하고 전압이 어떻게 분배되는지 고르기.
 - **modelInputs:** source V=5V, R1=R2=1kΩ, topology series/parallel, ideal wiring/DC steady state.
 - **expectedObservation:** series: Req=2000Ω, I=2.5mA, each VR=2.5V. parallel: Req=500Ω, I=10mA total, 각 branch 5mA, 각 VR=5V. node에서 유입전류=유출전류.
+- **teacherExpectedAnswer (gated; never pre-prediction/aria/Voice):** V=5V, 직렬 Req=2kΩ·I=2.5mA vs 병렬 Req=500Ω·Itotal=10mA. 분기 전류 5mA+5mA.
 - **displayText:** “한 줄과 두 갈래, 전류 합은 얼마일까요?”
 - **speechText:** “저항 두 개를 직렬과 병렬로 바꿔 보세요. 각 갈래의 숫자를 더하면 어떤 규칙이 보일까요?”
 ### ② 조작/피드백
@@ -58,10 +60,11 @@
 - **priorKnowledge:** 12-S01/02; 도함수·지수식은 senior만 공개.
 - **storyHook:** “커패시터에 전하를 넣으면 금방 꽉 찰까요?”
 - **question:** 1kΩ 저항+10µF 커패시터는 5V 전원에 연결한 뒤 얼마나 기다려야 63% 정도 충전될까요?
-- **prediction:** τ=RC=0.010s=10ms; t=τ에서 VC≈3.16V, t=3τ에서≈4.75V.
+- **predictionPrompt (learner-visible only):** R=1kΩ, C=10µF, V_S=5V일 때 충전 10ms/30ms 뒤 V_C와 완전충전 후 방전 10ms 뒤 V_C를 예상해 보세요.
 - **learnerAction:** R=1/2kΩ, C=10/20µF 및 t=0/10/30ms slider, charge/discharge switching, VC(t) and I(t) compare.
 - **modelInputs:** source=5V, R=1000/2000Ω, C=10e−6/20e−6F, time 0–100ms, ideal 1st-order no leakage.
 - **expectedObservation:** default τ=10ms; charge VC=5(1−exp(−t/τ)): VC(0)=0V, VC(τ)≈3.16V, VC(3τ)≈4.75V. discharge from full=5exp(−t/τ): VC(τ)≈1.84V. Icharge initially 5mA and decreases with t, not constant.
+- **teacherExpectedAnswer (gated; never pre-prediction/aria/Voice):** τ=RC=0.010s=10ms; t=τ에서 VC≈3.16V, t=3τ에서≈4.75V.
 - **displayText:** “5V까지 얼마나 빨리 가까워질까요?”
 - **speechText:** “시간 눈금을 움직이기 전에 10밀리초 뒤 전압을 예상해 보세요. 저항이나 커패시턴스도 바꿔볼까요?”
 ### ② 조작/피드백
@@ -83,10 +86,11 @@
 - **priorKnowledge:** 12-S01~03.
 - **storyHook:** “똑같이 5V인데 어떤 회로는 뜨겁고 어떤 회로는 거의 안 뜨거워요.”
 - **question:** 5V×10mA가 몇 W, 그 상태로 10초면 몇 J? 10µF를 5V로 충전한 capacitor는 에너지 얼마?
-- **prediction:** P=0.050W=50mW, E=0.5J, Ecap=125µJ.
+- **predictionPrompt (learner-visible only):** 5V·10mA를 10초 사용할 때 전력/에너지와 10µF 커패시터가 5V일 때 내부 저장에너지를 각각 예상해 보세요.
 - **learnerAction:** source V=5/10V, load I=5/10mA toy, operation time 1/10s, capacitor 10µF, charger energy card; power/energy/heat channels separate.
 - **modelInputs:** V=5/10 V; I=5/10mA independent toy load (not fixed resistor); t=1/10s; C=10µF, Vcap=5/10V; steady DC ideal efficiency.
 - **expectedObservation:** 5V×0.010A=0.05W; 10s→0.5J. capacitor at5V: 0.5×10µF×25V²=125µJ; at10V: 500µJ (4x), though charger input energy/dissipation depends on circuit.
+- **teacherExpectedAnswer (gated; never pre-prediction/aria/Voice):** P=0.050W=50mW, E=0.5J, Ecap=125µJ.
 - **displayText:** “50mW와 0.5J, 무엇이 다를까요?”
 - **speechText:** “5볼트, 10밀리암페어, 10초를 골라 보세요. 에너지와 소비 속도는 같은 단위일까요?”
 ### ② 조작/피드백
@@ -129,3 +133,8 @@
 **Charge concept map:** Atlas `P01`의 *공통 Q, C, e− charge sign, conventional current* 부분은 **12-S01 처음 40초**. hole·carrier 도핑의 상세는 11-S01/S02로 이어진다. 전하라는 말 자체를 처음 만나는 사람을 위해 용어 카드(정답 노출 없는)를 제공.
 **RC action state:** 충전→방전 전환 시 직전 실제 `Vcap(t0)`을 `V0`로 사용: `V(t0+Δt)=V0 exp(−Δt/RC)`; R/C 변경 시 τ 재계산. "다 찬 5V에서만 방전"은 **preset fully charged** 시나리오로 명시, 임의 시점 전환과 혼동 금지.
 **Math gap:** `P08`의 확률·p99/로그 개념은 이 레슨이 가르치지 않으므로 `P08=PARTIAL`, 추천 13 lesson bridge 또는 09-S04 전 짧은 학습카드를 배정한다.
+
+## A07 Round 04 SOURCE MAJOR 교정 — predictionPrompt vs teacherExpectedAnswer (2026-10-17)
+- A07 review [Round04](https://github.com/Junebooky/interactive-engineering/blob/docs/a07-edu-qa-round-01/education/round-04-a06-retest-mos14.md) identified that even after display/Voice were made neutral, `prediction` was carrying a teacher key. This update turns all 4 cases into **neutral learner-visible `predictionPrompt`** plus separate **`teacherExpectedAnswer`** after the `expectedObservation` for author-only grading. **Never render** teacherExpectedAnswer, expectedObservation, correctIncorrectCriteria, post-observation text, or full misconception feedback in student UI/aria/Voice before saved prediction and actual manipulation.
+- `predictionPrompt` alone is safe to expose before action, hints appear only on learner request, and even correct numeric alternatives should not be styled or sorted as a solution. Store answer as teacher-only script/data, never pass as pre-reveal lesson props. A05 and A02 existing scenes/engine need code-level copy comparison and negative-case UI/TTS evidence; this source fix does **not** imply browser pass.
+- **STATE:** A06 canonical fix awaiting A07 independent SOURCE_RECHECK on updated blob. A05 scene changes and A02 integration are separate.
