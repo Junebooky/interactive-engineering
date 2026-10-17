@@ -7,6 +7,16 @@ const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4188',
 let browser;const passed=[],failed=[];
 async function qa(name,fn){try{await fn();passed.push(name);console.log('PASS '+name);}catch(e){failed.push({name,error:String(e)});console.error('FAIL '+name,e);}}
 async function ready(){for(let i=0;i<80;i++){try{if((await fetch(url)).ok)return;}catch{}await new Promise(r=>setTimeout(r,300));}throw Error('Vite unavailable');}
+async function assertPrePrediction(p){
+  if(await p.locator('.a05-readouts').count())throw Error('numeric readouts leaked before learner prediction');
+  if(!await p.locator('.a05-veiled').count())throw Error('charge carriers/answer SVG revealed early');
+  const bounds=await p.locator('.a05-model-limit').innerText();
+  const keys=['IG,DC=0','VFB=0','ID undefined','ID는 미정의','VT≈0.785','Cox′5nm','Cox′='];
+  if(keys.some(key=>bounds.includes(key)))throw Error('teacher physics key leaked before prediction: '+bounds);
+  const displayed=await p.locator('.a05-canvas-col').innerText();
+  if(['0.690627','0.345313','정의되지 않음','0 (이상 순 DC)'].some(key=>displayed.includes(key)))
+    throw Error('canvas/caption exposed teacher result before prediction');
+}
 async function predict(p){await p.locator('.a05-box').first().locator('.a05-choice-set button').first().click();}
 async function answer(p,contains){await p.locator('.a05-box').last().locator('.a05-choice-set button').filter({hasText:contains}).first().click();}
 async function next(p){await p.getByRole('button',{name:'다음 질문으로'}).click();}
@@ -22,7 +32,7 @@ try{
   if(!await p.locator('.a05-veiled').count())throw Error('pre-prediction visual not veiled');
   if(!await p.getByText('게이트와 실리콘 사이에 절연막이 있어도',{exact:false}).count())throw Error('learner neutral prediction missing');
   await p.screenshot({path:out+'/01-before-prediction-veiled.png',fullPage:true});
-  await predict(p);
+  await assertPrePrediction(p);await predict(p);
  });
  await qa('S01 oxide through DC0 even during external charging, wrong misconception blocked and three hints',async()=>{
   await p.getByRole('button',{name:'−0.5V'}).click();
@@ -44,7 +54,7 @@ try{
  });
  await qa('S02 p-Si accumulation flatband depletion inversion correct toy voltage; doping ions preserved',async()=>{
   if(await p.locator('.a05-readouts').count())throw Error('S02 readout revealed before prediction');
-  await predict(p);
+  await assertPrePrediction(p);await predict(p);
   for(const [button,text] of [['−0.5V','accumulation'],['0V','flatband'],['+0.3V','depletion'],['+1.1V','inversion']]){
    await p.getByRole('button',{name:button,exact:true}).click();
    const x=await p.locator('.a05-readouts').innerText();
@@ -59,7 +69,7 @@ try{
  });
  await qa('S03 5/10nm oxide Cox 0.690627/0.345313 uF per cm2, HF LF not measured',async()=>{
   if(await p.locator('.a05-readouts').count())throw Error('S03 premature numerical value');
-  await predict(p);
+  await assertPrePrediction(p);await predict(p);
   await p.getByRole('button',{name:'5nm',exact:true}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('0.690627 µF/cm²')))throw Error('Cox 5nm conversion wrong');
   await p.screenshot({path:out+'/07-oxide-5nm-capacitance.png',fullPage:true});
@@ -78,7 +88,7 @@ try{
  });
  await qa('S04 cap ID undefined not 0; nMOS VDS0 zero, VDS+.5 only possible',async()=>{
   if(await p.locator('.a05-readouts').count())throw Error('S04 before prediction has results');
-  await predict(p);
+  await assertPrePrediction(p);await predict(p);
   await p.getByRole('button',{name:'2단자 MOS cap'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('정의되지 않음')))throw Error('cap drain current wrongly zero');
   await p.screenshot({path:out+'/09-two-terminal-no-id.png',fullPage:true});
