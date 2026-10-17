@@ -95,11 +95,16 @@ try{
  await qa('S05 1MW PUE1.4→1.2 saves 4.8MWh/24h, site A PUE vs B WUE separate no tokens',async()=>{
   await begin(p,'data-center-pue-wue-tradeoff');
   await p.getByRole('button',{name:'PUE 1.4'}).click();
+  let textBeforeSecond=await p.locator('.a05-power31-visual').innerText();
+  if(textBeforeSecond.includes('4.8MWh'))throw Error('unvisited second PUE delta leaked in student SVG');
   let x=await p.locator('.a05-readouts').innerText();
   if(!x.includes('1.4 MW')||!x.includes('33.6 MWh'))throw Error('facility PUE 1.4 wrong');
   await p.getByRole('button',{name:'PUE 1.2'}).click();x=await p.locator('.a05-readouts').innerText();
   if(!x.includes('1.2 MW')||!x.includes('28.8 MWh'))throw Error('facility PUE1.2 wrong');
-  await p.getByRole('button',{name:'Site A'}).click();x=await p.locator('.a05-readouts').innerText();
+  await p.getByRole('button',{name:'Site A'}).click();
+  textBeforeSecond=await p.locator('.a05-power31-visual').innerText();
+  if(textBeforeSecond.includes('WUE0.5')||textBeforeSecond.includes('PUE1.35'))throw Error('unvisited B metrics leaked after only site A observation');
+  x=await p.locator('.a05-readouts').innerText();
   if(!x.includes('2 L/kWh'))throw Error('site A water wrong');
   await p.getByRole('button',{name:'Site B'}).click();x=await p.locator('.a05-readouts').innerText();
   if(!x.includes('0.5 L/kWh')||!x.includes('1.35'))throw Error('site B metric wrong');
