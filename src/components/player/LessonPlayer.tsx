@@ -1,10 +1,7 @@
 import React from 'react';
 import { useLearningEngine } from '../../engine/LearningContext';
-import { PromptCard } from './PromptCard';
-import { TutorPanel } from './TutorPanel';
 import { WhyModal } from './WhyModal';
 import { CompletionCard } from './CompletionCard';
-import { ActionBottomBar } from '../common/ActionBottomBar';
 import { Mosfet2DScene } from '../../simulations/mosfet/Mosfet2DScene';
 import { InverterCircuit2D } from '../../simulations/mosfet/InverterCircuit2D';
 import { Circuit2DScene } from '../../simulations/ohmsLaw/Circuit2DScene';
@@ -31,7 +28,8 @@ import '../../a05/pn/pnScenes.css';
 import '../../a05/mos14/mos14.css';
 import '../../a05/nand04/nand04.css';
 import '../../a05/a05Scenes.css';
-import { BookOpen, Sparkles } from 'lucide-react';
+import { A03SingleTaskPanel, type FlowPhase } from './A03SingleTaskPanel';
+import './lessonA03.css';
 
 interface LessonPlayerProps {
   onOpenCatalog: () => void;
@@ -44,8 +42,11 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
     currentParams,
     updateParam,
     fsmState,
-    isHelpOpen,
   } = useLearningEngine();
+
+  const [activePhase, setActivePhase] = React.useState<FlowPhase>('predict');
+  const [zoomLevel, setZoomLevel] = React.useState<number>(1);
+  const [showModelBubble, setShowModelBubble] = React.useState<boolean>(false);
 
   if (!lesson) {
     return (
@@ -69,8 +70,6 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
   const currentStep = lesson.steps[currentStepIndex];
   if (!currentStep) return null;
 
-  const hasSimulator = Boolean(currentStep.simulatorType);
-
   // Render the appropriate 2.5D simulator scene if one is specified
   const renderSimulator = () => {
     switch (currentStep.simulatorType) {
@@ -88,7 +87,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
         const hasPredictionCtrl = currentStep.controls?.some((c) => c.id === 'prediction');
         const showObservation =
           !hasPredictionCtrl ||
-          (currentParams.prediction !== undefined && currentParams.prediction !== null);
+          (activePhase !== 'predict' && currentParams.prediction !== undefined && currentParams.prediction !== null);
 
         return (
           <A05SceneVisual
@@ -390,59 +389,123 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
     }
   };
 
+  // Status subtitle and context for 2.5D visual
+  const sceneLabel =
+    activePhase === 'predict'
+      ? '구조 살펴보기'
+      : activePhase === 'observe'
+      ? '전압 조작 · 전하 분포 관찰'
+      : activePhase === 'check'
+      ? '관찰 원리 설명'
+      : '실험 완료';
+
+  const sceneSignal =
+    activePhase === 'predict'
+      ? ''
+      : (currentParams.vgs ?? 0) >= 0.8
+      ? '전자들이 실리콘 표면에 모였어요'
+      : (currentParams.vds ?? 0) >= 1.0
+      ? '포화 영역에서도 일정한 전류가 유지돼요'
+      : '전압을 조작해 변화를 관찰하세요';
+
   return (
-    <main className="player-viewport">
-      {/* 
-        Layout Architecture:
-        - When isHelpOpen is false: Centered focused immersion card + canvas
-        - When isHelpOpen is true: Split mode (Tutor on Left / Canvas on Right on Desktop)
-      */}
-      <div className={`player-workspace ${isHelpOpen ? 'mode-split-help' : 'mode-focused'}`}>
-        {/* If Help is open, show TutorPanel on left */}
-        {isHelpOpen && <TutorPanel />}
-
-        {/* Central or Right Stage */}
-        <section className="stage-area" aria-label="인터랙티브 실습 영역">
-          {hasSimulator ? (
-            <div className="stage-grid">
-              {/* Prompt & Storytelling Card */}
-              <div className="stage-prompt-col">
-                <PromptCard />
+    <main className="a03-layout" aria-label="학습 실험실">
+      <div className="a03-workspace">
+        {/* Left Side: 2.5D Interactive Simulator Lab Canvas */}
+        <section className="a03-lab" aria-label="MOSFET 2.5D 구조 실험 시각화">
+          {/* Top Info Bar inside Lab */}
+          <div className="a03-lab-top">
+            <div className="a03-symbol" aria-hidden="true">⬡</div>
+            <div>
+              <div className="a03-lab-name">
+                {currentStep.simulatorType?.startsWith('mosfet') ? 'MOSFET 탐험실' : `${lesson.title}`}
               </div>
-
-              {/* 2.5D Interactive Simulator Canvas */}
-              <div className="stage-canvas-col">
-                {renderSimulator()}
-              </div>
+              <div className="a03-lab-sub">전압이 만드는 실리콘의 변화</div>
             </div>
-          ) : (
-            /* Explanatory / Concept Step Layout (No simulator required) */
-            <div className="stage-concept-grid">
-              <div className="stage-concept-main">
-                <PromptCard />
-              </div>
-              <div className="stage-concept-visual">
-                <div className="concept-info-card">
-                  <div className="concept-info-icon">
-                    <Sparkles className="text-cyan-400" size={32} />
-                  </div>
-                  <h3 className="concept-info-title">핵심 공학 개념</h3>
-                  <p className="concept-info-desc">
-                    {currentStep.prompt}
-                  </p>
-                  <div className="concept-info-footer">
-                    <BookOpen size={16} className="text-slate-400" />
-                    <span>개념을 숙지한 후 하단의 확인 버튼을 눌러 다음 단계로 진행하세요.</span>
-                  </div>
-                </div>
-              </div>
+          </div>
+
+          <div className="a03-v2-label" id="scene-label">{sceneLabel}</div>
+
+          {sceneSignal && (
+            <div className="a03-scene-signal" role="status" aria-live="polite">
+              {sceneSignal}
+            </div>
+          )}
+
+          {/* Canvas Wrapper supporting zoom */}
+          <div
+            className="a03-lab-canvas-wrapper"
+            style={{ '--zoom': zoomLevel } as React.CSSProperties}
+          >
+            {renderSimulator()}
+          </div>
+
+          {/* Bottom Tools & Legend inside Lab */}
+          <div className="a03-lab-bottom">
+            <div className="a03-lab-context" id="lab-caption">
+              {activePhase === 'predict'
+                ? '게이트 · 소스 · 드레인 · 실리콘'
+                : '드레인 전압 차는 0V로 고정'}
+            </div>
+
+            <div className="a03-lab-tools">
+              <button
+                className="a03-tool"
+                type="button"
+                id="model-info"
+                aria-expanded={showModelBubble}
+                aria-controls="model-bubble"
+                aria-label="모델 기준 설명"
+                onClick={() => setShowModelBubble((v) => !v)}
+              >
+                ⓘ
+              </button>
+              <button
+                className="a03-tool"
+                type="button"
+                id="zoom-in"
+                aria-label="확대"
+                onClick={() => setZoomLevel((z) => Math.min(1.4, z + 0.12))}
+              >
+                ＋
+              </button>
+              <button
+                className="a03-tool"
+                type="button"
+                id="zoom-out"
+                aria-label="축소"
+                onClick={() => setZoomLevel((z) => Math.max(0.85, z - 0.12))}
+              >
+                −
+              </button>
+              <button
+                className="a03-tool"
+                type="button"
+                id="reset-view"
+                aria-label="카메라 초기화"
+                onClick={() => setZoomLevel(1)}
+              >
+                ↺
+              </button>
+            </div>
+          </div>
+
+          {/* Model Criteria Disclosure Bubble */}
+          {showModelBubble && (
+            <div className="a03-model-bubble" id="model-bubble">
+              {activePhase === 'predict'
+                ? '이 화면은 교육을 위해 구조를 단순화한 nMOS 모형입니다. 실제 소자의 공정과 온도에 따라 값은 달라지며, 실험 결과는 예측을 제출한 다음 확인할 수 있습니다.'
+                : '이 장면은 교육용 nMOS 모형입니다. 문턱 전압은 0.7V로 가정하고 누설과 실제 공정 차이는 생략했습니다. VDS=0V일 때 순 드레인 전류는 0A입니다.'}
             </div>
           )}
         </section>
-      </div>
 
-      {/* Action Bottom Bar */}
-      <ActionBottomBar />
+        {/* Right Side: A03 Single Task Flow Sheet (Panel) */}
+        <A03SingleTaskPanel
+          onPhaseChange={setActivePhase}
+          onExit={onOpenCatalog}
+        />
+      </div>
 
       {/* Deep-Dive Why Modal */}
       <WhyModal />

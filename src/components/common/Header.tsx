@@ -55,6 +55,80 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCatalog, onToggleQALab }) 
 
   if (!lesson) return null;
 
+  const isImmersion = Boolean(lesson);
+  const totalSteps = lesson.steps.length;
+  const currentStepNum = currentStepIndex + 1;
+
+  if (isImmersion) {
+    return (
+      <header className="a03-top" aria-label="학습 상단 내비게이션">
+        <button
+          type="button"
+          className="a03-back"
+          onClick={onOpenCatalog}
+          title="강좌 및 레슨 목록 열기"
+          aria-label="실험 나가기"
+        >
+          <span className="arrow">←</span> 나가기
+        </button>
+
+        <div
+          className="a03-nav-progress"
+          aria-label={`${lesson.title} ${totalSteps}개의 실험 중 ${currentStepNum}번째`}
+        >
+          <div
+            className="a03-bar"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={totalSteps}
+            aria-valuenow={currentStepNum}
+            aria-label="실험 단계 진행"
+          >
+            <div style={{ width: `${(currentStepNum / totalSteps) * 100}%` }} />
+          </div>
+          <span className="a03-fraction">{currentStepNum} / {totalSteps}</span>
+        </div>
+
+        <div className="a03-top-right">
+          <button
+            type="button"
+            className={`voice-toggle-btn ${voiceEnabled ? 'enabled' : 'disabled'} ${isSpeaking ? 'speaking' : ''}`}
+            onClick={handleVoiceToggle}
+            title={voiceEnabled ? '한국어 음성 튜터 켜짐' : '한국어 음성 튜터 꺼짐'}
+            aria-label="음성 튜터 토글"
+            style={{ padding: '6px 10px', fontSize: '11px', borderRadius: '8px' }}
+          >
+            {voiceEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+            <span className="voice-btn-label" style={{ fontSize: '11px' }}>
+              {isSpeaking ? '설명 중' : voiceEnabled ? 'Voice' : 'Mute'}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="voice-settings-btn"
+            onClick={() => {
+              sfx.playClick();
+              setIsVoiceSettingsOpen(true);
+            }}
+            title="음성 설정"
+            aria-label="음성 설정"
+            style={{ padding: '6px 8px', borderRadius: '8px' }}
+          >
+            <Settings2 size={16} />
+          </button>
+
+          <div className="a03-top-side">{lesson.category.toUpperCase()}</div>
+        </div>
+
+        <VoiceSettingsModal
+          isOpen={isVoiceSettingsOpen}
+          onClose={() => setIsVoiceSettingsOpen(false)}
+        />
+      </header>
+    );
+  }
+
   return (
     <header className="app-header">
       <div className="header-left">
