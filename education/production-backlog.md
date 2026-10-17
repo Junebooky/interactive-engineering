@@ -1,5 +1,5 @@
 # A06 Production Backlog · 2026-10-17
-> 최신 계약: Issue #6. Atlas v1 115개 DAG topic. 콘텐츠 **14 lessons / 58 authored Step** = 기존 12/50 + 14 MOS 4 Step + 16 논리/클록 4 Step, **14·16 A07 review pending**, 승인된 STORY_READY/SCENE_READY와 다름, 제품 UI·학습자 QA는 별도. 오너의 A01 레슨별 사전 승인 게이트 없음. 앱 코드 A02, scene A05, 원고/교차 QA A06. GitHub 작성만으로 타 에이전트 자동 기동 X.
+> 최신 계약: Issue #6. Atlas v1 115개 DAG topic. 콘텐츠 **15 lessons / 63 authored Step** = 기존 12/50 + 14 MOS 4 Step + 16 논리/클록 4 Step, **16·29 A07 review pending; 14 A07 SOURCE PASS / STORY_READY**, 승인된 STORY_READY/SCENE_READY와 다름, 제품 UI·학습자 QA는 별도. 오너의 A01 레슨별 사전 승인 게이트 없음. 앱 코드 A02, scene A05, 원고/교차 QA A06. GitHub 작성만으로 타 에이전트 자동 기동 X.
 
 ## 상태 전환의 증거 (타 소유자 명의로 임의 완료 금지)
 RESEARCHING (A06 sources/questions, not handoff) → STORY_READY (A06 vetted sources/model limits/3 misconception+hints/Voice/Step spec, **A05 제작 즉시 가능**) → A05_IN_PROGRESS (A05 branch/PR evidence) → SCENE_READY (A05 typed scene plus browser/mobile+CI and science review) → A02_INTEGRATING (A02 app engine/Voice/progress PR) → APP_QA (실제 앱 학습 flow, 접근성/Voice·regression/화면) → COMPLETE (오너 승인된 제공 범위의 최종 QA까지 완료).
@@ -26,7 +26,7 @@ RESEARCHING (A06 sources/questions, not handoff) → STORY_READY (A06 vetted sou
 ## 다음 A06 자동 선정 (지시 대기 없음)
 | 우선 | planned lesson / missing concept | 선수 | Current state/책임/자료 | 완료 조건 |
 |---|---|---|---|---|
-| P0 | **14 MOS capacitor accumulation/depletion/inversion** | 11,12 | **A06_SELF_QA_DONE / A07_INDEPENDENT_REVIEW_PENDING**, 4 drafted Step · [14 storyboard](lessons/14-mos-capacitor-field-inversion.md) / [14 MIT physics deep dive](deep-dives/14-mos-capacitor-physics.md) | Resolve A07 BLOCKER/MAJOR → A07 EDU_QA_PASS → STORY_READY then A05 #4; NOT READY yet |
+| P0 | **14 MOS capacitor accumulation/depletion/inversion** | 11,12 | **STORY_READY / A07 EDU_QA_PASS_SOURCE** 4 Step, [14 story](lessons/14-mos-capacitor-field-inversion.md) / [MIT deep dive](deep-dives/14-mos-capacitor-physics.md) | Minor quasi-static/deep depletion/C–V copy corrected, A05 #4 direct handoff; A05 SCENE_QA/APP_QA WAITING |
 | P0 | 16 combinational/sequential logic/clock | 01,12 | **A06_SELF_QA_DONE / A07_REVIEW_PENDING**, 4-Step [lesson](lessons/16-logic-clock-registers.md) / [MIT·TI deep dive](deep-dives/16-digital-logic-clock-timing.md) | A07 independent BLOCKER/MAJOR resolution→EDU_QA_PASS then A05 handoff, not yet READY |
 | P0 | 29 SerDes PCIe 7.0 PHY/IOMMU | 07/12/17 | RESEARCH_CANDIDATE A06 | bit transfer vs payload security |
 | P0 | 31 PSU/VRM/SiC·GaN/air·liquid CDU | 06/11/12 | RESEARCH_CANDIDATE A06 | P=VI, conversion loss/thermal/SLA |
@@ -52,10 +52,10 @@ RESEARCHING (A06 sources/questions, not handoff) → STORY_READY (A06 vetted sou
 - A07 Issue #12 및 [A07 PR #14 Round02](https://github.com/Junebooky/interactive-engineering/pull/14) 보고 수신인은 A06 Issue #6, A01 승인/별도 보고 없음. A06는 **11/12 pre-prediction Voice spoilers 및 G03 assessment**, [Atlas ID crosswalk](id-namespace-crosswalk.md) 수정. 각각 변경 SHA를 A07에게 보내 **source 재검증/EDU_QA_PASS**를 요청. A07 review 실행은 **A07 본인의 활성 세션**에서 진행; 댓글 작성으로 에이전트가 자동 시작하지 않는다.
 - **G03 시각 구현의 A05 브라우저 패스**는 물리/수치의 일부 증거이나 학생이 오답 카드를 실제 넣어보지 못하는 평가 **MAJOR**가 독립 A07 소스 QA에 존재. `A05_SCENE_READY` 단독 선언을 교육 QA와 구별한다.
 - **D02 A05 #10** cell0=0.45/cell1=0.55 교정 및 7건 브라우저 evidence 확인. 예전 '미교정 0.55 고정' 블로커는 **닫힘**. **A02 PR #11 최신 head e0dfe83은 WL/BL→writeCell·history 어댑터를 실제 추가했고 [A02 PR #11 보고](https://github.com/Junebooky/interactive-engineering/pull/11#issuecomment-6232772631)는 통합 Chromium QA 통과를 기록.** A07의 이전 BLOCKER는 이전 head a3656e/25a090d 소스 기준이므로 **FIX_REPORTED / A07_RECHECK_PENDING**으로 강등하고, 현재 adapter의 `phase=shared→restored`가 `sensed`를 거치지 않아도 복원 evidence를 추가할 수 있는 **순서 생략 위험**과 `refresh`를 leak보다 먼저 눌러도 history 조건을 충족할 가능성을 별도 negative-case로 검토 요청. A06는 앱 실행·독립 브라우저 재검증을 하지 않음.
-- **14 MOS capacitor 원고 4 Step/정량 QA만 완료**; 신규 후속 선정 완료하지만 A07 EDU_QA_PENDING. 마스터 14레슨·58 Step은 집필량, A05 제작 가능 판정은 아님.
+- **14 MOS capacitor 원고 4 Step/정량 QA만 완료**; 신규 후속 선정 완료하지만 A07 EDU_QA_PENDING. 마스터 15레슨·63 Step은 집필량, A05 제작 가능 판정은 아님.
 
 ## A05 권장 제작 순서
-(1) 다른 진행 중인 업무·A02 D02 blocker 원인과 독립 가능한 **12 회로/11 PN**은 A07 중립 문구/선수 교정 재검증 후 A05 제작. (2) 14 MOS는 A07 PASS 후 01 앞에 연결. (3) G03 PR #15 현재 코드에 독립 DDR/GDDR/HBM 카드·위치 평가 및 같은 분야 숫자 오답 테스트 추가, 원고 수정 SHA 수신. (4) 이후 기존 04 NAND/06 제조·패키징으로 파이프라인 지속. **A06 16 논리·클록/레지스터 4 Step 집필 완료; 다음 29 SerDes/PCIe 연구 선정** (14 독립 QA 대기 중에도 병렬 연구 가능). main 병합·배포 금지.
+(1) 다른 진행 중인 업무·A02 D02 blocker 원인과 독립 가능한 **12 회로/11 PN**은 A07 중립 문구/선수 교정 재검증 후 A05 제작. (2) 14 MOS는 A07 PASS 후 01 앞에 연결. (3) G03 PR #15 현재 코드에 독립 DDR/GDDR/HBM 카드·위치 평가 및 같은 분야 숫자 오답 테스트 추가, 원고 수정 SHA 수신. (4) 이후 기존 04 NAND/06 제조·패키징으로 파이프라인 지속. **A06 16 논리·클록 4 Step self QA pending A07; 29 SerDes/PCIe/CXL 5-Step authored and A07 review pending** (14 독립 QA 대기 중에도 병렬 연구 가능). main 병합·배포 금지.
 
 ## A06 Round06 pipeline addendum 2026-10-17
 - **16 sequence logic** [16 original 4-Step](lessons/16-logic-clock-registers.md) / [MIT 6.004 + TI theory](deep-dives/16-digital-logic-clock-timing.md) author-self-QA. In particular setup max toy7.5ns and hold min0.5ns vs0.8ns (fails), +0.4min/+0.6max buffer tradeoff, T9ns both pass. A07 independent science+education review pending; A05 implementation **not** authorized as final until review.
