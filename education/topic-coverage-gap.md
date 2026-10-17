@@ -72,3 +72,7 @@
 - ID crosswalk [namespace](id-namespace-crosswalk.md) added; typed A02 persisted key migration still an implementation question.
 - D02 A05 #10 standalone science copy correct/Chromium evidence; newer A02 #11 implements action adapter and reports app Chromium QA; **A07 retest newest SHA e0dfe83 pending**, source-only potential sequence-skip edge cases flagged (not tested failure).
 - New lesson16 [clock/sequential research note](research-notes/16-logic-clock-research.md) started while A07 reviews; flip-flop metastability/timing are missing novice→CPU bridge.
+
+## A06 Round06 next gap scan (2026-10-17)
+**Newly addressed at authored-story level:** 16 CMOS gates→combinational vs sequential→level D latch/rising-edge DFF→timing/CDC (4 Step, [source](lessons/16-logic-clock-registers.md), [MIT/TI deep dive](deep-dives/16-digital-logic-clock-timing.md)). A07 independent review pending; not complete production.
+**Still pending:** 29 high-speed PCIe SerDes/DMA/IOMMU/CXL interplay [source research kickoff](research-notes/29-serdes-pcie-cxl-research.md); 31 VRM/rack PSU/heat/energy; 32 AI DC end-to-end SLO; 13 units/p99 mini bridge; 17 CPU pipeline; 15 FinFET/GAA/CFET; 20 EDA/STA & signoff; 05 SRAM A07 power-up/write persistence source blocker; 04 NAND targeted feedback source updates; 12 A05 PR#18 science/Voice cross QA. Plan after 29: select 31 vs 17 based on missing prerequisites/downstream impact, not A01 per lesson gate.
