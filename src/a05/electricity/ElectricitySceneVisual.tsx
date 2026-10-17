@@ -5,7 +5,7 @@ import type {ChargeMode,CircuitTopology,Direction,ElecSceneId} from './electrici
 export interface ElectricityVisualState{
   volts:0|5;closed:boolean;direction:Direction;
   topology:CircuitTopology;
-  mode:ChargeMode;rOhms:1000|2000;cMicroFarads:10|20;timeMs:number;
+  mode:ChargeMode;rOhms:1000|2000;cMicroFarads:10|20;timeMs:number;rcInitialVoltageV:number;rcSegmentStartMs:number;
   powerVolts:5|10;loadMilliAmps:5|10;seconds:1|10;
 }
 function Caption({x,y,children,size=14,color='#e8faff'}:{x:number;y:number;children:ReactNode;size?:number;color?:string}){
@@ -29,7 +29,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
   </div>;
   const basic=simpleCircuit(state.volts,state.closed);
   const network=resistorNetwork(state.topology);
-  const rc=rcModel(state.mode,state.rOhms,state.cMicroFarads,state.timeMs);
+  const rc=rcModel(state.mode,state.rOhms,state.cMicroFarads,state.timeMs,5,state.rcInitialVoltageV,state.rcSegmentStartMs);
   const energy=energyModel(state.powerVolts,state.loadMilliAmps,state.seconds);
   const mint='#7be8cb',cyan='#83cef4',gold='#ffdb97';
   const now=state.direction==='electron';
@@ -88,7 +88,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
         <rect x="94" y="248" width="458" height="27" rx="8" fill="#10263a" stroke="#557e90"/>
         <rect x="97" y="251" width={Math.min(452,rc.voltageV/5*451)} height="21" rx="6" fill={mint}/>
         <Caption x={94} y={236} color="#cff6e9">커패시터 전압 {rc.voltageV.toFixed(2)}V / 5V</Caption>
-        <Caption x={96} y={307} color="#c0e6ed" size={13}>τ = RC = {rc.tauMs.toFixed(0)}ms · I(t)={rc.currentMilliAmps.toFixed(2)}mA</Caption>
+        <Caption x={96} y={307} color="#c0e6ed" size={13}>τ = RC = {rc.tauMs.toFixed(0)}ms · I(t)={rc.currentMilliAmps.toFixed(2)}mA · 시작 V={rc.initialVoltageV.toFixed(2)}V</Caption>
       </>}
       {sceneId==='power-energy-joules-heat'&&<>
         <Caption x={73} y={84} color={mint} size={21}>전력 (W)과 에너지 (J)는 달라요</Caption>
