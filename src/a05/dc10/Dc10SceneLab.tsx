@@ -36,7 +36,7 @@ const COPY:Record<Dc10SceneId,Copy>={
  {id:'m2',text:'Prefill과 decode의 연산 강도·시간은 언제나 동일해요.',correction:'Prefill은 입력 문맥을 처리하고 decode는 순차 토큰을 생성하며 과거 KV를 참조합니다. 병목과 시간 특성은 다를 수 있어요.'},
  {id:'m3',text:'KV를 LPDDR로 옮기면 전송비용이나 지원 경로 확인 없이 무조건 빨라져요.',correction:'오프로딩은 용량과 전송비용의 절충이며 지원된 연결과 구성 확인이 필요합니다. 데이터 이동 지연을 0으로 놓을 수 없어요.'}],
  hints:['먼저 모델의 상주 여부와 KV 캐시를 분리합니다.','GQA/MQA에서는 query head 수와 KV head 수가 다를 수 있어요.','메모리 계층을 옮기는 링크에 시간과 용량 비용이 있어요.'],
- why:'toy는 layers2, KV heads2, query heads8, dim16, bytes/element2, K와 V 두 텐서. 문맥4·batch1은512 B, 문맥16·batch1은2048 B, 문맥16·batch4는8192 B. GQA에서 query heads8을 곱하면 잘못 과장됩니다. LPDDR offload는 경로가 지원될 때만 수행되고 실제 지연/TTFT 수치는 계산하지 않습니다.',
+ why:'toy는 layers2, KV heads2, query heads8, dim16, bytes/element2, K와 V 두 텐서. 문맥4·batch1은1024 B, 문맥16·batch1은4096 B, 문맥16·batch4는16384 B. GQA에서 query heads8을 곱하면 잘못 과장됩니다. LPDDR offload는 경로가 지원될 때만 수행되고 실제 지연/TTFT 수치는 계산하지 않습니다.',
  next:'이 계산을 수많은 요청에 적용할 때 시설의 냉각 전력은 어디에 들어갈까요?',
  beforeVoice:'문맥과 동시 요청을 키우면 모델 크기 자체가 커지는지, 별도 KV 캐시가 늘어나는지 예상하세요.',
  physics:'2layers×2 KV heads×dim16×2B×K/V2 토이. 양자화·패딩·sliding-window·실측 TTFT/토큰속도·제품별 offload 없음.'
