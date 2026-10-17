@@ -54,7 +54,7 @@
 - **priorKnowledge:** G03-S02, bit=1/8 byte
 - **storyHook:** 길을 그대로 두고 한 신호에서 더 많은 정보를 전달한다면?
 - **question:** 128bit 인터페이스에서 24Gb/s/pin과 32Gb/s/pin의 차이는?
-- **prediction:** 같은 **128bit×24Gb/s/pin**에서 ​[384GB/s/384Mb/s/3072GB/s] 중 하나, 이후 **128bit×32Gb/s/pin**에서 [512GB/s/384GB/s/4096GB/s] 중 하나를 **독립적으로** 예측. 384/512 정답은 예측 완료 전 prompt/Voice/aria에 노출하지 않음. PAM3 3레벨은 별도 원리 퀴즈.
+- **prediction:** 같은 **128bit×24Gb/s/pin**에서 ​[384/192/3072 GB/s] 중 하나, 이후 **128bit×32Gb/s/pin**에서 [512GB/s/384GB/s/4096GB/s] 중 하나를 **독립적으로** 예측. 384/512 정답은 예측 완료 전 prompt/Voice/aria에 노출하지 않음. PAM3 3레벨은 별도 원리 퀴즈.
 - **learnerAction:** 먼저 수치 입력 또는 동일 단위(GB/s) 3지선다(24Gb/s/pin의 384/192/3072GB/s, 32Gb/s/pin의 512/384/4096GB/s)를 **서로 독립적으로 선택** → 폭128bit 유지하고 24→32 Gb/s/pin 조작 → 학생 계산치와 관찰 비교. 예측 뒤 WHY에서 PAM3 symbol 3레벨≠3bits/cycle을 **별도의** 지식 선택지로 확인.
 - **modelInputs:** busWidth=128 bit toy, pinRate=24/32 Gb/s/pin toy, efficiency=100% toy
 - **expectedObservation:** 24일 때 384GB/s, 32일 때 512GB/s(십진); GDDR7 PAM3=3신호레벨, GDDR6 NRZ=2레벨
@@ -89,8 +89,8 @@
 - **feedback/hint:** “바로 답을 보여드리기보다 열이 많은 부품을 가까이 두면 어떤 일이 생길까요?”
 - **explanation:** HBM은 적층 DRAM과 TSV, 넓은 연결로 고대역폭을 노리지만 비용·전력·발열을 함께 설계해야 해요.
 - **nextHook:** 그런데 전원이 꺼진 뒤 AI 모델은 어디에 남을까요?
-- **displayText:** 더 넓은 길에도 제약이 있어요
-- **speechText:** HBM이 빠른 이유를 살펴봤어요. 동시에 왜 비싸고 까다로운지도 직접 비교해볼까요?
+- **displayText:** 보드 메모리와 패키지 메모리, 어떤 차이가 있을까요?
+- **speechText:** 보드 쪽과 패키지 쪽 배치를 비교해 봐요. 어떤 차이가 있을지 예상해 볼까요?
 - **physicsAssumptions:** 상대적인 toy 비교만 허용; 특정 SKU의 HBM 우위 단정 금지, 2.5D 두 의미 명확 구별
 - **sourceRefs:** [S5][S11][S19]
 - **A05:** scene 연동 입력·출력, 예측 전 정답 숨김, 상태/단위 표시, 3개 오답별 원인 피드백, 키보드/모바일/모션 축소 대응.
