@@ -1,6 +1,6 @@
 import {useId} from 'react';
 import type {ReactNode} from 'react';
-import {energyModel,rcModel,resistorNetwork,simpleCircuit} from './electricityModel';
+import {energyModel,rcModel,resistorNetwork} from './electricityModel';
 import type {ChargeMode,CircuitTopology,Direction,ElecSceneId} from './electricityModel';
 export interface ElectricityVisualState{
   volts:0|5;closed:boolean;direction:Direction;
@@ -23,49 +23,127 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
   sceneId:ElecSceneId;state:ElectricityVisualState;revealed:boolean;
 }){
   const id=useId().replace(/:/g,'');
-  if(!revealed)return <div className="a05-veiled" aria-label="전기 수치는 예측 전 숨겨져 있습니다">
+  if(!revealed && sceneId !== 'charge-voltage-current-arrows')return <div className="a05-veiled" aria-label="전기 수치는 예측 전 숨겨져 있습니다">
     <div className="a05-veiled-object" aria-hidden="true"><span/></div>
     <p>먼저 예상해 보세요. 예상을 기록한 뒤 전류와 회로가 열립니다.</p>
   </div>;
-  const basic=simpleCircuit(state.volts,state.closed);
   const network=resistorNetwork(state.topology);
   const rc=rcModel(state.mode,state.rOhms,state.cMicroFarads,state.timeMs,5,state.rcInitialVoltageV,state.rcSegmentStartMs);
   const energy=energyModel(state.powerVolts,state.loadMilliAmps,state.seconds);
   const mint='#7be8cb',cyan='#83cef4',gold='#ffdb97';
-  const now=state.direction==='electron';
-  return <div className="a05-visual a05-electricity-visual">
-    <svg viewBox="0 0 650 410" role="img" aria-label={
-      sceneId==='charge-voltage-current-arrows'?'스위치와 옴 저항을 지나는 관습전류와 반대 전자 방향의 2.5D 절개도':
-      sceneId==='resistors-series-parallel-kcl'?'직렬 또는 병렬 두 저항의 전류 보존 2.5D 회로':
-      sceneId==='capacitor-rc-charge-discharge'?'RC 저항-커패시터와 충전/방전 곡선 및 시간상수':
-      '부하 전력과 소모 에너지, 커패시터 저장 에너지를 구분하는 2.5D 도식'
-    }>
-      <defs><linearGradient id={'wafer'+id} x1="0" y1="0" x2="1" y2="1">
-        <stop stopColor="#38788e"/><stop offset=".6" stopColor="#21485f"/><stop offset="1" stopColor="#102a3e"/>
-      </linearGradient></defs>
-      <path d="M42 39 H564 L598 68 V344 H77 L42 313 Z" fill={'url(#wafer'+id+')'} stroke="#91c9d6" strokeWidth="2"/>
-      <path d="M564 39 L598 68 V344 L564 315 Z" fill="#143348" stroke="#78a2b1"/>
-      <rect x="42" y="39" width="522" height="276" rx="15" fill="#122e43" stroke="#6d9eae"/>
-      <path d="M60 52 H535" stroke="#bdfff1" opacity=".4" strokeWidth="2"/>
-      {sceneId==='charge-voltage-current-arrows'&&<>
-        <Caption x={72} y={79} size={20} color={mint}>전원 5V ≠ 전류 5A</Caption>
-        <Block x={81} y={127} width={130} title={state.volts+' V'} sub="이상적인 전압원" accent={gold}/>
-        <Block x={425} y={127} width={135} title="1kΩ" sub="옴 저항" accent={cyan}/>
-        <path d="M212 169 H265 M328 169 H424 M491 211 V253 H142 V211" stroke="#8fdfea" strokeWidth="5" fill="none"/>
-        {state.closed?<path d="M265 169 H328" stroke={mint} strokeWidth="6"/>:
-          <path d="M265 169 L313 141" stroke={gold} strokeWidth="5"/>}
-        <Caption x={253} y={126} color={state.closed?mint:gold}>SWITCH {state.closed?'CLOSED':'OPEN'}</Caption>
-        {state.closed&&<>
-          <path d={now?'M358 191 L340 183 L358 175':'M338 175 L356 183 L338 191'} fill={now?gold:mint}/>
-          <path d={now?'M239 236 L258 244 L239 252':'M259 236 L240 244 L259 252'} fill={now?gold:mint}/>
-        </>}
-        <Caption x={108} y={283} color={now?gold:mint} size={15}>
-          {now?'전자 이동 (음전하) ← 관습전류와 반대':'양전하 기준 관습전류 → 전자와 반대'}
-        </Caption>
-        <Caption x={82} y={306} color="#d5e5ee" size={12}>전압원 단자 5V여도 끊긴 DC 회로에서는 I=0</Caption>
-      </>}
-      {sceneId==='resistors-series-parallel-kcl'&&<>
-        <Caption x={72} y={85} size={21} color={mint}>같은 1kΩ 두 개, 연결에 따라 다른 전류</Caption>
+  const isElectron=state.direction==='electron';
+  const isClosed=revealed && state.closed;
+
+  if (sceneId === 'charge-voltage-current-arrows') {
+    return (
+      <div className="a05-visual a05-electricity-visual">
+        <svg
+          viewBox="0 0 780 420"
+          role="img"
+          aria-label="전원 5볼트, 저항 1킬로옴과 열림·닫힘 스위치로 이루어진 회로 모형. 조작은 장면 하단의 실험 도크에서 합니다."
+        >
+          <defs>
+            <linearGradient id={'base' + id} x1="0" y1="0" x2="1" y2="1">
+              <stop stopColor="#274A63" />
+              <stop offset="1" stopColor="#153145" />
+            </linearGradient>
+            <linearGradient id={'battery' + id} x1="0" y1="0" x2="1" y2="1">
+              <stop stopColor="#F6D58C" />
+              <stop offset="1" stopColor="#AD7935" />
+            </linearGradient>
+            <linearGradient id={'res' + id} x1="0" y1="0" x2="1" y2="1">
+              <stop stopColor="#C0E5EA" />
+              <stop offset="1" stopColor="#568FAA" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M65 95 L680 95 715 126 715 346 685 373 65 373 42 350 42 121Z"
+            fill={'url(#base' + id + ')'}
+            stroke="#37657D"
+            strokeWidth="3"
+          />
+          <path d="M65 95 L680 95 715 126 95 126Z" fill="#3B6177" opacity=".52" />
+          <g stroke="#75B3BF" strokeWidth="10" strokeLinejoin="round" strokeLinecap="round" fill="none">
+            <path d="M168 177 H300" />
+            <path d="M457 177 H602 V305 H168 V255" />
+          </g>
+          {/* 5V Battery */}
+          <g>
+            <rect x="118" y="147" width="100" height="115" rx="15" fill="#122434" opacity=".5" transform="translate(9 9)" />
+            <rect x="118" y="147" width="100" height="115" rx="15" fill={'url(#battery' + id + ')'} stroke="#FFE8B0" strokeWidth="2" />
+            <text x="168" y="191" fontSize="20" fontWeight="800" textAnchor="middle" fill="#332D23">5 V</text>
+            <text x="168" y="221" fontSize="14" fontWeight="700" textAnchor="middle" fill="#332D23">전원</text>
+            <text x="168" y="245" fontSize="12" textAnchor="middle" fill="#4D4031">+  −</text>
+          </g>
+          {/* 1kΩ Resistor */}
+          <g>
+            <path d="M550 151 L635 151 651 165 651 219 635 232 550 232 537 220 537 164Z" fill={'url(#res' + id + ')'} stroke="#D6F5FF" strokeWidth="2" />
+            <path d="M550 151 L635 151 651 165 563 165Z" fill="#D9F5F6" opacity=".6" />
+            <text x="594" y="188" textAnchor="middle" fontSize="21" fontWeight="800" fill="#102333">1kΩ</text>
+            <text x="594" y="208" textAnchor="middle" fontSize="13" fontWeight="650" fill="#17374D">저항</text>
+          </g>
+          {/* Switch drawing */}
+          <g id="switch-drawing">
+            <path d="M300 177 H340 M427 177 H457" stroke="#7CE7D5" strokeWidth="11" strokeLinecap="round" />
+            <circle cx="340" cy="177" r="11" fill="#9DE5DF" stroke="#D7F7F1" strokeWidth="3" />
+            <circle cx="427" cy="177" r="11" fill="#9DE5DF" stroke="#D7F7F1" strokeWidth="3" />
+            <path
+              id="switch-arm"
+              d={isClosed ? 'M340 177 H427' : 'M340 177 L410 117'}
+              stroke="#F3C36C"
+              strokeWidth="9"
+              strokeLinecap="round"
+            />
+            <text x="384" y="97" fontSize="15" textAnchor="middle" fontWeight="700" fill="#E6F5F6">스위치</text>
+          </g>
+          {/* Result Arrows: revealed only after prediction and when closed */}
+          {isClosed && (
+            <g id="result-arrows">
+              <circle cx="390" cy="305" r="18" fill="#087C6D" />
+              {isElectron ? (
+                <path d="M397 305 H382 M389 299 L382 305 389 311" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" />
+              ) : (
+                <path d="M382 305 H397 M390 299 L397 305 390 311" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" />
+              )}
+              <text x="390" y="337" textAnchor="middle" fill="#BEF5E8" fontWeight="700" fontSize="12">
+                {isElectron ? '전자 이동 (− → +)' : '관습전류 (+ → −)'}
+              </text>
+            </g>
+          )}
+          <text x="390" y="392" textAnchor="middle" fontSize="12" fill="#B4D7E0">
+            이상적인 직류 회로 · 간략화된 교육용 도식
+          </text>
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className="a05-visual a05-electricity-visual">
+      <svg
+        viewBox="0 0 650 410"
+        role="img"
+        aria-label={
+          sceneId === 'resistors-series-parallel-kcl'
+            ? '직렬 또는 병렬 두 저항의 전류 보존 2.5D 회로'
+            : sceneId === 'capacitor-rc-charge-discharge'
+            ? 'RC 저항-커패시터와 충전/방전 곡선 및 시간상수'
+            : '부하 전력과 소모 에너지, 커패시터 저장 에너지를 구분하는 2.5D 도식'
+        }
+      >
+        <defs>
+          <linearGradient id={'wafer' + id} x1="0" y1="0" x2="1" y2="1">
+            <stop stopColor="#38788e" />
+            <stop offset=".6" stopColor="#21485f" />
+            <stop offset="1" stopColor="#102a3e" />
+          </linearGradient>
+        </defs>
+        <path d="M42 39 H564 L598 68 V344 H77 L42 313 Z" fill={'url(#wafer' + id + ')'} stroke="#91c9d6" strokeWidth="2" />
+        <path d="M564 39 L598 68 V344 L564 315 Z" fill="#143348" stroke="#78a2b1" />
+        <rect x="42" y="39" width="522" height="276" rx="15" fill="#122e43" stroke="#6d9eae" />
+        <path d="M60 52 H535" stroke="#bdfff1" opacity=".4" strokeWidth="2" />
+        {sceneId === 'resistors-series-parallel-kcl' && <>
+          <Caption x={72} y={85} size={21} color={mint}>같은 1kΩ 두 개, 연결에 따라 다른 전류</Caption>
         <Block x={69} y={123} width={124} title="SOURCE" sub="5V ideal DC" accent={gold}/>
         {state.topology==='series'?<>
           <Block x={240} y={123} width={123} title="1kΩ R1" sub="2.5V drop" accent={cyan}/>
@@ -104,10 +182,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
       <Caption x={76} y={377} color="#b0cedb" size={12}>순수 교육용 toy 2.5D · 안전한 화면 시뮬레이터, 실측/실기기 회로 지침 아님</Caption>
     </svg>
     <div className="a05-readouts" aria-live="polite">
-      {sceneId==='charge-voltage-current-arrows'?<>
-        <span>전원 양단 전압<b>{basic.terminalVoltageV} V</b></span><span>직류 전류<b>{basic.currentMilliAmps.toFixed(2)} mA</b></span>
-        <span>스위치<b>{state.closed?'닫힘':'열림'}</b></span><span>화살표 기준<b>{now?'전자':'관습전류'}</b></span>
-      </>:sceneId==='resistors-series-parallel-kcl'?<>
+      {sceneId==='resistors-series-parallel-kcl'?<>
         <span>연결<b>{state.topology==='series'?'직렬':'병렬'}</b></span><span>등가저항<b>{network.equivalentOhms} Ω</b></span>
         <span>전체 전류<b>{network.totalMilliAmps.toFixed(2)} mA</b></span><span>소자별 전압<b>{network.eachResistorVoltageV.toFixed(2)} V</b></span>
       </>:sceneId==='capacitor-rc-charge-discharge'?<>
@@ -118,5 +193,6 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
         <span>커패시터 저장<b>{energy.capacitorMicroJoules.toFixed(0)} µJ</b></span><span>시간<b>{state.seconds} s</b></span>
       </>}
     </div>
-  </div>;
+  </div>
+  );
 }

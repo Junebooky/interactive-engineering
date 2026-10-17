@@ -46,7 +46,7 @@ export const electricityLesson: Lesson = {
       stepType: 'MANIPULATE',
       storyLead: '회로를 끊으면 전압과 전류가 둘 다 0일까요?',
       prompt:
-        '스위치를 열었을 때(OPEN)와 닫았을 때(CLOSED)의 전압과 전류를 먼저 예상하고, 스위치와 화살표 방향을 토글하며 계측값과 전자 이동을 관찰한 뒤 올바른 이유를 고르세요.',
+        '5V 배터리의 스위치를 열면 전류와 전압은 어떻게 될까요?',
       detailExplanation:
         '• 이상적인 5V 전원과 1kΩ(1000Ω) 저항이 연결되어 있습니다.\n• 스위치 열림(OPEN): 닫힌 통로가 없으므로 직류 전류 I = 0 mA입니다. 그러나 전원 양단의 5V 전위차는 여전히 유지됩니다.\n• 스위치 닫힘(CLOSED): 옴의 법칙(I = V/R)에 따라 I = 5V / 1000Ω = 5 mA의 전류가 흐릅니다.\n• 관습전류는 (+)에서 (−)로 흐르지만, 실제 금속 도선 내의 자유 전자는 음전하를 띠므로 (−)에서 (+) 쪽으로 표류(drift)합니다.',
       whyExplanation:
@@ -65,21 +65,21 @@ export const electricityLesson: Lesson = {
       controls: [
         {
           id: 'prediction',
-          label: '예측: 5V 전원에 연결된 스위치를 열면(OPEN) 계기는 어떻게 바뀔까요?',
+          label: '5V 배터리의 스위치를 열면 전류와 전압은 어떻게 될까요?',
           type: 'radioGroup',
           options: [
             {
-              label: '전압은 5V로 유지되지만 전류는 0A로 끊겨요.',
+              label: '배터리의 전압은 남지만 전류는 멈출 것 같아요.',
               value: 'v5-i0',
             },
             {
-              label: '전압도 전류도 즉시 0으로 완전히 사라져요.',
+              label: '전압과 전류가 모두 없어질 것 같아요.',
               value: 'all-zero',
               misconception:
                 '스위치는 전류 통로를 끊을 뿐, 배터리 양단의 전위차(전압)는 그대로 유지돼요.',
             },
             {
-              label: '전압이 5V이므로 회로가 끊겨도 5A가 계속 흘러요.',
+              label: '회로가 열려도 전류가 계속 흐를 것 같아요.',
               value: 'keep-current',
               misconception:
                 '전하가 이동할 수 있는 닫힌 경로가 없으면 전류는 흐를 수 없어요.',
@@ -91,8 +91,8 @@ export const electricityLesson: Lesson = {
           label: '회로 스위치 (Switch State)',
           type: 'toggle',
           options: [
-            { label: '열림 (OPEN - 회로 단절)', value: false },
-            { label: '닫힘 (CLOSED - 도통 5mA)', value: true },
+            { label: '열림', value: false },
+            { label: '닫힘', value: true },
           ],
         },
         {
@@ -106,24 +106,24 @@ export const electricityLesson: Lesson = {
         },
         {
           id: 'answer',
-          label: '개념 확인: 스위치를 열었을 때 전압계와 전류계의 차이는?',
+          label: '왜 회로가 열릴 때 전류만 멈출까요?',
           type: 'radioGroup',
           options: [
             {
-              label: '전압은 양단 전위차이므로 남아있고, 전류는 통로가 끊겨 0이 돼요.',
+              label: '전압은 전하를 밀어주는 차이이고, 전류는 실제 흐름이에요.',
               value: 'v-not-current',
             },
             {
-              label: '전압과 전류는 항상 동일한 물리량이므로 차이가 없어요.',
+              label: '스위치가 열린 채로도 전류가 흐르는 통로가 있어요.',
               value: 'same-thing',
               misconception:
-                '전압은 전하를 미는 에너지 차(V=J/C)이고, 전류는 전하의 흐름률(I=C/s)입니다.',
+                '다시 생각해 볼까요? 스위치를 열면 전류의 통로가 끊기지만 배터리 양단 전압까지 사라지는 것은 아니에요.',
             },
             {
-              label: '전자가 도선 밖으로 날아가 사라졌기 때문이에요.',
+              label: '전압과 전류는 언제나 똑같은 값이에요.',
               value: 'flew-away',
               misconception:
-                '전하는 도선 내부에 머물며 스위치에서 이동이 멈춘 것입니다.',
+                '전압은 전하를 미는 에너지 차(V=J/C)이고, 전류는 전하의 흐름률(I=C/s)입니다.',
             },
           ],
         },
@@ -142,20 +142,6 @@ export const electricityLesson: Lesson = {
           operator: 'contains',
           expected: 'closed',
           feedbackIfFail: '스위치를 닫아 1kΩ 저항에 5mA가 흐르는 것을 관찰하세요.',
-        },
-        {
-          label: '전자 이동 화살표 관찰',
-          targetKey: 'history',
-          operator: 'contains',
-          expected: 'electron',
-          feedbackIfFail: '화살표 기준을 전자의 실제 이동으로 바꿔 보세요.',
-        },
-        {
-          label: '관습전류 화살표 관찰',
-          targetKey: 'history',
-          operator: 'contains',
-          expected: 'conventional',
-          feedbackIfFail: '화살표 기준을 관습전류 방향으로 전환해 보세요.',
         },
         {
           label: '전압과 전류의 구분 이해',
@@ -186,7 +172,8 @@ export const electricityLesson: Lesson = {
         },
       ],
       voice: {
-        intro: '스위치를 열었을 때와 닫았을 때 계측기 수치가 어떻게 달라지는지 먼저 예상해 보세요.',
+        intro: '스위치를 열었을 때와 닫았을 때 전류계가 어떻게 달라질지 먼저 예상해 보세요.',
+        explanation: '전원 양단에는 5볼트가 유지될 수 있어도 열린 회로에는 직류가 흐르지 않아요. 닫힌 1킬로옴 경로에서 5밀리암페어가 흐릅니다.',
       },
       successMessage: '정답입니다! 전압과 전류의 차이 및 옴의 법칙(I=V/R)을 명확히 확인했습니다.',
     },

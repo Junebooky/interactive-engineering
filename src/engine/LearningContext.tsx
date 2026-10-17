@@ -7,7 +7,7 @@ import { voiceEngine } from '../lib/voice/webSpeechEngine';
 import { sfx } from '../lib/sound/sfx';
 
 interface LearningContextValue extends LearningEngineState {
-  initLesson: (courseId: string, lesson: Lesson) => void;
+  initLesson: (courseId: string, lesson: Lesson, initialStepIndex?: number) => void;
   updateParam: (key: string, value: any) => void;
   startInteraction: () => void;
   endInteraction: () => void;
@@ -36,10 +36,28 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [state.currentStepIndex, state.lesson?.id]);
 
   // Initialize lesson with LocalStorage restoration
-  const initLesson = useCallback((courseId: string, lesson: Lesson) => {
+  const initLesson = useCallback((courseId: string, lesson: Lesson, initialStepIndex?: number) => {
     voiceEngine.cancel();
     crossedMilestonesRef.current.clear();
     const saved = loadLessonProgress(courseId, lesson.id);
+
+    if (initialStepIndex !== undefined && initialStepIndex >= 0 && initialStepIndex < lesson.steps.length) {
+      const stepIndex = initialStepIndex;
+      const stepId = lesson.steps[stepIndex]?.id;
+      const restoredParams = saved?.simulatorInputs[stepId] || lesson.steps[stepIndex]?.initialParams;
+
+      dispatch({
+        type: 'INIT_LESSON',
+        payload: {
+          courseId,
+          lesson,
+          restoredStepIndex: stepIndex,
+          restoredParams,
+          completedStepIds: saved?.completedStepIds || [],
+        },
+      });
+      return;
+    }
 
     if (saved) {
       const stepIndex = Math.min(saved.currentStepIndex, lesson.steps.length - 1);
