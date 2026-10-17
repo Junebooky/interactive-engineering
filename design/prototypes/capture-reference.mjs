@@ -21,7 +21,7 @@ try {
     });
     const page = await context.newPage();
     await page.goto(target);
-    await page.evaluate(() => localStorage.removeItem('a03-mosfet-v2-demo'));
+    await page.evaluate(() => { try { localStorage.removeItem('a03-mosfet-v2-demo'); } catch {} });
     await page.reload();
     await page.waitForSelector('#primary');
     const assertNoOverflow = async () => {
