@@ -1,0 +1,14 @@
+.a05-sram-lab {
+  background:radial-gradient(ellipse at 80% 5%,#245e6b 0,#122c40 40%,#081626 100%);
+}
+.a05-sram-controls {display:grid;gap:14px}
+.a05-sram-controls strong {font-size:.88rem;color:#b4fff2}
+.a05-sram-controls .a05-control-buttons button {line-height:1.5}
+.a05-sram-visual svg {display:block;width:100%}
+.a05-sram-lab .a05-result button {margin:9px 10px 0 0;min-height:44px}
+.a05-sram-lab .a05-control-buttons button:focus-visible {outline:3px solid #ffe1aa;outline-offset:3px}
+.a05-sram-voice-status,.a05-sram-transcript {
+  padding:12px 20px;margin:0;font-family:system-ui,sans-serif;color:#e4fff7;background:#132c40;border-bottom:1px solid #76b9a7;
+}
+@media(max-width:500px){.a05-sram-lab .a05-canvas-col{padding:7px}.a05-sram-lab .a05-readouts{grid-template-columns:repeat(2,minmax(0,1fr))}.a05-sram-lab .a05-control-buttons{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.a05-sram-lab *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
