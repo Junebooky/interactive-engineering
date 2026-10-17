@@ -11,7 +11,7 @@ export interface SramEvent {
 }
 export function latch(q:Bit|null, feedback:boolean, supply:boolean){
   const valid=supply&&feedback&&q!==null;
-  return {q:valid?q:null, qBar:valid?(1-q) as Bit:null,
+  return {q:valid?q:null, qBar:valid&&q!==null?(1-q) as Bit:null,
     stable:valid,
     note:!supply?'전원 OFF: 상태 유지 불가(휘발성)':!feedback?'되먹임 OFF: 안정 저장 보장 불가':'상보 피드백: 안정 논리 모형'};
 }
