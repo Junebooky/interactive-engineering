@@ -35,7 +35,7 @@ export function GpuSceneVisual({sceneId,state,revealed,familyMatchChecked=false}
   return <div className="a05-visual a05-gpu-visual">
     <svg viewBox="0 0 650 405" role="img" aria-label={
       sceneId==='compute-feeding'?'GPU 병렬 계산기와 메모리 공급 파이프라인 병목 상태':
-      sceneId==='memory-family-roles'?'CPU DIMM, GPU 보드 DRAM, 패키지 HBM이 각각 배치되는 계층':
+      sceneId==='memory-family-roles'?(familyMatchChecked?'선택한 DRAM 가족의 대표 위치 매칭 검사 결과':'세 가지 위치 후보를 고르는 DRAM 가족 배치 도식 · 정답은 검사 후 공개'):
       sceneId==='gddr-width-rate'?'비트 버스 폭과 핀 전송률의 이론 대역폭 계산 및 PAM3 신호 높이':
       '보드 GDDR와 HBM 적층 TSV 및 GPU-HBM 연결 레이어 도식'
     }>
