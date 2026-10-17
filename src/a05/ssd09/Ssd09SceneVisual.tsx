@@ -60,7 +60,8 @@ export function Ssd09SceneVisual({sceneId,state,revealed,evidence=[]}:{sceneId:S
     <Plate x={475} y={132} w={147} label={state.plp.mediaCommitted?'NAND YES':'NAND ?'} desc="media commit" color="#a4f0c9"/>
     <T x={61} y={252} size={15}>가상 커패시터 nominal {plp.nominalJ.toFixed(1)}J · usable {plp.usableJ.toFixed(1)}J</T>
     <T x={61} y={280} size={14}>잔여 NAND 작업 {plp.pendingWorkJ.toFixed(1)}J → {plp.enoughToyEnergy?'전력 관점 가능':'에너지 부족'}</T>
-    <T x={61} y={310} size={13} color="#ffe3b2">PLP {state.plp.plpEnabled?'ON':'OFF'} / {state.plp.volatileCache?'volatile cache':'cache bypass'} / 정전 {state.plp.powerLost?'YES':'NO'}</T>
+    <T x={61} y={302} size={12} color="#ffe3b2">cache {state.plp.volatileCache?'volatile':'bypass'} · ACK {state.plp.ackMode} · PLP {state.plp.plpEnabled?'ON':'OFF'}</T>
+    <T x={61} y={323} size={12}>episode {state.plp.episode} · 정전 {state.plp.powerLost?'YES':'NO'} · outage verdict {state.plp.powerLossVerdict??'not yet'}</T>
     <T x={61} y={339} size={12}>현재 근거: {plpOutcome(state.plp)} · media/metadata 보호는 기기 계약 필요</T>
    </>}
    {sceneId==='essd-dwpd-tail-latency'&&<>
@@ -85,7 +86,7 @@ export function Ssd09SceneVisual({sceneId,state,revealed,evidence=[]}:{sceneId:S
     <span>호스트 기록<b>1 GiB</b></span><span>추가 유효-page 이사<b>{w.validMoveGiB} GiB</b></span><span>총 NAND 기록<b>{w.physicalNandGiB} GiB</b></span><span>WAF<b>{w.waf}</b></span>
    </>:sceneId==='ssd-plp-power-loss'?<>
     <span>phase<b>{state.plp.phase}</b></span><span>ACK/commit<b>{state.plp.ack?'ACK':''} / {state.plp.mediaCommitted?'MEDIA':'no media'}</b></span>
-    <span>Flush<b>{state.plp.flush}</b></span><span>durability<b>{plpOutcome(state.plp)}</b></span>
+    <span>Flush<b>{state.plp.flush}</b></span><span>ACK policy<b>{state.plp.ackMode}</b></span><span>durability<b>{plpOutcome(state.plp)}</b></span>
    </>:<>
     <span>sample<b>{l.values.length} requests</b></span>
     <span>99위 선택<b>{state.sorted&&state.selectedRank===99?'확인':'미검증'}</b></span>
