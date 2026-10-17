@@ -4,6 +4,7 @@ import { applySramActionAdapter } from './adapters/sramActionAdapter';
 import { applyGpuActionAdapter } from './adapters/gpuActionAdapter';
 import { applyElectricityActionAdapter } from './adapters/electricityActionAdapter';
 import { applyPnActionAdapter } from './adapters/pnActionAdapter';
+import { applyMos14ActionAdapter } from './adapters/mos14ActionAdapter';
 
 export interface LearningEngineState {
   courseId: string;
@@ -119,6 +120,7 @@ export function learningReducer(
         step?.simulatorType?.startsWith('semiconductor-') ||
         step?.simulatorType?.startsWith('silicon-')
       );
+      const isMos14 = Boolean(step?.simulatorType?.startsWith('mos14-'));
 
       let nextParams = {
         ...state.currentParams,
@@ -135,6 +137,8 @@ export function learningReducer(
         nextParams = applyElectricityActionAdapter(step.id, state.currentParams, key, value);
       } else if (isPn && step) {
         nextParams = applyPnActionAdapter(step.id, state.currentParams, key, value);
+      } else if (isMos14 && step) {
+        nextParams = applyMos14ActionAdapter(step.id, state.currentParams, key, value);
       } else if (typeof value === 'number' && (key === 'vgs' || key === 'vds' || key === 'vin')) {
         const prevVisited = Array.isArray(state.currentParams.visited) ? state.currentParams.visited : [0];
         if (!prevVisited.includes(value)) {

@@ -18,12 +18,15 @@ import { ElectricitySceneVisual, type ElectricityVisualState } from '../../a05/e
 import type { ElecSceneId } from '../../a05/electricity/electricityModel';
 import { PnSceneVisual, type PnVisualState } from '../../a05/pn/PnSceneVisual';
 import type { BandMaterial, BiasV, DiodeBiasV, Dopant, GateComparison, JunctionPhase, PnSceneId } from '../../a05/pn/pnModel';
+import { Mos14SceneVisual } from '../../a05/mos14/Mos14SceneVisual';
+import type { Mos14Bias, Mos14Device, Mos14Oxide, Mos14Phase, Mos14SceneId, Mos14State, Mos14Vds } from '../../a05/mos14/mos14Model';
 import type { A05Values } from '../../a05/scenePhysics';
 import '../../a05/dram/dramScenes.css';
 import '../../a05/sram/sramScenes.css';
 import '../../a05/gpu/gpuScenes.css';
 import '../../a05/electricity/electricityScenes.css';
 import '../../a05/pn/pnScenes.css';
+import '../../a05/mos14/mos14.css';
 import '../../a05/a05Scenes.css';
 import { BookOpen, Sparkles } from 'lucide-react';
 
@@ -266,6 +269,42 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
           <PnSceneVisual
             sceneId={sceneId}
             state={pnState}
+            revealed={showObservation}
+          />
+        );
+      }
+
+      case 'mos14-oxide-field':
+      case 'mos14-accumulation-inversion':
+      case 'mos14-capacitance-cv':
+      case 'mos14-cap-to-nmosfet': {
+        const defaultGateV = currentStep.simulatorType === 'mos14-cap-to-nmosfet' ? 1.1 : 0;
+        const mos14State: Mos14State = {
+          gateV: (currentParams.gateV !== undefined ? Number(currentParams.gateV) : defaultGateV) as Mos14Bias,
+          oxideNm: (currentParams.oxideNm !== undefined ? Number(currentParams.oxideNm) : 5) as Mos14Oxide,
+          phase: (currentParams.phase ?? 'steady') as Mos14Phase,
+          device: (currentParams.device ?? 'capacitor') as Mos14Device,
+          vds: (currentParams.vds !== undefined ? Number(currentParams.vds) : 0) as Mos14Vds,
+          showCv: Boolean(currentParams.showCv ?? false),
+        };
+        const hasPredictionCtrl = currentStep.controls?.some((c) => c.id === 'prediction');
+        const showObservation =
+          !hasPredictionCtrl ||
+          (currentParams.prediction !== undefined && currentParams.prediction !== null);
+
+        const sceneIdMap: Record<string, Mos14SceneId> = {
+          'mos14-oxide-field': 'mos-oxide-field-without-dc-path',
+          'mos14-accumulation-inversion': 'mos-accumulation-depletion-inversion',
+          'mos14-capacitance-cv': 'mos-oxide-capacitance-cv',
+          'mos14-cap-to-nmosfet': 'mos-cap-to-nmosfet-bridge',
+        };
+
+        const sceneId = sceneIdMap[currentStep.simulatorType] ?? 'mos-oxide-field-without-dc-path';
+
+        return (
+          <Mos14SceneVisual
+            sceneId={sceneId}
+            state={mos14State}
             revealed={showObservation}
           />
         );

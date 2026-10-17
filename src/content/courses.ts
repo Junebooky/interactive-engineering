@@ -1,6 +1,7 @@
 import type { Course } from '../types';
 import { electricityLesson } from './semiconductor/electricityLesson';
 import { pnLesson } from './semiconductor/pnLesson';
+import { mosCapacitorLesson } from './semiconductor/mosCapacitorLesson';
 import { mosfetLesson } from './semiconductor/mosfetLesson';
 import { dramLesson } from './semiconductor/dramLesson';
 import { sramLesson } from './semiconductor/sramLesson';
@@ -16,9 +17,9 @@ export const courses: Course[] = [
     category: 'semiconductor',
     categoryLabel: '반도체 공학',
     badge: '⚡ 반도체 핵심',
-    summary: '전기·RC 기초와 실리콘 밴드·PN 접합부터 MOSFET 채널 형성, DRAM 메모리 셀, SRAM 캐시, GPU HBM 메모리 병목까지 탐구하는 시그니처 코스',
-    estimatedMinutes: 65,
-    lessons: [electricityLesson, pnLesson, mosfetLesson, dramLesson, sramLesson, gpuLesson],
+    summary: '전기·RC 기초와 실리콘 밴드·PN 접합부터 MOS 커패시터, MOSFET 채널 형성, DRAM 메모리 셀, SRAM 캐시, GPU HBM 메모리 병목까지 탐구하는 시그니처 코스',
+    estimatedMinutes: 80,
+    lessons: [electricityLesson, pnLesson, mosCapacitorLesson, mosfetLesson, dramLesson, sramLesson, gpuLesson],
   },
   {
     id: 'course-circuits',
