@@ -5,7 +5,7 @@
 - src/a05/dc10/dc10Model.ts blob **`7c3d8be34bf51d06107bb7f27cb319dac1b6a814`**.
 - src/a05/dc10/Dc10SceneLab.tsx blob **`0f1b194c49e52f21aac672162d483137dad03ccc`**.
 - src/a05/dc10/Dc10SceneVisual.tsx blob **`28f74c27ad082f7a242f75f477ca382107766f8d`**.
-- Prior R28 reviewed HEAD **`84b8ac0746ee112fe2ea849a9e8bd1f93f48ca45`** with wrongly continuous green A wire / amber B wire. Historic A05-owned real [Chromium run #39046572471 6 PASS](https://github.com/Junebooky/interactive-engineering/actions/runs/39046572471) and [CI #39046572462 SUCCESS](https://github.com/Junebooky/interactive-engineering/actions/runs/39046572462) ran **older code HEAD**, not this repaired HEAD. New-head CI/real Chromium evidence NOT YET inspected/confirmed, may be pending.
+- Prior R28 reviewed HEAD **`84b8ac0746ee112fe2ea849a9e8bd1f93f48ca45`** with wrongly continuous green A wire / amber B wire. Historic A05-owned real [Chromium run #39046572471 6 PASS](https://github.com/Junebooky/interactive-engineering/actions/runs/39046572471) and [CI #39046572462 SUCCESS](https://github.com/Junebooky/interactive-engineering/actions/runs/39046572462) ran **older code HEAD**, not this repaired HEAD. NEW exact-head CI [run #39049931429](https://github.com/Junebooky/interactive-engineering/actions/runs/39049931429) **COMPLETED SUCCESS** independently checked by A07: job Lint, Test, and Build (oxlint, Vitest, TypeScript + Vite). This is **not** the separate real Chromium/ARIA/Voice browser workflow; actual NEW-head browser evidence remains unconfirmed.
 
 ## Result
 - [x] **R28-02 false physical cable-state P1 RESOLVED_SOURCE**, exact current code mapping corrected. **A07 Lesson10 four-scene `EDU_SCENE_SOURCE_PASS`** on this new inspected HEAD for bounded model/JSX/static pedagogical truth.
