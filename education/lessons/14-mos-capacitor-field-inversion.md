@@ -57,3 +57,31 @@
 - **teachBack:** (초보) 음/양 gate 시 표면 이동정공/전자 예측 / (중급) 고정 acceptor charge와 flatband marker 구분 / (시니어) workfunction shift/oxide charge changes VFB and Vt.
 - **sourceRefs:** [MOS-A][MOS-B]
 - **nextHook:** “산화막을 더 두껍게 만들면 전계로 전하를 제어하기 쉬워질까요?”
+
+## 14-S03 · `mos-oxide-capacitance-cv`
+### ① 기초: 미리 계산하기
+- **sceneId:** `mos-oxide-capacitance-cv`
+- **learningGoal:** SiO₂ oxide thickness and dielectric change oxide capacitance per unit area, and measured MOS C–V depends on silicon depletion and AC frequency.
+- **priorKnowledge:** 12-S03 Q=CV/RC, 14-S01/02 MOS electrostatics.
+- **storyHook:** “절연막을 두껍게 만드는 순간 전하를 제어하는 힘이 어떻게 달라질까요?”
+- **question:** 절연막 5nm를 10nm로 바꿀 때 같은 재료의 단위면적 capacitance가 절반·같음·두 배 중 무엇일까요?
+- **prediction:** ratio 0.5 / 1 / 2 가운데 선택. 이론 숫자/정답은 예측 이전 **감춤**.
+- **learnerAction:** tox 5↔10nm, εr=3.9 toy 고정. after-prediction C′ox readout; 심화 펼치기에서 accumulated/depleted/inverted schematic HF vs quasi-static LF C–V paths separately overlay, actual numeric frequency not asserted.
+- **modelInputs:** ε0=8.8541878128e−12F/m, εox=3.9ε0, tox=5e−9/10e−9m, C′ox=εox/tox; depletion series `Cdep′=0.5*Cox′` purely illustrative, not measured; frequency labels high/low qualitative only.
+- **displayTextBeforePrediction:** “두께가 두 배면 커패시턴스는 어떻게 될까요?”
+- **speechTextBeforePrediction:** “두께만 바꿔보세요. 전하를 저장하는 능력이 얼마큼 달라질지 먼저 선택해 볼까요?”
+### ② 수치·오개념
+- **expectedObservation:** C′ox(5nm)=0.00690627F/m²≈0.690627µF/cm². C′ox(10nm)=0.00345313F/m²≈0.345313µF/cm². Depletion measured C′total≈(1/Cox′+1/Cdep′)⁻¹ < Cox′. HF inversion often approaches Cmin whereas LF inversion can respond toward Cox, measurement setup-dependent.
+- **correctIncorrectCriteria:** ratio 0.5 correctly predicted with numerical units; `1/Ctotal′=1/Cox′+1/Cdep′` in depletion; HF/LF distinction not universal value.
+- **misconceptions:** [m1] 두께 2배→Cox 두 배; [m2] 직렬 C는 Cox+Cdep 단순합; [m3] 모든 측정 주파수에서 inversion C가 정확히 같다.
+- **hints:** L1 C=εA/t, t가 분모인지 확인하세요 / L2 12 직렬 capacitance는 역수 합이에요 / L3 소수 캐리어가 빠른 AC 변화를 따라갈 수 있나요?
+- **feedback/incorrect keyed:** m1 “같은 유전체·면적이라면 두께와 C는 반비례해요.” / m2 “직렬이면 커패시턴스 역수가 더해져요.” / m3 “AC 주파수와 캐리어 응답·트랩에 따라 C–V 곡선이 달라질 수 있어요.”
+- **feedback/correct:** “Cox의 단위를 계산하고, 실제 MOS C–V에 실리콘 상태가 더해지는 점을 구별했어요.”
+- **displayTextAfterObservation:** “산화막 두께 2배 → 단위면적 커패시턴스 절반(이상 모형).”
+- **speechTextAfterObservation:** “같은 재료라면 산화막이 두꺼워질수록 커패시턴스가 줄어요. 실제로는 실리콘의 공핍층과 측정 주파수도 함께 봐야 하죠.”
+- **explanation:** C′ox=εox/tox. Gate voltage VGB is divided into flatband/surface potential/oxide drop. Only `ΔQ′=Cox′ΔVox` for oxide drop change, not for any arbitrary ΔVGB. In modern high-k stacks EOT/physical tox differ.
+### ③ 시니어 실패 모드
+- **physicsAssumptions:** parallel-plate constant ε, area fixed, 1D non-quantum oxide. HF/LF C–V only **qualitative schematic**, no measured frequencies; leakage/interface traps/slow minority-carrier generation omitted.
+- **teachBack:** (초보) 두께와 C 반비례 / (중급) F/m² ↔ µF/cm² / (시니어) high-frequency inversion vs LF & interface traps and EOT.
+- **sourceRefs:** [MOS-A][MOS-D][MOS-E]
+- **nextHook:** “전하를 제어하는 커패시터에 소스와 드레인을 붙이면 비로소 어떤 길이 생길까요?”
