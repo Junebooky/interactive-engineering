@@ -91,10 +91,10 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
         <SvgLabel x={200} y={227} color={MINT} size={13}>{s.isChannelFormed ? '표면 반전층 형성' : '강한 반전층 미형성'}</SvgLabel>
         {showCurrent && s.id > 0 && <>
           <path d="M195 243 H451" stroke={CYAN} strokeWidth="3" strokeDasharray="8 6" className="a05-current-line" />
-          <path d="M195 243 l13 -7 v14 Z" fill={CYAN}/>
+          <path d="M451 243 l-13 -7 v14 Z" fill={CYAN}/>
           <SvgLabel x={205} y={263} color={CYAN} size={12}>전자 이동: SOURCE → DRAIN</SvgLabel>
           <path d="M449 278 H195" stroke={GOLD} strokeWidth="3"/>
-          <path d="M449 278 l-13 -7 v14 Z" fill={GOLD}/>
+          <path d="M195 278 l13 -7 v14 Z" fill={GOLD}/>
           <SvgLabel x={201} y={311} color={GOLD} size={12}>관습 전류: DRAIN → SOURCE</SvgLabel>
         </>}
         <SvgLabel x={94} y={344} color="#aec4d8" size={12}>교육용 장채널 nMOS · Vth=0.7V 가정 · 비례·단면 축척 아님</SvgLabel>
