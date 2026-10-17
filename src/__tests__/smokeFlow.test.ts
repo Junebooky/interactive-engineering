@@ -188,12 +188,15 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     expect(s03).toBeDefined();
 
     const vinCtrl = s03.controls?.find((c) => c.id === 'vin');
-    expect(vinCtrl?.type).toBe('toggle');
-    expect(vinCtrl?.options).toBeDefined();
+    if (!vinCtrl || !vinCtrl.options) {
+      throw new Error('vin control or options not found in S03');
+    }
+    expect(vinCtrl.type).toBe('toggle');
+    expect(vinCtrl.options).toBeDefined();
 
     // Verify toggle mapping helper logic identical to PromptCard
-    const offOpt = vinCtrl!.options![0];
-    const onOpt = vinCtrl!.options![1];
+    const offOpt = vinCtrl.options[0];
+    const onOpt = vinCtrl.options[1];
     expect(offOpt.value).toBe(0.0);
     expect(onOpt.value).toBe(5.0);
 
@@ -265,12 +268,14 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     const { ohmsLawLesson } = await import('../content/circuits/ohmsLawLesson');
     const step0 = ohmsLawLesson.steps[0];
     const switchCtrl = step0.controls?.find((c) => c.id === 'switchClosed');
-    expect(switchCtrl).toBeDefined();
+    if (!switchCtrl || !switchCtrl.options) {
+      throw new Error('switchClosed control or options not found in ohmsLawLesson step 0');
+    }
     expect(switchCtrl.type).toBe('toggle');
     expect(switchCtrl.options).toBeDefined();
 
-    const offOpt = switchCtrl.options![0];
-    const onOpt = switchCtrl.options![1];
+    const offOpt = switchCtrl.options[0];
+    const onOpt = switchCtrl.options[1];
     expect(offOpt.value).toBe(false);
     expect(onOpt.value).toBe(true);
 
