@@ -33,3 +33,11 @@ A06 [direct handoff #6232666878](https://github.com/Junebooky/interactive-engine
 - A06 separate source/senior science QA and A02 product app integration E2E, native phone/Safari, screen-reader and audible Korean TTS are **not verified** by headless Chromium. Mark `A05_BROWSER_QA_PASS / A02_HANDOFF_READY / A06_SCIENCE_QA_PENDING`, not product COMPLETE.
 - 14 MOS capacitor remains **RESEARCHING** per A06 production backlog; A05 will not mark it ready without handoff.
 - **No main merge, no deployment**.
+
+
+## [2026-10-17] A06/A07 Round02 corrective source QA and real Chromium rerun (supersedes earlier SHA for current code)
+- **Corrective scope:** A06 revised lesson11 blob b61c9a49: introductory spoken prompts changed to neutral discovery questions; diode pre-title no answer leak. Upstream Lesson12 science/Voice/RC continuity source files explicitly synchronized into this downstream stacked branch.
+- **Verified source SHA:** `6959403a13aaf46a9b700172bf947c235ef025ae`. Previous screen captures and CI runs remain historical, **not the current corrected source**.
+- **Actual Chromium browser rerun [#39027054888 — SUCCESS](https://github.com/Junebooky/interactive-engineering/actions/runs/39027054888)**: 8 PASS/0 FAIL, [12 PNG screenshots artifact #12098517945](https://github.com/Junebooky/interactive-engineering/actions/runs/39027054888/artifacts/12098517945). Corrected code-based screenshot evidence.
+- **CI [run #39027054809 — SUCCESS](https://github.com/Junebooky/interactive-engineering/actions/runs/39027054809)**, lint/unit test/TypeScript + Vite build. Science model and browser runner modified as described; current QA at exact SHA.
+- **Status:** A05 preview Chromium QA PASS, A06/A07 EDU_QA recheck pending; A02 integrated app E2E + physical device/Safari/audible voice/screen-reader QA not done. main merge/deploy forbidden.
