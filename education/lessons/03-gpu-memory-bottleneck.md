@@ -32,10 +32,10 @@
 - **storyHook:** 서버 CPU와 그래픽 GPU가 같은 메모리를 쓰면 어떨까요?
 - **question:** 메모리의 자리가 다르면 설계 목표도 같을까요?
 - **prediction:** CPU 서버, 보드 GPU, AI 패키지에 DRAM 카드 매칭 예상.
-- **learnerAction:** DDR/RDIMM, GDDR6, GDDR7, HBM 카드별 설치 위치와 장점·제약 드래그
+- **learnerAction:** 학습자가 **메모리 카드(DDR/RDIMM·GDDR6·GDDR7·HBM)**를 먼저 고른 뒤 **설치 위치(CPU DIMM / GPU board / GPU package)**를 독립적으로 고른다. 매칭이 틀릴 수 있어야 하며 방문(seen)이 아닌 **맞힘(grade)**으로 판단. 실제 GDDR6/GDDR7 모두 GPU board 선택이 가능한 one-to-many 매칭이라 duplicate placement 허용. 각 매칭에서 비용·용량·열·대역폭 이유 1개 선택. 정답이 인쇄된 사전결합 버튼 금지.
 - **modelInputs:** placement CPU DIMM / GPU board / close-to-GPU package; requirements capacity/bandwidth/power/cost
 - **expectedObservation:** 서버 DDR/RDIMM은 CPU 측, GDDR6·7은 많은 GPU 보드, HBM은 일부 AI/HPC의 적층·넓은 연결; 모두 DRAM
-- **correctIncorrectCriteria:** 적용 위치를 요구에 따라 설명하면 성공; GPU에는 반드시 HBM이라는 답은 오답
+- **correctIncorrectCriteria:** **독립 family/site 선택→정오답 branch** 3개 이상 시도/피드백, CPU DIMM→DDR/RDIMM, discrete GPU board→GDDR6 또는 GDDR7, 특정 AI/HPC package→HBM 등 **대표 사용처**의 이유를 설명하고 통합메모리·예외 SKU 가능성을 인정하면 성공. 위치 버튼을 방문하기만 해서는 통과할 수 없음.
 - **misconceptions (3 expected mistakes):** ① HBM은 DRAM이 아닌 별도 저장 기술이다 ② 모든 GPU는 HBM만 사용한다 ③ GDDR7이 무조건 모든 지표에서 더 낫다
 - **hints (level 1/2/3):** ① 램도 설치 장소와 목표가 다른가요? ② 용량·비용·열·대역폭을 각각 비교해보세요. ③ GPU마다 실제 채용 메모리가 다를까요?
 - **feedback/correct:** “보셨죠? 메모리는 한 종류의 승자가 있는 게 아니라 대역폭·용량·비용·열·호환성을 보고 선택하는 거예요.”
@@ -54,11 +54,11 @@
 - **priorKnowledge:** G03-S02, bit=1/8 byte
 - **storyHook:** 길을 그대로 두고 한 신호에서 더 많은 정보를 전달한다면?
 - **question:** 128bit 인터페이스에서 24Gb/s/pin과 32Gb/s/pin의 차이는?
-- **prediction:** 둘 중 384 또는 512GB/s를 먼저 예상.
-- **learnerAction:** 버스 폭 128bit 유지, 24→32 Gb/s/pin, 이론 대역폭 계산·그래프 관찰; PAM3 레벨 전환 보기
+- **prediction:** 같은 **128bit×24Gb/s/pin**에서 ​[384GB/s/384Mb/s/3072GB/s] 중 하나, 이후 **128bit×32Gb/s/pin**에서 [512GB/s/384GB/s/4096GB/s] 중 하나를 **독립적으로** 예측. 384/512 정답은 예측 완료 전 prompt/Voice/aria에 노출하지 않음. PAM3 3레벨은 별도 원리 퀴즈.
+- **learnerAction:** 먼저 수치 입력 또는 동일 단위(GB/s) 3지선다(24Gb/s/pin의 384/192/3072GB/s, 32Gb/s/pin의 512/384/4096GB/s)를 **서로 독립적으로 선택** → 폭128bit 유지하고 24→32 Gb/s/pin 조작 → 학생 계산치와 관찰 비교. 예측 뒤 WHY에서 PAM3 symbol 3레벨≠3bits/cycle을 **별도의** 지식 선택지로 확인.
 - **modelInputs:** busWidth=128 bit toy, pinRate=24/32 Gb/s/pin toy, efficiency=100% toy
 - **expectedObservation:** 24일 때 384GB/s, 32일 때 512GB/s(십진); GDDR7 PAM3=3신호레벨, GDDR6 NRZ=2레벨
-- **correctIncorrectCriteria:** 두 계산을 맞추고 이론/실효를 구분하면 성공
+- **correctIncorrectCriteria:** 입력/정답 카드에 correct 384/512GB/s를 초기 노출하지 않고, **두 수치(384·512)를 각각 계산/선택해 맞힘**, Gb/s→GB/s 변환 근거를 말하고, PAM3 3레벨≠3비트 및 이론/실효 구분을 별도 평가한 경우만 성공; 정답이 적힌 prompt를 읽고 next만 눌러도 pass하는 흐름 금지.
 - **misconceptions (3 expected mistakes):** ① Gb/s를 GB/s와 동일시 ② PAM3는 3비트/클럭이라는 뜻 ③ 계산 결과가 실제 GPU의 실측 처리량이다
 - **hints (level 1/2/3):** ① 1바이트가 몇 비트인지 떠올려봐요. ② 128 × 24 ÷ 8은 얼마일까요? ③ PAM3 3단계는 3비트가 아니라 서로 구별되는 신호 높이예요.
 - **feedback/correct:** “보셨죠? 대역폭은 폭 × 핀당 전송률 ÷ 8로 계산할 수 있어요. PAM3의 세 단계는 세 비트를 한번에 보낸다는 뜻은 아니에요.”
@@ -97,3 +97,9 @@
 
 ## QA
 모든 Step 필수 17 필드·오개념 3개·힌트 3개·친근한 한국어 Voice·공학적 가정·다음 Hook 검토. 절대 숫자/업계 제품 성능 대신 구별된 교육용 모형. 실제 학습자 파일럿·A05 구현·A02 앱 통합은 아직 하지 않음.
+
+## A07 Round 02 독립 QA → A06 canonical 03 즉시 수정 (2026-10-17)
+- [A07 source evidence](https://github.com/Junebooky/interactive-engineering/blob/docs/a07-edu-qa-round-01/education/round-02-foundations-g03-audit.md). **G03-S02 MAJOR:** `selectedMemoryFamily` and `selectedSite` independent state. `gradeMemoryPlacement(family,site,requirements)` is a pure decision returning `correct | incorrect:m1/m2/m3`, not a `seenSite` list. Representative acceptable: DDR/RDIMM→CPU DIMM, GDDR6/GDDR7→discrete GPU board, HBM→near-accelerator package (not every GPU). Wrong card↔site pairing produces contextual feedback (HBM is stacked DRAM but placement differs; GDDR7 not universal winner; CPU RDIMM interface differs). Visit each site only ≠ mastery; select an intentionally wrong assignment and show why wrong.
+- **G03-S03 MAJOR:** **no ready-made correct 384→512 clue** before prediction. Each data rate question uses correct + **same-domain** numeric alternatives in GB/s; 24Gb/s/pin→384/192/3072, 32Gb/s/pin→512/384/4096. Show formula `BW[GB/s]=busWidth[bit]×pinRate[Gb/s/pin]/8` **after prediction+control**; PAM3 misconception is an *independent teach-back*, not numeric distractor. Two sample sets and feedback test both sides.
+- **G03-S04 MINOR:** pre-reveal display “보드 메모리와 패키지 메모리, 어떤 차이가 있을까요?” / speech “보드 쪽과 패키지 쪽 배치를 비교해 봐요. 무엇이 달라질까요?”; post reveal HBM=넓은 I/O, TSV/인터포저, 비용/열은 제품 구성에 의존.
+- **Owner split:** A06 수정은 **원고/평가 계약**뿐. A05 PR #15 구현/Chromium negative-case QA & new source SHA 책임; A02 app score/Voice integration 책임. Existing ideal model BW math and 8 toy s remain source-pass. Independent A07 `EDU_QA_PASS` 재검증 결과 아직 없음.
