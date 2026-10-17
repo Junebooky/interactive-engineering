@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { dramLesson } from '../content/semiconductor/dramLesson';
 import { evaluateStepRules } from '../engine/validationEngine';
+import { learningReducer, initialEngineState } from '../engine/learningReducer';
 import {
   writeCell, shareCharge, senseRead, leakageVoltage, bankSchedule, bankOverlap,
 } from '../a05/dram/dramModel';
@@ -136,5 +137,151 @@ describe('DRAM D02 Lesson Engine Integration & Physics Model Tests', () => {
     expect(passEval.passed).toBe(true);
     expect(passEval.ruleResults.find(r => r.label?.includes('겹침'))?.passed).toBe(true);
     expect(passEval.ruleResults.find(r => r.label?.includes('병렬성'))?.passed).toBe(true);
+  });
+
+  it('6. S01 User Action Sequence: WL1/BL1 -> charge -> WL0/BL0 -> hold -> pass', () => {
+    const s1 = dramLesson.steps[1];
+    let state = learningReducer(initialEngineState, {
+      type: 'INIT_LESSON',
+      payload: { courseId: 'course-semiconductor', lesson: dramLesson, restoredStepIndex: 1 },
+    });
+    expect(state.currentParams.cell).toBe(0);
+    expect(state.currentParams.history).toEqual([]);
+
+    // 1. Student turns WL ON while BL is 1
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'wl', value: 1 },
+    });
+    expect(state.currentParams.cell).toBe(1);
+    expect(state.currentParams.history).toContain('charged');
+
+    // 2. Student turns WL OFF (closes gate)
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'wl', value: 0 },
+    });
+    expect(state.currentParams.cell).toBe(1);
+
+    // 3. Student changes BL to 0 (line drops to 0V)
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'bl', value: 0 },
+    });
+    // Cell must still be 1 (isolated!) and history must record 'held'
+    expect(state.currentParams.cell).toBe(1);
+    expect(state.currentParams.history).toContain('held');
+
+    // 4. Select answer and evaluate
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'answer', value: 'isolated' },
+    });
+    const result = evaluateStepRules(s1, state.currentParams);
+    expect(result.passed).toBe(true);
+  });
+
+  it('7. S02 User Action Sequence: Bit selection and Precharge -> Shared -> Sensed -> Restored', () => {
+    const s2 = dramLesson.steps[2];
+    let state = learningReducer(initialEngineState, {
+      type: 'INIT_LESSON',
+      payload: { courseId: 'course-semiconductor', lesson: dramLesson, restoredStepIndex: 2 },
+    });
+
+    // Student selects Bit 0
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'bit', value: 0 },
+    });
+    expect(state.currentParams.bit).toBe(0);
+
+    // Progression: Shared
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'phase', value: 'shared' },
+    });
+    expect(state.currentParams.history).toContain('shared');
+    expect(state.currentParams.bitlineVoltage).toBeCloseTo(0.45, 2);
+
+    // Progression: Sensed
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'phase', value: 'sensed' },
+    });
+    expect(state.currentParams.bitlineVoltage).toBe(0);
+
+    // Progression: Restored
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'phase', value: 'restored' },
+    });
+    expect(state.currentParams.history).toContain('restored');
+
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'answer', value: 'restore' },
+    });
+    const result = evaluateStepRules(s2, state.currentParams);
+    expect(result.passed).toBe(true);
+  });
+
+  it('8. S03 User Action Sequence: Time elapsed leak -> refresh recovery', () => {
+    const s3 = dramLesson.steps[3];
+    let state = learningReducer(initialEngineState, {
+      type: 'INIT_LESSON',
+      payload: { courseId: 'course-semiconductor', lesson: dramLesson, restoredStepIndex: 3 },
+    });
+
+    // Move slider to 1.2
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'elapsed', value: 1.2 },
+    });
+    expect(state.currentParams.history).toContain('leaked');
+    expect(state.currentParams.cellVoltage).toBeLessThan(0.8);
+
+    // Toggle refresh ON
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'refresh', value: true },
+    });
+    expect(state.currentParams.history).toContain('refreshed');
+    expect(state.currentParams.cellVoltage).toBe(1.0);
+
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'answer', value: 'leak' },
+    });
+    const result = evaluateStepRules(s3, state.currentParams);
+    expect(result.passed).toBe(true);
+  });
+
+  it('9. S04 User Action Sequence: 1 bank vs 2 banks timeline comparison', () => {
+    const s4 = dramLesson.steps[4];
+    let state = learningReducer(initialEngineState, {
+      type: 'INIT_LESSON',
+      payload: { courseId: 'course-semiconductor', lesson: dramLesson, restoredStepIndex: 4 },
+    });
+
+    // 1 bank
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'banks', value: 1 },
+    });
+    expect(state.currentParams.history).toContain('serial');
+
+    // 2 banks
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'banks', value: 2 },
+    });
+    expect(state.currentParams.history).toContain('parallel');
+
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'answer', value: 'conditional' },
+    });
+    const result = evaluateStepRules(s4, state.currentParams);
+    expect(result.passed).toBe(true);
   });
 });

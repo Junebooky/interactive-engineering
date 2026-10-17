@@ -92,6 +92,7 @@ export function DramSceneVisual({ sceneId, state, revealed }: {
         {sceneId === 'dram-sense-restore' && <>
           <rect x="95" y="247" width="181" height="31" rx="7" fill={read.senseEnabled ? '#2d9ea0' : '#233f57'} stroke="#80d4da"/>
           <text x="108" y="268" fill="#efffff" fontSize="12">SENSE AMP: {read.senseEnabled ? 'ENABLED' : 'OFF'}</text>
+          <text x="92" y="297" fill="#a7dfec" fontSize="12">{state.phase==='sensed' ? '증폭·셀 복원 연속 과정의 가상 순간' : state.phase==='restored' ? '센스 구동에 따른 셀 복원 완료' : '사전충전 → 전하 공유 순간'}</text>
           <text x="92" y="320" fill="#d0f8ea" fontSize="13">ΔV = {sensed.delta > 0 ? '+' : ''}{sensed.delta.toFixed(2)} × VDD · Cc:Cb = 1:9</text>
         </>}
         {sceneId === 'dram-leak-refresh' && <>
@@ -117,7 +118,7 @@ export function DramSceneVisual({ sceneId, state, revealed }: {
         <span>셀 저장 전압<b>{voltage.toFixed(2)} × VDD</b></span>
         <span>비트라인<b>{blVoltage.toFixed(2)} × VDD</b></span>
         <span>WL / 단계<b>{sceneId === 'dram-sense-restore' ? state.phase : (state.wl ? 'ON' : 'OFF')}</b></span>
-        <span>상태<b>{sceneId === 'dram-sense-restore' ? read.restored ? '복원됨' : '복원 전' : sceneId === 'dram-leak-refresh' ? '누설·리프레시' : '쓰기·유지'}</b></span>
+        <span>상태<b>{sceneId === 'dram-sense-restore' ? read.restored ? '복원 완료' : state.phase === 'sensed' ? '증폭 중 · 복원 진행(가상 순간)' : state.phase === 'shared' ? '전하 공유 완료' : '프리차지' : sceneId === 'dram-leak-refresh' ? '누설·리프레시' : '쓰기·유지'}</b></span>
       </>}
     </div>
   </div>;
