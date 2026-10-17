@@ -3,7 +3,7 @@
 export const power31Order=['server-psu-loss-heat','gpu-buck-vrm-duty-ratio','gpu-pdn-current-heat','cdu-water-loop-heat-flow','data-center-pue-wue-tradeoff'] as const;
 export type Power31SceneId=typeof power31Order[number];
 export type Power31Efficiency=90|95;
-export type Power31Duty=0.25|1/3|0.5;
+export type Power31Duty=0.25|0.3333333333333333|0.5;
 export type Power31Rail=1|2;
 export type Power31Resistance=1|2;
 export type Power31DeltaT=5|10;
