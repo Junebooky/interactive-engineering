@@ -10,12 +10,12 @@ describe('A05 Lesson10 independent science toy, route chronology and evidence ga
   expect(dc10Roofline(80,200)).toMatchObject({ceilingTflops:4,ridgeFlopsPerByte:20,bound:'compute'});
  });
  it('KV bytes use KV heads not query heads, separate resident model and unsupported LPDDR route',()=>{
-  expect(dc10KvCache(4,1).bytes).toBe(512);
-  expect(dc10KvCache(16,1).bytes).toBe(2048);
-  expect(dc10KvCache(16,4).bytes).toBe(8192);
+  expect(dc10KvCache(4,1).bytes).toBe(1024);
+  expect(dc10KvCache(16,1).bytes).toBe(4096);
+  expect(dc10KvCache(16,4).bytes).toBe(16384);
   const v=dc10KvCache(16,4);
   expect(v.queryHeads).toBe(8);expect(v.nKvHeads).toBe(2);
-  expect(v.bytes).not.toBe(32768);expect(v.ssdReadRequiredPerGeneratedToken).toBe(false);
+  expect(v.bytes).not.toBe(65536);expect(v.ssdReadRequiredPerGeneratedToken).toBe(false);
   expect(dc10KvCache(16,4,{offload:'LPDDR',offloadPathSupported:false}).offloadAccepted).toBe(false);
   expect(dc10KvCache(16,4,{offload:'LPDDR',offloadPathSupported:true}).offloadAccepted).toBe(true);
  });
