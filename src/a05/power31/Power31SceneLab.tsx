@@ -183,7 +183,7 @@ export function Power31SceneLab({onEvent,onSpeech}:Power31LabProps){
   </section>
   <section className="a05-canvas-col" aria-label="GPU 전원 냉각 2.5D 실험 및 단위 계기판">
    <div className="a05-canvas-header"><span>POWER31 2.5D · SOURCE_PASS A07</span><span>{revealed&&observed?'실험 관찰':'예측·조작 전 정답 비공개'}</span></div>
-   <Power31SceneVisual sceneId={sceneId} state={state} revealed={revealed&&observed}/>
+   <Power31SceneVisual sceneId={sceneId} state={state} revealed={revealed&&observed} evidence={seen}/>
    <div className="a05-model-limit"><strong>물리 모형 범위</strong> {revealed&&observed?story.bounds:'교육용 가상 단위/전력·냉각 모형입니다. 정답 수치는 먼저 예측하고 직접 조작한 뒤 보입니다.'}</div>
    <div className="a05-source">A06 Lesson31 SOURCE blob f7e7aa16 · A07 EDU_QA_PASS_SOURCE · 수치/장비는 교육용 가상 사례</div>
   </section></main></div>;
