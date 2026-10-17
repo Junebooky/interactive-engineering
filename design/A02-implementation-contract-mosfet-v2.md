@@ -1,10 +1,12 @@
 # A03 → A02 구현 계약: MOSFET Discovery Lab V2
+
+> ⚠️ **항상 [단일 최신 디자인 인덱스](CURRENT.md)를 우선 확인하세요.** 교체된 이전 페이지를 따라 구현하지 마세요.
 > 2026-10-18 · 오너의 실제 코드 구현·인계 요청을 반영한 **구현 지시/디자인 기준 문서**. 이 문서는 A03의 별도 V2 디자인을 설명하며, A02 실앱 구현 완료 또는 과학 검수 PASS를 주장하지 않습니다. **main 병합/배포 승인은 별도**입니다.
 
 ## 0. 반드시 먼저 열 파일
-1. **[실행 가능한 원본 디자인 HTML](../prototypes/a03-mosfet-discovery-v2.html)** — V2 화면의 구조·스타일·2.5D SVG·한국어 카피·기본 전환을 포함. URL을 브라우저에서 열거나 clone 후 직접 실행하세요. 실제 앱 소스가 아닌 *visual reference*입니다.
-2. **[동일 원본에서 8종 PNG를 다시 만드는 Playwright 스크립트](../prototypes/capture-reference.mjs)** — desktop 1440×900 / mobile 390×844 / mobile-320 320×640, 예측/관찰/완료 화면. 소스 기반으로 재현 가능한 것이 핵심입니다.
-3. [V2 디자인 결정 기록](../a03-mosfet-discovery-lab-v2.md) 및 [A03 작업 #54](https://github.com/Junebooky/interactive-engineering/issues/54).
+1. **[실행 가능한 원본 디자인 HTML](prototypes/a03-mosfet-discovery-v2.html)** — V2 화면의 구조·스타일·2.5D SVG·한국어 카피·기본 전환을 포함. URL을 브라우저에서 열거나 clone 후 직접 실행하세요. 실제 앱 소스가 아닌 *visual reference*입니다.
+2. **[동일 원본에서 8종 PNG를 다시 만드는 Playwright 스크립트](prototypes/capture-reference.mjs)** — desktop 1440×900 / mobile 390×844 / mobile-320 320×640, 예측/관찰/완료 화면. 소스 기반으로 재현 가능한 것이 핵심입니다.
+3. [V2 디자인 결정 기록](a03-mosfet-discovery-lab-v2.md) 및 [A03 작업 #54](https://github.com/Junebooky/interactive-engineering/issues/54).
 4. **A02의 현재 제품 코드**에서 실제 변경할 컴포넌트는 \`src/components/common/Header.tsx\`, \`src/components/player/LessonPlayer.tsx\`, \`PromptCard.tsx\`, \`TutorPanel.tsx\`, \`ActionBottomBar.tsx\`, \`src/index.css\`; A05 \`A05SceneVisual\`은 기존 검증된 물리 장면을 **재사용**. 마지막으로 확인한 제품 기준: A02 Draft PR #44 HEAD \`6c48cbf\`. 시작 전 A02가 최신 브랜치/통합 계약을 확인하세요.
 
 ## 1. 제품/콘셉트 경계
@@ -69,7 +71,7 @@ node design/prototypes/capture-reference.mjs
 # design/reference-captures/a03-mosfet-v2/*.png
 \`\`\`
 
-원본 ChatGPT 대화에는 별도 실제 Chromium 렌더 PNG 8장이 존재합니다. **바이너리 PNG는 본 GitHub 문서 작성 시점에 GitHub 소스에 첨부하지 않았습니다.** 따라서 디자인 코드와 생성 스크립트가 구현·비교의 원본입니다. 이미지와 UI가 픽셀 100% 같아야 한다는 무리한 기준 대신, 레이아웃·시각 위계·행동·과학/접근성 계약을 먼저 합격시키고 동일 브라우저 조건에서 편차를 줄이세요.
+**바이너리 PNG 8장은 GitHub 디자인 브랜치의 [현재 갤러리](GALLERY-mosfet-v2.md)에 커밋되어 있습니다.** 브라우저 재생성 코드와 갤러리 모두 A02 구현 비교의 기준입니다. 이미지와 UI가 픽셀 100% 같아야 한다는 무리한 기준 대신, 레이아웃·시각 위계·행동·과학/접근성 계약을 먼저 합격시키고 동일 브라우저 조건에서 편차를 줄이세요.
 
 ## 8. 책임/다음 순서
 1. A02: 최신 앱 브랜치 지정 → 기존 동작 퇴행 방지 테스트 작성 → 몰입 header/sheet/CTA 통합 → 공식 앱 Chrome 3폭 × 3상태 캡처/CI → A03 리뷰 요청.
