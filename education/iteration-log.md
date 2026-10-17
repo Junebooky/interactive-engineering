@@ -21,3 +21,13 @@
 - [ ] P2 공개 전 콘텐츠 과학·표준·온도/전력·제품 세대별 재검증
 
 **제약:** 4개 우선 레슨 자체 QA 완료는 사용자 파일럿/A05 씬 구현/A02 엔진 통합의 완료를 뜻하지 않는다. 이 세션이 끝난 뒤 자동 반복 연구·작업을 수행한다고 보장하지 않는다(별도 자동화 필요).
+
+
+## Session 02 · A01 PR #7 최신 지시 수신 및 확장 (2026-10-17)
+- A01 PR #7 댓글 [#issuecomment-6231504873](https://github.com/Junebooky/interactive-engineering/pull/7#issuecomment-6231504873)와 A05 [PR #8](https://github.com/Junebooky/interactive-engineering/pull/8) head fd9d921 확인.
+- A05의 `A05MosfetSceneLab.tsx`, `A05SceneVisual.tsx`, `scenePhysics.ts`, scene spec/tests/css를 A06 M01과 교차 읽기. [source-level QA 문서](a05-m01-cross-qa.md) 작성: 회로 핵심 적합, VGS=0.7 경계 시각모순·subthreshold 설명 조건 개선 P1, 초기 0V 관찰 이벤트·SRAM 연결 P2. 실제 브라우저 QA 미실행.
+- PR #7 Codex 3건 반영: G03-S01 pipeline overlap 가정/직렬 반례, N04-S03 PLP/DRAM/ECC 선택별 오답 문구, N04-S04 read command와 read payload 방향 분리.
+- 누락 선행 질문 "NOT 게이트가 어째서 기억이 되지?" 조사 → [05 SRAM/CPU cache](lessons/05-sram-cpu-cache.md) 4 Steps 신설(6T latch/WL/BLB/cache locality/AI placement); Hamburg·Arm 자료 확인.
+- 누락 연결 질문 "HBM은 어디에 붙이며 왜 생산/열이 어려울까?" 조사 → [06 제조·chiplet/TSV/2.5D·thermal](lessons/06-hbm-chiplet-packaging.md) 4 Steps 신설; ASML·TSMC·Micron 2026-10-17 근거 교차.
+- **이 세션 A06 범위:** 교육 명세 6개 25 Step 제공, 2개 신규 레슨 A05 직접 인계 준비. 앱 구현/시각 브라우저 실행은 미실시.
+- 남은 최우선 콘텐츠: PN/물질/전력 반도체 입문, DRAM의 실제 sensing 파형, LPDDR/RDIMM 상세, NIC/RDMA/광학, 전력/VRM/냉각, AI DC end-to-end 완결편. 자동/무인 연구 진행을 약속하지 않음.
