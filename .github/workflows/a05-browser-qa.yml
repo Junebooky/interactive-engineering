@@ -1,0 +1,32 @@
+name: A05 M01 Real Browser QA
+on:
+  push:
+    branches:
+      - feat/a05-mosfet-discovery-scenes
+  workflow_dispatch:
+jobs:
+  chromium-screens:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install app dependencies
+        run: npm ci
+      - name: Install isolated Playwright runner (no lockfile modifications)
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run real desktop + mobile browser QA
+        run: node scripts/a05-browser-smoke.mjs
+      - name: Preserve screenshots even if QA fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a05-m01-browser-evidence
+          path: browser-evidence/m01/
+          if-no-files-found: warn
+          retention-days: 14
