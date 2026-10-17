@@ -47,7 +47,7 @@
 - **predictionPrompt (learner-only):** 한 시트 폭20nm·두께5nm라면 둘레가 얼마인지, 2장과 3장의 합계 비율이 얼마일지 먼저 고르세요.
 - **displayTextBeforePrediction:** 총 표면 길이와 전류는 같은 물리량일까요?
 - **speechTextBeforePrediction:** 나노시트 두께와 폭을 자로 확인하고 시트 수를 직접 바꿔 보세요.
-- **learnerAction:** Student first predicts total perimeter with `sheetCount=2|3`, then **independently** changes `sheetWidthNm=20|30` and `sheetThicknessNm=5|7`; show four rectangle faces and recalculate derived `perimeterEachNm=2×(w+t)` and `totalPerimeterNm=N×P` after submitted prediction. Base case N2 w20 t5 ⇒100nm and N3⇒150nm; alternative w30 t5 N2⇒140nm N3⇒210nm; alternative w20 t7 N2⇒108nm N3⇒162nm. Toy current and capacitance outputs explicitly `NOT_PROVEN`, **no unimplemented `gateCapacitanceVaries` button**.
+- **learnerAction:** Student first predicts total perimeter with `sheetCount=2|3`, then **independently** changes `sheetWidthNm=20|30` and `sheetThicknessNm=5|7`; show four rectangle faces and recalculate derived `perimeterEachNm=2×(w+t)` and `totalPerimeterNm=N×P` after submitted prediction. Base case N2 w20 t5 ⇒100nm and N3⇒150nm; alternative w30 t5 N2⇒140nm N3⇒210nm; alternative w20 t7 N2⇒108nm N3⇒162nm. Toy current and capacitance outputs explicitly `NOT_PROVEN`; only documented controls are present.
 - **modelInputs:** `sheetCount:2|3`, `sheetWidthNm:20|30`, `sheetThicknessNm:5|7` are **real independent typed controls**; `perimeterEachNm=2*(sheetWidthNm+sheetThicknessNm)` and `totalPerimeterNm=sheetCount*perimeterEachNm` derived/read-only. Baseline w20 t5⇒P50 N2=100 N3=150 ratio1.5; w30 t5⇒P70, N2=140 N3=210; w20 t7⇒P54, N2=108 N3=162. `measuredOnCurrent=NOT_PROVEN`, `measuredGateCapacitance=NOT_PROVEN`, `realClockOrEnergyGain=NOT_PROVEN`: actual transport/contact/PVT not modeled.
 ### ② 교사용 답은 조작 뒤 공개
 - **expectedObservation (teacher-only):** For baseline width20nm thickness5nm, a sheet perimeter=50nm; 2 sheets=100nm and3=150nm toy geometric ratio1.5. Width30 thickness5→perimeter70nm, N2=140/N3=210; width20 thickness7→perimeter54nm, N2=108/N3=162. Each ratio follows N=3/2 at equal w/t but real Ion, delay, gate C or switching power remain **NOT_PROVEN**.
@@ -67,6 +67,8 @@
 - **sourceRefs:** [D1][D2][D3]
 - **negativePathTest:** Test every m1/m2/m3 cause-specific wrong physical answer and a correct-first path. Derived teacher numbers/after voice must not appear in before student DOM/Voice/aria. Passing requires two distinct actual controls + causal WHY, not clicking every card. A05 Chrome/browser/Voice QA only after A07 exact-source PASS.
 - **nextHook:** 다음 실험에서 실제 칩과의 차이를 더 찾아볼까요?
+
+- **R20 reviewer retest acceptance:** [x] Select (w20,t5,N2) → P50,total100; independently N3 →150; independently w30,t5,N2 →P70,total140; independently w20,t7,N3 →P54,total162. [x] All Ion/C/energy measured result `NOT_PROVEN`. [ ] Source A07 exact-new-SHA review and real A05 browser test.
 
 ## 15-S03 · cfet-complementary-stacking · CFET은 HBM처럼 칩을 포개는 걸까요?
 ### ① 먼저 예상하고 조작하기
@@ -98,6 +100,8 @@
 - **sourceRefs:** [D4][D1]
 - **negativePathTest:** Test every m1/m2/m3 cause-specific wrong physical answer and a correct-first path. Derived teacher numbers/after voice must not appear in before student DOM/Voice/aria. Passing requires two distinct actual controls + causal WHY, not clicking every card. A05 Chrome/browser/Voice QA only after A07 exact-source PASS.
 - **nextHook:** 다음 실험에서 실제 칩과의 차이를 더 찾아볼까요?
+
+- **R20 reviewer retest acceptance:** [x] n+p vertical with contactAvailable=true => `TOY_CONCEPT_VALID` **only as projection**, `productDensityGain=NOT_PROVEN`; n+p vertical with contactAvailable=false => `INCOMPLETE_CONTACTS` and no function PASS, despite projected area1.2; n+n vertical =>`WRONG_DEVICE_PAIR`, HBM TSV != CFET. [ ] A07 new-SHA and A05 actual scene tests.
 
 ## 15-S04 · backside-power-ir-drop · 전원을 칩 뒤로 보내면 데이터센터 전력도 절반일까요?
 ### ① 먼저 예상하고 조작하기
@@ -160,6 +164,8 @@
 - **sourceRefs:** [D1][D2][D3][D4][D6]
 - **negativePathTest:** Test every m1/m2/m3 cause-specific wrong physical answer and a correct-first path. Derived teacher numbers/after voice must not appear in before student DOM/Voice/aria. Passing requires two distinct actual controls + causal WHY, not clicking every card. A05 Chrome/browser/Voice QA only after A07 exact-source PASS.
 - **nextHook:** 이제 EDA·STA와 DRAM 신뢰성까지 이어서 확인해 봐요.
+
+- **R20 reviewer retest acceptance:** [x] 1V=>0.2W/0.8V=>0.128W (conditional dynamic proxy); independent `scenario=leakageAndTimingUnknown` => `SYSTEM_GAIN_NOT_PROVEN`, never total-saving36%; `vendorSourceStatus.imecForksheetCFET='research_not_universal_HVM'`; node name2nm does not produce physicalGateLengthNm=2. [ ] A07 new-SHA and A05 browser negative tests.
 
 ## 5-step independent A07 math & UI acceptance vector
 | Step | After-observation toy truth | Invalid claims to reject |
