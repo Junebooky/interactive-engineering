@@ -54,13 +54,14 @@ export function learningReducer(
       const { courseId, lesson, restoredStepIndex = 0, restoredParams, completedStepIds = [] } = action.payload;
       const initialStep = lesson.steps[restoredStepIndex] || lesson.steps[0];
       const params = restoredParams || { ...initialStep?.initialParams };
+      const isAllCompleted = lesson.steps.length > 0 && lesson.steps.every(s => completedStepIds.includes(s.id));
 
       return {
         ...state,
         courseId,
         lesson,
         currentStepIndex: restoredStepIndex,
-        fsmState: 'STEP_INTRO',
+        fsmState: isAllCompleted ? 'LESSON_FINISHED' : 'STEP_INTRO',
         currentParams: params,
         evaluation: null,
         isHelpOpen: false,
