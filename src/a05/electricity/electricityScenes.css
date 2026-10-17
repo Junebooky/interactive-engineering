@@ -1,0 +1,9 @@
+.a05-electricity-lab{background:radial-gradient(ellipse at 85% 0%,#20576b 0,#102b3e 45%,#071725 100%)}.a05-electricity-controls{display:grid;gap:12px}
+.a05-electricity-controls strong{font-size:.89rem;color:#b3ffe8}
+.a05-electricity-controls input[type=range]{width:100%;accent-color:#7cead0;min-height:44px}
+.a05-electricity-controls label{color:#d9f7ef}
+.a05-electricity-visual svg{width:100%;display:block}
+.a05-electricity-lab button:focus-visible{outline:3px solid #ffe0a8;outline-offset:3px}
+.a05-electricity-voice-status,.a05-electricity-transcript{background:#133349;color:#e2fffa;padding:12px 20px;margin:0;font:inherit}
+@media(max-width:510px){.a05-electricity-lab .a05-control-buttons{grid-template-columns:1fr}.a05-electricity-lab .a05-readouts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.a05-electricity-lab *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

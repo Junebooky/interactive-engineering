@@ -32,7 +32,11 @@ export type SimulatorType =
   | 'gpu-compute-feeding'
   | 'gpu-memory-family-roles'
   | 'gpu-gddr-width-rate'
-  | 'gpu-hbm-tradeoffs';
+  | 'gpu-hbm-tradeoffs'
+  | 'elec-charge-current'
+  | 'elec-resistor-kcl'
+  | 'elec-rc-delay'
+  | 'elec-power-energy';
 
 export interface ScaffoldingHint {
   level: 1 | 2 | 3;

@@ -1,4 +1,5 @@
 import type { Course } from '../types';
+import { electricityLesson } from './semiconductor/electricityLesson';
 import { mosfetLesson } from './semiconductor/mosfetLesson';
 import { dramLesson } from './semiconductor/dramLesson';
 import { sramLesson } from './semiconductor/sramLesson';
@@ -14,9 +15,9 @@ export const courses: Course[] = [
     category: 'semiconductor',
     categoryLabel: '반도체 공학',
     badge: '⚡ 반도체 핵심',
-    summary: 'MOSFET 전도 채널 형성에서부터 1T1C DRAM 메모리 셀, 6T SRAM 캐시, GPU 메모리 병목과 HBM까지 탐구하는 시그니처 코스',
-    estimatedMinutes: 45,
-    lessons: [mosfetLesson, dramLesson, sramLesson, gpuLesson],
+    summary: '전기·RC 기초에서부터 MOSFET 전도 채널 형성, 1T1C DRAM 메모리 셀, 6T SRAM 캐시, GPU 메모리 병목과 HBM까지 탐구하는 시그니처 코스',
+    estimatedMinutes: 55,
+    lessons: [electricityLesson, mosfetLesson, dramLesson, sramLesson, gpuLesson],
   },
   {
     id: 'course-circuits',

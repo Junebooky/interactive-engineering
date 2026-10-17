@@ -14,10 +14,13 @@ import { DramSceneVisual, type DramVisualState } from '../../a05/dram/DramSceneV
 import { SramSceneVisual, type SramVisualState } from '../../a05/sram/SramSceneVisual';
 import { GpuSceneVisual, type GpuVisualState } from '../../a05/gpu/GpuSceneVisual';
 import type { GpuSceneId } from '../../a05/gpu/gpuModel';
+import { ElectricitySceneVisual, type ElectricityVisualState } from '../../a05/electricity/ElectricitySceneVisual';
+import type { ElecSceneId } from '../../a05/electricity/electricityModel';
 import type { A05Values } from '../../a05/scenePhysics';
 import '../../a05/dram/dramScenes.css';
 import '../../a05/sram/sramScenes.css';
 import '../../a05/gpu/gpuScenes.css';
+import '../../a05/electricity/electricityScenes.css';
 import '../../a05/a05Scenes.css';
 import { BookOpen, Sparkles } from 'lucide-react';
 
@@ -177,6 +180,48 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
           <GpuSceneVisual
             sceneId={sceneId}
             state={gpuState}
+            revealed={showObservation}
+          />
+        );
+      }
+
+      case 'elec-charge-current':
+      case 'elec-resistor-kcl':
+      case 'elec-rc-delay':
+      case 'elec-power-energy': {
+        const elecState: ElectricityVisualState = {
+          volts: (currentParams.volts ?? 5) as 0 | 5,
+          closed: Boolean(currentParams.closed),
+          direction: currentParams.direction ?? 'conventional',
+          topology: currentParams.topology ?? 'series',
+          mode: currentParams.mode ?? 'charge',
+          rOhms: currentParams.rOhms ?? 1000,
+          cMicroFarads: currentParams.cMicroFarads ?? 10,
+          timeMs: currentParams.timeMs ?? 0,
+          rcInitialVoltageV: currentParams.rcInitialVoltageV ?? 0,
+          rcSegmentStartMs: currentParams.rcSegmentStartMs ?? 0,
+          powerVolts: (currentParams.powerVolts ?? 5) as 5 | 10,
+          loadMilliAmps: (currentParams.loadMilliAmps ?? 10) as 5 | 10,
+          seconds: (currentParams.seconds ?? 10) as 1 | 10,
+        };
+        const hasPredictionCtrl = currentStep.controls?.some((c) => c.id === 'prediction');
+        const showObservation =
+          !hasPredictionCtrl ||
+          (currentParams.prediction !== undefined && currentParams.prediction !== null);
+
+        const sceneIdMap: Record<string, ElecSceneId> = {
+          'elec-charge-current': 'charge-voltage-current-arrows',
+          'elec-resistor-kcl': 'resistors-series-parallel-kcl',
+          'elec-rc-delay': 'capacitor-rc-charge-discharge',
+          'elec-power-energy': 'power-energy-joules-heat',
+        };
+
+        const sceneId = sceneIdMap[currentStep.simulatorType] ?? 'charge-voltage-current-arrows';
+
+        return (
+          <ElectricitySceneVisual
+            sceneId={sceneId}
+            state={elecState}
             revealed={showObservation}
           />
         );
