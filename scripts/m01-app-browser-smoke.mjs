@@ -229,7 +229,7 @@ try {
 
   await assert('Mobile 375px & 320px responsive layout without horizontal overflow', async () => {
     await phone.goto(baseUrl);
-    await phone.waitForSelector('.completion-card');
+    await phone.waitForSelector('.player-viewport');
     await phone.screenshot({ path: `${output}/12-app-mobile-375.png`, fullPage: true });
     await checkViewport(phone, 'Mobile 375');
 
