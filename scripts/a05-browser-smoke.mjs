@@ -52,9 +52,9 @@ try {
     const slider = page.locator('#a05-voltage');
     for (const [value, label] of [['0.6', 'below'], ['0.7', 'boundary'], ['0.8', 'above']]) {
       await slider.fill(value);
+      if (value === '0.7' && !await page.getByText('경계 (두께 0)').count()) throw Error('0.7 boundary not seen');
       await page.screenshot({ path: output + '/02-gate-' + label + '.png', fullPage: true });
     }
-    if (!await page.getByText('경계 (두께 0)').count()) throw Error('0.7 boundary not seen'); // value now 0.8 below
   });
   await assert('M01 S01 conceptual answer unlocks progression', async () => {
     await choose(page, '실리콘 표면에');
