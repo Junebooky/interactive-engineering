@@ -1,5 +1,5 @@
 # 14 · 절연막으로 막혔는데 전자가 움직여요? MOS 커패시터→MOSFET
-> 2026-10-17 · **A06 SELF_QA / A07 INDEPENDENT_QA_PENDING (EDU_QA_PASS 미확정)**. 4 Step 교육 명세, 35–45분 기획 추정. A05 제작은 A07 BLOCKER/MAJOR 교정 후 직접 인계. 현시점 소스·수식 검산만, 앱/렌더링·학생 검증 없음.
+> 2026-10-17 · **A06 STORY_READY / A07 EDU_QA_PASS_SOURCE (2026-10-17, MINOR 보완)**. 4 Step 교육 명세, 35–45분 기획 추정. A07은 이전 SHA에서 source PASS 판정; 아래 준평형·C–V MINOR를 A06가 보완했고 A05 직접 장면 인계 가능. 현시점 소스·수식 검산만, 앱/렌더링·학생 검증 없음.
 > 선수: 12 V/I/RC 및 11 도핑/PN; 다음: 기존 01 nMOS→CMOS. 질문→예측(선공개 방지)→직접 조작→관찰→오개념별 이유→다음 질문. 기초/중급/현업 시니어 3겹의 깊이. [정량 검증 및 원문·비유의 한계](../deep-dives/14-mos-capacitor-physics.md).
 
 ## 14-S01 · `mos-oxide-field-without-dc-path`
@@ -43,7 +43,7 @@
 - **displayTextBeforePrediction:** “게이트 전압을 네 번 바꾼 뒤 표면을 살펴볼까요?”
 - **speechTextBeforePrediction:** “p형이라는 이름은 그대로예요. 게이트 전압을 바꿀 때 겉부분의 전하가 어떻게 될지 먼저 예상해 보세요.”
 ### ② 관찰·오개념
-- **expectedObservation:** VGB< VFB=0: 다수 hole accumulation; VGB=VFB=0 flatband(특별 모형); +0.3 depletion(정공 밀려남, 음의 고정 acceptor ion), +1.1 strong inversion(전자 수 증가). 실제 약한 inversion은 문턱 이전부터 연속적.
+- **expectedObservation:** **충분히 시간이 지난 준평형(quasi-static) 스냅샷으로 제한.** VGB< VFB=0: 다수 hole accumulation; VGB=VFB=0 flatband(특별 모형); +0.3 depletion(정공 밀려남, 음의 고정 acceptor ion), +1.1 strong inversion(전자 수 증가). 실제 약한 inversion은 문턱 이전부터 연속적.
 - **correctIncorrectCriteria:** 네 상태 순서·고정이온 부호/이동 캐리어 차이, "0V universal flat-band"가 잘못임을 말할 것. 선택과 조작 증거 모두 필요.
 - **misconceptions:** [m1] p형 표면이 반전되면 acceptor 원자가 donor 원자로 바뀐다; [m2] 모든 MOS에서 VGB=0은 flatband, VT는 반드시0.7V다; [m3] depletion은 전자·정공·고정 이온이 모두 사라진 진공이다.
 - **hints:** L1 도핑 원자를 바꾼 건가요, 캐리어가 이동한 건가요? / L2 flatband는 일함수/고정전하 영향도 받을까요? / L3 움직이는 정공이 밀려나면 acceptor ion은 남을까요?
@@ -53,7 +53,7 @@
 - **speechTextAfterObservation:** “음의 게이트 전압에선 정공이 표면에 모이고, 양으로 올리면 정공이 밀려나요. 더 올리면 전자가 모여 반전이 나타나죠. 하지만 p형 원자가 바뀐 건 아니에요.”
 - **explanation:** p형 기판 nMOS용 MOS cap은 negative relative VFB에서 accumulation, increasing positive gate depletion then inversion. `VFB≠0` in general. 1D Vt has flat-band + surface potential+depletion drop contributions. A02 M01 Vth=0.7 toy is **별도 독립 교육모형**, 충돌된 실제 제품 문턱 수치가 아님.
 ### ③ 엔지니어 경계
-- **physicsAssumptions:** chosen special VFB0, T300K, abrupt p bulk, 1D depletion approximate. Calculated Vt0.784825V; not a true MOSFET technology threshold guarantee; weak inversion continuous, nonideal interface/charge, body bias ignored.
+- **physicsAssumptions:** **2단자 MOS는 소수 carrier 생성/공급 시간 의존; 시각화는 전압 변경 후 충분히 기다린 준평형 프레임이며 빠른 sweep에서 deep depletion 가능. n+ S/D 추가 시 공급경로 달라짐.** chosen special VFB0, T300K, abrupt p bulk, 1D depletion approximate. Calculated Vt0.784825V; not a true MOSFET technology threshold guarantee; weak inversion continuous, nonideal interface/charge, body bias ignored.
 - **teachBack:** (초보) 음/양 gate 시 표면 이동정공/전자 예측 / (중급) 고정 acceptor charge와 flatband marker 구분 / (시니어) workfunction shift/oxide charge changes VFB and Vt.
 - **sourceRefs:** [MOS-A][MOS-B]
 - **nextHook:** “산화막을 더 두껍게 만들면 전계로 전하를 제어하기 쉬워질까요?”
@@ -79,7 +79,7 @@
 - **feedback/correct:** “Cox의 단위를 계산하고, 실제 MOS C–V에 실리콘 상태가 더해지는 점을 구별했어요.”
 - **displayTextAfterObservation:** “산화막 두께 2배 → 단위면적 커패시턴스 절반(이상 모형).”
 - **speechTextAfterObservation:** “같은 재료라면 산화막이 두꺼워질수록 커패시턴스가 줄어요. 실제로는 실리콘의 공핍층과 측정 주파수도 함께 봐야 하죠.”
-- **explanation:** C′ox=εox/tox. Gate voltage VGB is divided into flatband/surface potential/oxide drop. Only `ΔQ′=Cox′ΔVox` for oxide drop change, not for any arbitrary ΔVGB. In modern high-k stacks EOT/physical tox differ.
+- **explanation:** C′ox는 **산화막 자체의 단위면적 기하학적 capacitance**; 실제 C′gate(VGB,f)는 공핍층/소수캐리어 응답/주파수의 함수이며 C–V 선은 실측이 아닌 개념 스케치. C′ox=εox/tox. Gate voltage VGB is divided into flatband/surface potential/oxide drop. Only `ΔQ′=Cox′ΔVox` for oxide drop change, not for any arbitrary ΔVGB. In modern high-k stacks EOT/physical tox differ.
 ### ③ 시니어 실패 모드
 - **physicsAssumptions:** parallel-plate constant ε, area fixed, 1D non-quantum oxide. HF/LF C–V only **qualitative schematic**, no measured frequencies; leakage/interface traps/slow minority-carrier generation omitted.
 - **teachBack:** (초보) 두께와 C 반비례 / (중급) F/m² ↔ µF/cm² / (시니어) high-frequency inversion vs LF & interface traps and EOT.
@@ -114,7 +114,7 @@
 - **sourceRefs:** [MOS-A][MOS-C]
 - **nextHook:** “01 MOSFET-S01로 가서 VGS와 VDS 두 다이얼을 따로 움직여봅시다.”
 
-## 4-Step A05 구현 전제 · A07 독립 검토 필수
+## 4-Step A05 구현 전제 · A07 독립 SOURCE 검수 완료 · 장면 검수는 별도
 | Step | A05 visual/physics object | source-level acceptance |
 |---|---|---|
 | 14-S01 | metal/oxide/p-Si cross-section and gate wire charge indicator | oxide steady DC ≠ changing capacitance current |
@@ -132,3 +132,8 @@
 [MOS-C] MIT 6.012 fall 2009 lecture10 3-terminal MOS/MOSFET https://ocw.mit.edu/courses/6-012-microelectronic-devices-and-circuits-fall-2009/pages/lecture-notes/
 [MOS-D] independent C–V source https://digitalcollections.ohsu.edu/record/2360/files/3093_etd.pdf (full text **NOT** reviewed, only extracted C–V passage; medium scope)
 [MOS-E] OpenStax capacitor physics https://openstax.org/books/university-physics-volume-2/pages/8-3-energy-stored-in-a-capacitor
+
+## A07 Round04 독립 SOURCE PASS 반영 (2026-10-17)
+- A07 이전 blob `0a01e359` / deep dive `8748e327` [Round04 independent source QA](https://github.com/Junebooky/interactive-engineering/blob/docs/a07-edu-qa-round-01/education/round-04-a06-retest-mos14.md)에서 **EDU_QA_PASS_SOURCE with MINOR**. 14-S02 준평형·소수 carrier 공급 지연/deep depletion, 14-S03 산화막 C′ox vs total C–V 차이와 non-measured schematic을 반영. 기존 원고 source PASS는 보존하되 이 수정 blob 후속 확인은 별도.
+- **A05 후관찰 해설:** “이 화면은 전압을 바꾼 뒤 전하가 충분히 움직여 평형에 가까워진 상태를 보여줘요. 실제 빠른 전압 변화에서는 전자가 즉시 모이지 않을 수 있어요.” Pre prediction 전에는 inversion/deep depletion 결론을 노출하지 않는다.
+- Source pass ≠ A05/앱/browser/실사용 pass. No main merge/deploy.
