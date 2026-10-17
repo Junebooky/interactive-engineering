@@ -54,8 +54,8 @@ export function assessGpu(id:GpuSceneId,seen:readonly string[],answer:string|nul
     tests.push({label:'GDDR6·GDDR7 모두 GPU board로 매칭',passed:has('pair-GDDR6')&&has('pair-GDDR7'),help:'GDDR6/7을 각각 GPU 보드에 정확히 놓아 보세요.'});
     tests.push({label:'HBM ↔ GPU package 독립 매칭',passed:has('pair-HBM'),help:'HBM을 GPU 패키지 위치에 배치해 보세요.'});
   }else if(id==='gddr-width-rate'){
-    tests.push({label:'24 Gb/s/pin 방문 + 384 GB/s 독립 정답',passed:has('rate24')&&has('quiz24'),help:'24 Gb/s/pin을 조작하고 숫자 선택지 중 384 GB/s를 직접 선택하세요.'});
-    tests.push({label:'32 Gb/s/pin 방문 + 512 GB/s 독립 정답',passed:has('rate32')&&has('quiz32'),help:'32 Gb/s/pin을 조작하고 숫자 선택지 중 512 GB/s를 직접 선택하세요.'});
+    tests.push({label:'24 Gb/s/pin 방문 + 384 GB/s 독립 정답',passed:has('rate24')&&has('quiz24'),help:'24 Gb/s/pin의 비트/바이트 단위를 계산해 다시 선택하세요. 결과는 정답 제출 전 공개되지 않습니다.'});
+    tests.push({label:'32 Gb/s/pin 방문 + 512 GB/s 독립 정답',passed:has('rate32')&&has('quiz32'),help:'32 Gb/s/pin의 비트/바이트 변환을 다시 계산하세요. 정답값은 제출 전 비공개입니다.'});
   }else{
     tests.push({label:'GDDR board와 HBM package 둘 다 관찰',passed:has('gddr')&&has('hbm'),help:'보드 DRAM과 TSV 적층 DRAM을 비교하세요.'});
     tests.push({label:'열·비용·공정 한계 관찰',passed:has('constraints'),help:'실제 제품 우위가 아닌 정성적 열/제조 제약 패널을 열어보세요.'});
