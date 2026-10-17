@@ -11,7 +11,7 @@
 - **prediction:** 계산 16→32와 메모리 공급 8에서 결과 시간 미리 선택.
 - **learnerAction:** work=64 작업단위; compute=16/32 units/s, feed=8/16/32 units/s로 조작
 - **modelInputs:** work=64 toy units, compute=16/32, memoryFeed=8/16/32 units/s
-- **expectedObservation:** 처리율은 두 단계 중 느린 쪽에 제한, feed=8이면 compute를 올려도 시간 그대로
+- **expectedObservation:** 충분히 긴 연속 작업에서 공급과 연산이 **파이프라인으로 겹쳐** 진행한다고 가정하면 처리율=min(compute,feed), feed=8에서는 compute=16→32로 바꾸어도 근사 완료시간 64/8=8 toy seconds. 다만 초기 충전/종료 시간은 무시한 정상상태 근사이며 실제 일회성 작업 시간과 다름
 - **correctIncorrectCriteria:** 병목의 위치를 집으면 성공; 코어가 늘면 언제나 2배 빨라진다는 답은 오답
 - **misconceptions (3 expected mistakes):** ① 코어를 2배 늘리면 시간은 항상 절반 ② 용량 GB가 2배면 대역폭 GB/s도 2배 ③ 지연시간과 총 처리량은 같다
 - **hints (level 1/2/3):** ① 데이터가 8개만 오는데 32개를 계산할 수 있을까요? ② 먼저 한쪽 속도만 올려봐요. ③ 데이터가 제때 오도록 feed를 올려보세요.
@@ -22,7 +22,7 @@
 - **nextHook:** 그럼 데이터가 오는 길을 넓히는 메모리는 무엇일까요?
 - **displayText:** 코어가 아니라 데이터 길?
 - **speechText:** 계산할 준비는 됐는데 재료가 늦게 온다면요? 속도를 바꾸기 전에 어느 쪽이 막혔는지 맞혀보세요.
-- **physicsAssumptions:** min(compute,feed) toy 모델; 캐시·재사용·pipeline overlap 무시, 실측 FLOPS/GB/s 아님
+- **physicsAssumptions:** min(compute,feed) toy 모델은 메모리 공급과 계산의 **완전 파이프라인 중첩/정상상태 처리율**을 가정한다. 초기/종료 지연과 캐시·재사용은 생략한다. 만약 둘을 순차 진행시켰다면 시간은 64/8+64/16=12초 → 64/8+64/32=10 toy seconds로 달라진다. 실측 GPU FLOPS/GB/s 아님
 - **sourceRefs:** [S1] 삼성 DRAM 계열
 - **A05:** scene 연동 입력·출력, 예측 전 정답 숨김, 상태/단위 표시, 3개 오답별 원인 피드백, 키보드/모바일/모션 축소 대응.
 
