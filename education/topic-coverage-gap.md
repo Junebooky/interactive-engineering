@@ -1,3 +1,5 @@
+> **2026-10-17 Atlas v1 우선:** 아래 초기 P0/결손표는 *과거 스냅샷*이며 [115-topic curriculum-atlas-v1.md](curriculum-atlas-v1.md), [실시간 학습-production queue](production-backlog.md)가 권위 있는 최신 자료입니다. 도핑/PN 11과 전압·RC 12는 STORY_READY, MOS capacitor 14는 RESEARCHING입니다. 이어지는 16 논리/clock, 29 PCIe/SerDes, 31 PSU/VRM·냉각, 32 DC capstone은 미작성. 신규 영역 ADC·MEMS·광검출·CFET·UCIe3/PCIe7·ESD/DFT·ZNS·MRAM 등 총 115개 ID로 분류.
+
 # A06 Topic Coverage & Gap Register
 점검: 2026-10-17. **인벤토리를 작성했다고 모든 레슨을 완성했다고 주장하지 않음.**
 
