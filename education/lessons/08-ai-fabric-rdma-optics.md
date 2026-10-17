@@ -1,5 +1,5 @@
 # 08 · GPU 네 대가 서로 이야기하려면? RDMA·RoCE·InfiniBand·NCCL·광연결
-> A06 2026-10-17. 엔지니어 레퍼런스 교차 확인 / 4-Step 완성된 스토리 인계 가능. Scene 코드는 아직 작성/실행되지 않음.
+> A06 2026-10-17. 엔지니어 레퍼런스 교차 확인 / A06 revised A07 R10 MAJOR / A07 SOURCE_RECHECK_PENDING; author complete but A05 final scene handoff on hold. Scene 코드는 아직 작성/실행되지 않음.
 > 선수: 04 데이터 경로, 05 캐시, 07 memory tiers, G03 GPU. 학습목표: RDMA 오프로드와 물리 링크/혼잡/집합연산/광전력 제약을 연결.
 > 3-depth teach-back: ① 처음 배우는 사람용 1문장 ② 조작·계산 ③ 설계/고장/대안 판단.
 
@@ -8,16 +8,19 @@
 - **sceneId:** `nic-rdma-data-route`
 - **storyHook:** GPU 두 개가 계산을 나눠 하는데 서로 자료를 주려면 CPU를 매번 거쳐야 할까요?
 - **question:** 일반 복사와 RDMA가 각각 어디서 CPU 작업을 줄일까요?
-- **prediction:** Host-A 앱→OS→NIC→네트워크→NIC→Host-B 앱 복사와 registered memory→NIC DMA 경로를 예상
-- **learnerAction:** 두 서버 DDR(A,B) 및 GPU buffer; CPU-mediated 2-copy toy vs RDMA toy switch, 복사 단계/CPU events 강조
-- **modelInputs:** mode host-copy/RDMA, payload=1MB toy, cpuCopies=0/2 assumed
-- **expectedObservation:** RDMA는 등록된 메모리/권한 조건과 NIC가 원격 메모리를 옮기는 기능; CPU 개입·추가 복사를 줄일 수 있지만 주소 등록·오류·보안·큐 준비는 필요
-- **displayText:** GPU끼리 통신할 때 CPU가 꼭 다 옮겨야 할까요?
-- **speechText:** 서버 사이를 오가는 데이터도 길을 잘 고르면 CPU가 할 일을 줄일 수 있어요. 두 경로를 나란히 볼까요?
+- **predictionPrompt (learner-visible):** 두 서버가 같은 데이터를 주고받을 때 NIC가 복사에 참여하기 위한 설정·권한과 실제 경로를 먼저 선택해 보세요.
+- **learnerAction:** Choose host-copy vs RDMA. Draw CPU process→NIC→network→destination NIC/DDR; independently toggle `nicRdmaSupported`, `memoryRegistered`, `remotePermissionValid`, `queueConfigured`, `accessAddressValid` and `gpuDirectSupported`. Try host DDR RDMA and optional direct GPU memory; unsafe/unsupported paths fail visibly with specific reason. Compare toy CPU-copy event count only in fully supported case.
+- **modelInputs:** mode=hostCopy|rdmaHost|rdmaGpuDirect, payload=1MB toy, cpuCopies=2 vs0 fictional, nicRdmaSupported=true|false, memoryRegistered=true|false, remotePermissionValid=true|false, queueConfigured=true|false, accessAddressValid=true|false; gpuDirectSupported=true|false (for GPU peer only). `supportedHostRDMA=AND(first five flags)`; supported GPU route=host five gates AND gpuDirectSupported; no universal zero-copy guarantee.
+- **expectedObservation (teacher-only):** When supported host RDMA gates true, NIC can move approved registered memory with fewer host data-copy events in this toy; setup CPU work, packets and permissions still needed. If NIC unsupported =>NO_NIC_RDMA, memory unregistered=>UNREGISTERED, bad remote permission=>PERMISSION_DENIED, queue not ready=>NO_QUEUE, DMA address mapping invalid=>INVALID_MAP. Even if host RDMA supported, `gpuDirectSupported=false` blocks **direct NIC↔GPU memory** path, though host-staging may still be possible.
+- **teacherExpectedAnswer (gated):** RDMA host path requires NIC RDMA support, registered pinned memory/mappings, remote access permissions, configured queue and valid address; direct GPU peer additionally needs GPU/NIC/driver path support. No RDMA if provider/registration/permission missing; ordinary CPU/host staging may still work as a separate route.
+- **displayTextBeforePrediction:** 두 서버 사이 어떤 장치가 데이터 경로를 만들까요?
+- **displayTextAfterObservation (gated):** RDMA는 권한과 NIC 기능이 지원될 때 CPU의 데이터 복사를 줄여요.
+- **speechTextBeforePrediction:** 메모리를 준비하는 역할과 보내는 역할을 따로 놓아보세요.
+- **speechTextAfterObservation (gated):** NIC가 RDMA를 제공하고 등록·권한·접근주소·GPU 경로를 지원할 때만 데이터 전송이 가능해요. 네트워크를 지나는 데이터는 사라지지 않아요.
 ### 2 · 설명과 이해 검사
 - **learningGoal:** RDMA가 마법처럼 데이터 0비트 이동하는 것이 아님과 CPU-copy 경로의 어느 단계가 줄었는지 말하면 통과
 - **priorKnowledge:** CPU/GPU memory path, PCIe
-- **correctIncorrectCriteria:** RDMA가 마법처럼 데이터 0비트 이동하는 것이 아님과 CPU-copy 경로의 어느 단계가 줄었는지 말하면 통과
+- **correctIncorrectCriteria:** Learner exercises permitted host RDMA, rejects same-topology `memoryRegistered=false` and `remotePermissionValid=false`, separately demonstrates `gpuDirectSupported=false` blocks direct GPU peer but not all host-to-host networking. Distinguish setup CPU events from data copies.
 - **misconceptions:** [m1] RDMA는 CPU가 영원히 전혀 필요 없는 네트워크다; [m2] RDMA 사용 시 패킷이 네트워크에 전혀 흐르지 않는다; [m3] GPU peer memory와 host RAM은 같은 위치·경로에 있다
 - **hints:** L1 데이터는 NIC와 물리 링크를 지나야 할까요? / L2 NIC가 DMA를 실행하기 전 메모리를 누가 준비할까요? / L3 GPUDirect RDMA는 전제 조건과 장치 지원이 있을까요?
 - **feedback/correct:** "지금 선택한 이유가 실험 결과와 맞아요. RDMA는 등록된 메모리/권한 조건과 NIC가 원격 메모리를 옮기는 기능; CPU 개입·추가 복사를 줄일 수 있지만 주소 등록·오류·보안·큐 준비는 필요"
@@ -31,17 +34,22 @@
 - **teachBack:** 학생은 한 조건을 바꾸어 다음 실험 결과를 예측하고, 엔지니어는 선택 아키텍처가 실패하는 조건을 말한다.
 - **nextHook:** RDMA를 이더넷에서 쓸 수 있다고 해도 혼잡이 생기면 어떻게 될까요?
 
+
+- **negativePathTest:** `nicRdmaSupported=false`=>NO_NIC_RDMA; `memoryRegistered=false`=>UNREGISTERED; `remotePermissionValid=false`=>PERMISSION_DENIED; `queueConfigured=false`=>NO_QUEUE; `accessAddressValid=false`=>INVALID_MAP; host five flags true and `gpuDirectSupported=false`=>GPU_DIRECT_UNSUPPORTED (host RDMA can remain allowed); only all required flags permit selected path. No shortcut 'RDMA switch means ready'.
 ## 08-S02 · `ethernet-roce-vs-infiniband`
 ### 1 · 질문/예측/관찰 (1분)
 - **sceneId:** `ethernet-roce-vs-infiniband`
 - **storyHook:** RDMA까지 준비했는데 다른 서버가 동시에 패킷을 보내면 줄을 서겠죠?
 - **question:** RoCE와 InfiniBand는 둘 다 RDMA를 쓰지만 왜 두 경로를 고를까요?
-- **prediction:** InfiniBand 링크와 Ethernet RoCEv2의 레이어/혼잡 정책 카드를 예상
+- **predictionPrompt (learner-visible):** 네트워크에 들어오는 패킷이 나가는 패킷보다 많을 때 대기줄의 변화와 RoCE/IB 차이를 예측해 보세요.
 - **learnerAction:** Ethernet RoCEv2 UDP/IP + priority/ECN/PFC 카드 / InfiniBand fabric 카드 배치, switch queue toy burst 4 vs service 2 packets/slot
 - **modelInputs:** fabric IB/RoCEv2, incomingPackets 2/4 per slot, service 2, queue max 8 packets toy
-- **expectedObservation:** 4 arrival−2 service=2 queued per slot 누적; RDMA라고 혼잡이 사라지지 않음. RoCEv2는 Ethernet/IP stack에서 congestion control 필요, IB는 별도 fabric/control plane 설계
-- **displayText:** RDMA도 대기줄에서 자유롭진 않아요.
-- **speechText:** 직접 메모리로 보낸다 해도 길이 좁거나 붐비면 기다려야 해요. 혼잡을 늘려보세요.
+- **expectedObservation (teacher-only):** 4 arrival−2 service=2 queued per slot 누적; RDMA라고 혼잡이 사라지지 않음. RoCEv2는 Ethernet/IP stack에서 congestion control 필요, IB는 별도 fabric/control plane 설계
+- **teacherExpectedAnswer (gated):** 4 arrival−2 service=2 queued per slot 누적; RDMA라고 혼잡이 사라지지 않음. RoCEv2는 Ethernet/IP stack에서 congestion control 필요, IB는 별도 fabric/control plane 설계
+- **displayTextBeforePrediction:** 여러 요청이 겹치면 대기줄이 달라질까요?
+- **displayTextAfterObservation (gated):** RDMA에서도 트래픽이 몰리면 혼잡과 큐 대기가 생겨요.
+- **speechTextBeforePrediction:** 이더넷과 다른 패브릭의 카드를 직접 고른 뒤 큐에 패킷을 넣어봐요.
+- **speechTextAfterObservation (gated):** 매 슬롯 네 개가 들어오고 두 개가 나가면 이 모형의 큐는 두 개씩 늘 수 있어요. 프로토콜과 혼잡 관리가 필요하죠.
 ### 2 · 설명과 이해 검사
 - **learningGoal:** 프로토콜 이름과 RDMA 동작을 분리하고 어떤 환경에서 congestion management를 검증할지 제시
 - **priorKnowledge:** 08-S01 RDMA, networks
@@ -64,18 +72,21 @@
 - **sceneId:** `nccl-allreduce-traffic`
 - **storyHook:** GPU 네 대가 각자 계산했는데 결국 모두에게 같은 결과를 줘야 해요. 몇 번이나 주고받을까요?
 - **question:** 링 올리듀스(AllReduce)에서 GPU 수가 늘면 통신량은 어떻게 될까요?
-- **prediction:** 4개 GPU가 같은 크기 S 바이트 결과를 합치고 공유할 때, 2(N−1)/N 계수가 생길까요?
-- **learnerAction:** N=2/4/8 ring toy GPU 배열, tensorBytes S=1 GiB(2^30 bytes), link B=16 GiB/s per rank (toy), 가상 timer로 ring lower-bound compare
+- **predictionPrompt (learner-visible):** GPU 수 N=2/4/8과 텐서 S=1GiB, 링크 B=16GiB/s를 바꾸면 통신량과 걸리는 시간의 관계가 어떻게 될지 먼저 선택해 보세요.
+- **learnerAction:** N=2/4/8 GPU ring and S=1GiB/rank, B=16GiB/s/link toy; before formula reveal choose independent 'reduce-scatter' and 'all-gather' cards and estimate each rank's transmitted fraction from actual N−1 steps. After both stages are selected, reveal ideal factor 2×(N−1)/N and numerical lower bound.
 - **modelInputs:** N 2/4/8 ranks, S 1GiB/rank, B 16GiB/s/link, algorithm ring only, zero software overhead
-- **expectedObservation:** lower bound t≥(S/B)×2(N−1)/N: 2→0.0625s, 4→0.09375s, 8→0.109375s; 수학적 이상 링 모델상 N증가해도 통신량 부담이 생김
-- **displayText:** 계산이 끝나도 서로 맞춰야 해요.
-- **speechText:** 각 GPU가 계산을 끝냈는데도 서로 결과를 나눠야 해요. 숫자를 늘리면 통신은 얼마나 걸릴까요?
+- **expectedObservation (teacher-only):** lower bound t≥(S/B)×2(N−1)/N: 2→0.0625s, 4→0.09375s, 8→0.109375s; 수학적 이상 링 모델상 N증가해도 통신량 부담이 생김
+- **teacherExpectedAnswer (gated):** lower bound t≥(S/B)×2(N−1)/N: 2→0.0625s, 4→0.09375s, 8→0.109375s; 수학적 이상 링 모델상 N증가해도 통신량 부담이 생김
+- **displayTextBeforePrediction:** GPU 여러 대가 계산을 끝낸 뒤 결과는 어떻게 공유할까요?
+- **displayTextAfterObservation (gated):** 링 AllReduce에도 GPU마다 통신 데이터가 남아요.
+- **speechTextBeforePrediction:** GPU 수와 데이터 크기를 움직여 링을 따라가는 경로를 먼저 예측해 보세요.
+- **speechTextAfterObservation (gated):** 이상적인 링의 전달 비용은 GPU 수에 따라 달라요. 전체 GPU가 결과를 공유하려면 집계와 전파 단계가 모두 필요하죠.
 ### 2 · 설명과 이해 검사
 - **learningGoal:** (1) AllReduce=합+전체 전파, (2) 4 ranks에서 1.5×1/16s=0.09375s, (3) 이론 하한이지 보장 지연 아님 세 조건 모두 통과
 - **priorKnowledge:** 08-S02 fabric latency, GPU sync
 - **correctIncorrectCriteria:** (1) AllReduce=합+전체 전파, (2) 4 ranks에서 1.5×1/16s=0.09375s, (3) 이론 하한이지 보장 지연 아님 세 조건 모두 통과
 - **misconceptions:** [m1] GPU가 늘면 통신 시간이 언제나 정확히 1/N이다; [m2] AllReduce는 데이터를 하나의 GPU로만 모으고 끝난다; [m3] ring의 수식은 어떤 네트워크 토폴로지·집합 알고리즘에도 정확히 맞는다
-- **hints:** L1 결과를 합친 뒤 모든 GPU에 나누어 줘야 하지 않을까요? / L2 N=4이면 2×3/4=1.5랍니다. / L3 실제에서는 switch oversubscription·타 알고리즘·버퍼/링크·입자 대기시간이 없을까요?
+- **hints:** L1 합산만 하는지 아니면 결과를 다시 모든 GPU에 전달하는지도 생각해요. / L2 두 단계에서 링 이웃에게 나누어 줄 조각 수를 직접 세어보세요. / L3 GPU 수/부하가 달라도 분할/동시전송이 완벽할지, 실제 네트워크 지연을 검토해요.
 - **feedback/correct:** "지금 선택한 이유가 실험 결과와 맞아요. lower bound t≥(S/B)×2(N−1)/N: 2→0.0625s, 4→0.09375s, 8→0.109375s; 수학적 이상 링 모델상 N증가해도 통신량 부담이 생김"
 - **feedback/incorrect keyed:** [m1] 연산을 나눠도 서로 동기화하는 데이터 비용은 생겨요. / [m2] AllReduce는 결과가 모든 참여자에게 가는 연산이에요. / [m3] Ring/tensor/link의 조건을 바꾸면 tree, NVLink 등 다른 성능식이 나와요.
 - **explanation:** NVIDIA nccl-tests PERFORMANCE.md의 AllReduce 버스 대역폭 환산 factor=2(N-1)/N 사용. Ring 완전중첩·균등 링크/이상 루트 조건에서 t≈S/B*factor. 네트워크 혼잡/프로토콜 지연, rank간 크기/통신 overlap·tree/SHARP/offload 등 대안은 별도.
@@ -92,12 +103,15 @@
 - **sceneId:** `fiber-transceiver-energy`
 - **storyHook:** 랙 사이를 길게 연결할 때 전선에서 신호가 약해지거나 전력을 너무 많이 쓰면?
 - **question:** 광섬유를 쓰면 대역폭·레이턴시·에너지 고민이 끝날까요?
-- **prediction:** 스위치→전기 신호/트랜시버→광섬유→수광→전기 신호 경로에서 누가 열과 소비전력을 만들까요?
+- **predictionPrompt (learner-visible):** 광 링크에서는 전기 신호가 빛으로 바뀌고 돌아오는 동안 어느 부품이 전력을 쓸지 예상하고, 실제 전송 시간과 오버헤드 없는 시간의 차이를 선택해 보세요.
 - **learnerAction:** copper/optical route select, transceiver power+switch heat toy 4 vs 6 W/end, transceiver count 4/8, link 100Gb/s toy and payload 1GB time calculator
 - **modelInputs:** linkRate=100Gb/s toy, payload=1e9B toy, transceiverPower=4/6 W per end toy, links 4/8 toy
-- **expectedObservation:** 최소 직렬화 지연 1e9×8/1e11=0.08s, 실제 프로토콜/큐/전파/광전변환 더해짐; 8 links×2 ends×4W=64W의 가상 광모듈 전력, 광도 전력 0이 아님
-- **displayText:** 빛으로 연결해도 공짜는 아니에요.
-- **speechText:** 전기는 빛으로 바뀌고, 다시 전기로 돌아와요. 케이블보다 양 끝 장치에서 어떤 비용이 생길까요?
+- **expectedObservation (teacher-only):** 최소 직렬화 지연 1e9×8/1e11=0.08s, 실제 프로토콜/큐/전파/광전변환 더해짐; 8 links×2 ends×4W=64W의 가상 광모듈 전력, 광도 전력 0이 아님
+- **teacherExpectedAnswer (gated):** 최소 직렬화 지연 1e9×8/1e11=0.08s, 실제 프로토콜/큐/전파/광전변환 더해짐; 8 links×2 ends×4W=64W의 가상 광모듈 전력, 광도 전력 0이 아님
+- **displayTextBeforePrediction:** 빛을 이용한 링크에도 유지할 장치가 있을까요?
+- **displayTextAfterObservation (gated):** 광 트랜시버와 양 끝 송수신도 전기를 소비해요.
+- **speechTextBeforePrediction:** 전기-빛 변환부와 수신부를 그려본 뒤 전력 카드들을 배치해 보세요.
+- **speechTextAfterObservation (gated):** 이 모형에서 링크 전송량의 나눗셈은 이상적인 직렬화 하한일 뿐이에요. 광전 변환부, 큐잉과 실제 전송 오버헤드는 추가로 고려해야 해요.
 ### 2 · 설명과 이해 검사
 - **learningGoal:** 광전변환·스위치·링크 양 끝 전력과 거리/실효 대역폭 트레이드오프를 제시; 보편 우월 주장 금지
 - **priorKnowledge:** 08-S03 scale-out networking
@@ -128,3 +142,6 @@
 [N7] https://github.com/NVIDIA/nccl/blob/master/docs/userguide/source/env.rst — ring/tree/NVLS 대안
 [N8] https://perspectives.nvidia.com/networking/ — 2026-08 network/optics 제품 설명 (벤더 주장 구분)
 [N9] https://www.nvidia.com/en-us/networking/ — switch/transceiver 제품 범주, 실제 전력 수치 미인용.
+
+## A07 Round10 RDMA/RoCE/optics source correction · 2026-10-17
+- A07 [Round10 independent report](https://github.com/Junebooky/interactive-engineering/blob/docs/a07-edu-qa-round-01/education/round-10-fabric08-datacenter10-gpu-scene-recheck.md) found S01 RDMA claims no explicit registration/NIC/permission/GPU-support gates; S02/S04 before voice/display gave conclusion; S03 student prediction included derived 2(N−1)/N math answer. A06 updates all four Steps to neutral predictionPrompt and pre/post voice/display + gated teacherExpectedAnswer, S01 6 independent support gates and failure codes, S03 factor now post-observation. Existing A07 factual math PASS on original model preserved; no new SHA independent A07 PASS yet, no app/Chromium.
