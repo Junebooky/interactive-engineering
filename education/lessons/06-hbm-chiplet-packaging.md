@@ -23,7 +23,7 @@
 - **nextHook:** 웨이퍼에 설계도를 옮기고 지우고 채우는 과정을 맞춰볼까요? 한 번으로 끝나지 않네요.
 - **displayText:** 칩도 여러 층을 쌓아 만들어요
 - **speechText:** 칩도 여러 층을 쌓아 만들어요
-- **physicsAssumptions:** [S24] TSMC 3DFabric source, 제조 공정 일반 상식
+- **physicsAssumptions:** [S27] ASML 반복 제조 공정, [S24] TSMC 3D 제조/조립 맥락
 - **sourceRefs:** 칩렛·수율의 제조 동기로 연결.
 - **A05 visual spec:** layered cutaway/circuit, 상태·단위·모형가정 항상 표시; 예측 이전 정답 노출 금지; 조작만으로 pass 금지; 정답/오답/hint feedback 직접 연결; keyboard/44px/reduced-motion/Voice 구분.
 
