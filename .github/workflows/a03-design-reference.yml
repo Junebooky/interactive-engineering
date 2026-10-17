@@ -29,6 +29,15 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Render HTML design prototype at desktop and mobile sizes
         run: node design/prototypes/capture-reference.mjs
+      - name: Render Lesson12 circuit design reference at desktop and mobile sizes
+        run: node design/prototypes/capture-lesson12-reference.mjs
+      - name: Attach Lesson12 9 reference PNGs (DESIGN CONCEPT ONLY)
+        uses: actions/upload-artifact@v4
+        with:
+          name: a03-lesson12-design-reference-png
+          path: design/reference-captures/a03-lesson12/*.png
+          if-no-files-found: error
+          retention-days: 14
       - name: Attach 8 reference PNGs (DESIGN CONCEPT ONLY)
         uses: actions/upload-artifact@v4
         with:
@@ -42,7 +51,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add design/reference-captures/a03-mosfet-v2/*.png
+          git add design/reference-captures/a03-mosfet-v2/*.png design/reference-captures/a03-lesson12/*.png
           if ! git diff --cached --quiet; then
             git commit -m "docs(a03): store permanent V2 design reference PNGs [skip ci]"
             git push origin HEAD:refs/heads/design/a03-mosfet-discovery-v1
