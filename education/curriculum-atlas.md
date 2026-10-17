@@ -62,3 +62,12 @@
 **비유의 경계**: '넓은 길'=대역폭이지 짧은 대기시간·큰 용량의 보증이 아니다. '전자 길'=전자 이동과 관습 전류 방향 차이를 지워서는 안 된다. 교육용 시각 2.5D ≠ 반도체 2.5D 패키징.
 
 **근거:** [accuracy-notes.md](accuracy-notes.md) (2026-10-17 출처/assumptions/신뢰도), [topic-coverage-gap.md](topic-coverage-gap.md) (미제작/누락/후보).
+
+
+## 2026-10-17 확장판 v0.2 — 누락 엣지에 실제 질문·장면 배치
+**새 정규 레슨 두 개 / 총 6개·25 Step 문서화**, 앱 구현/브라우저 동작과 구분:
+- [05 · 인버터 두 개가 기억이 될까? SRAM 6T→CPU 캐시](lessons/05-sram-cpu-cache.md): M01-S04 CMOS 이후 질문(쌍방 되먹임으로 비트를 유지?) → 6T WL/BLB → 1/2라인 toy 캐시 miss/hit → DDR/GDDR/HBM 재사용. **M01→05→02 DRAM→03 GPU**를 추천 학습 경로로 추가. 학습자가 02를 먼저 배웠다면 05를 가로로 연결 가능. SRAM은 휘발성이지만 DRAM 1T1C와 달리 주기적 셀 refresh를 하지 않는다.
+- [06 · 제조·칩렛·TSV·실제 2.5D 패키징](lessons/06-hbm-chiplet-packaging.md): 반복 웨이퍼 공정/수율 → 양품 다이 선별/칩렛 비용 → HBM TSV vs 인터포저 배선 → 전력·열저항. G03의 HBM 패키징은 이 레슨을 위한 **예고**였고 실제 심화는 06을 우선 확인.
+- 질문 흐름: "CMOS NOT으로 1을 만들었어→그 1을 스스로 붙잡는 법은?→SRAM은 빠르지만 왜 작을까?→DRAM은 왜 전하로 바꾸지?→메모리 속도가 부족하면?→HBM은 왜 옆에서 적층되지?→수율과 열은 어떻게 풀지?→전원/냉각/서버 네트워크는 어떻게 이어질까?"
+- 업데이트된 산업 증거(검증일 2026-10-17): [S21] Hamburg 6T SRAM, [S22/S23] Arm CPU cache hierarchy, [S25] TSMC CoWoS package variants, [S26] Micron HBM stack, [S27] ASML 제조 레이어 반복. 상세 URL은 accuracy notes.
+- **남은 대형 필수 레슨:** PN junction 심화, DDR/RDIMM/LPDDR 상세, 네트워크 NIC/DPU/RDMA/광, 전력 VRM/PMIC·냉각/랙, 분산 AI 데이터센터 end-to-end 심화. 이들이 미완료인 상태에서 '모든 반도체 교육 완성' 선언 금지.
