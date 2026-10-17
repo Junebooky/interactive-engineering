@@ -15,6 +15,7 @@ try{
   await waitReady(); browser=await chromium.launch({headless:true,args:['--no-sandbox']});
   const context=await browser.newContext({viewport:{width:1440,height:900}});
   const page=await context.newPage();
+  page.setDefaultTimeout(7000);
   page.on('pageerror',e=>failed.push({name:'desktop JS',error:String(e)}));
   await check('prediction hides circuit/readouts before reveal',async()=>{
     await page.goto(host);
@@ -25,7 +26,7 @@ try{
   await check('D02 S01 write WL gating, wrong answer, hints, Why',async()=>{
     await page.getByRole('button',{name:'BL = 1'}).click();
     await page.getByRole('button',{name:'WL ON'}).click();
-    await page.getByRole('button',{name:'WL OFF'}).click();
+    await page.getByRole('button',{name:'WL OFF',exact:true}).click();
     await page.getByRole('button',{name:'BL = 0'}).click();
     await answer(page,'WL을 닫아도');
     await page.getByRole('button',{name:'조건별로 확인하기'}).click();
@@ -107,11 +108,12 @@ try{
   await check('mobile touch + 375/320px no overflow',async()=>{
     const mobile=await browser.newContext({...devices['iPhone 13'],viewport:{width:375,height:812}});
     const phone=await mobile.newPage();
+    phone.setDefaultTimeout(7000);
     phone.on('pageerror',e=>failed.push({name:'phone JS',error:String(e)}));
     await phone.goto(host);await prediction(phone);
     await phone.getByRole('button',{name:'BL = 1'}).tap();
     await phone.getByRole('button',{name:'WL ON'}).tap();
-    await phone.getByRole('button',{name:'WL OFF'}).tap();
+    await phone.getByRole('button',{name:'WL OFF',exact:true}).tap();
     await phone.getByRole('button',{name:'BL = 0'}).tap();
     await verifyNoOverflow(phone);
     await phone.screenshot({path:out+'/11-dram-mobile-375.png',fullPage:true});
