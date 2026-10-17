@@ -60,7 +60,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
         <Caption x={108} y={283} color={now?gold:mint} size={15}>
           {now?'전자 이동 (음전하) ← 관습전류와 반대':'양전하 기준 관습전류 → 전자와 반대'}
         </Caption>
-        <Caption x={82} y={306} color="var(--ie-scene-muted)" size={12}>{state.volts===5?'열린 DC 회로: 전원 5V 유지, I=0':'전원 0V 조건: 닫혀도 I=0'}</Caption>
+        <Caption x={82} y={306} color="var(--ie-scene-muted)" size={12}>{!state.closed?'스위치 열림: 전원 '+state.volts+'V, I=0':state.volts===5?'스위치 닫힘: 5V / 1kΩ = 5mA':'스위치 닫힘·전원 0V: I=0'}</Caption>
       </>}
       {sceneId==='resistors-series-parallel-kcl'&&<>
         <Caption x={72} y={85} size={21} color={mint}>같은 1kΩ 두 개, 연결에 따라 다른 전류</Caption>
