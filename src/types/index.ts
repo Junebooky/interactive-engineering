@@ -28,7 +28,11 @@ export type SimulatorType =
   | 'sram-cross-coupled-inverters'
   | 'sram-6t-access'
   | 'cpu-cache-vs-dram'
-  | 'cpu-to-gpu-data-locality';
+  | 'cpu-to-gpu-data-locality'
+  | 'gpu-compute-feeding'
+  | 'gpu-memory-family-roles'
+  | 'gpu-gddr-width-rate'
+  | 'gpu-hbm-tradeoffs';
 
 export interface ScaffoldingHint {
   level: 1 | 2 | 3;

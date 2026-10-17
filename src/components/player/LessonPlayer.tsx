@@ -12,9 +12,12 @@ import { Gear2DScene } from '../../simulations/gears/Gear2DScene';
 import { A05SceneVisual } from '../../a05/A05SceneVisual';
 import { DramSceneVisual, type DramVisualState } from '../../a05/dram/DramSceneVisual';
 import { SramSceneVisual, type SramVisualState } from '../../a05/sram/SramSceneVisual';
+import { GpuSceneVisual, type GpuVisualState } from '../../a05/gpu/GpuSceneVisual';
+import type { GpuSceneId } from '../../a05/gpu/gpuModel';
 import type { A05Values } from '../../a05/scenePhysics';
 import '../../a05/dram/dramScenes.css';
 import '../../a05/sram/sramScenes.css';
+import '../../a05/gpu/gpuScenes.css';
 import '../../a05/a05Scenes.css';
 import { BookOpen, Sparkles } from 'lucide-react';
 
@@ -137,6 +140,43 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
           <SramSceneVisual
             sceneId={currentStep.simulatorType}
             state={sramState}
+            revealed={showObservation}
+          />
+        );
+      }
+
+      case 'gpu-compute-feeding':
+      case 'gpu-memory-family-roles':
+      case 'gpu-gddr-width-rate':
+      case 'gpu-hbm-tradeoffs': {
+        const gpuState: GpuVisualState = {
+          compute: (Number(currentParams.compute) || 16) as 16 | 32,
+          feed: (Number(currentParams.feed) || 8) as 8 | 16 | 32,
+          family: (currentParams.family ?? 'DDR/RDIMM') as any,
+          site: (currentParams.site ?? 'cpu-dimm') as any,
+          pinRate: (Number(currentParams.pinRate) || 24) as 24 | 32,
+          signal: (currentParams.signal ?? 'NRZ') as any,
+          topology: (currentParams.topology ?? 'gddr-board') as any,
+          showConstraints: Boolean(currentParams.showConstraints ?? false),
+        };
+        const hasPredictionCtrl = currentStep.controls?.some((c) => c.id === 'prediction');
+        const showObservation =
+          !hasPredictionCtrl ||
+          (currentParams.prediction !== undefined && currentParams.prediction !== null);
+
+        const sceneIdMap: Record<string, GpuSceneId> = {
+          'gpu-compute-feeding': 'compute-feeding',
+          'gpu-memory-family-roles': 'memory-family-roles',
+          'gpu-gddr-width-rate': 'gddr-width-rate',
+          'gpu-hbm-tradeoffs': 'hbm-tradeoffs',
+        };
+
+        const sceneId = sceneIdMap[currentStep.simulatorType] ?? 'compute-feeding';
+
+        return (
+          <GpuSceneVisual
+            sceneId={sceneId}
+            state={gpuState}
             revealed={showObservation}
           />
         );
