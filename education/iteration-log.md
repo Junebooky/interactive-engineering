@@ -31,3 +31,13 @@
 - 누락 연결 질문 "HBM은 어디에 붙이며 왜 생산/열이 어려울까?" 조사 → [06 제조·chiplet/TSV/2.5D·thermal](lessons/06-hbm-chiplet-packaging.md) 4 Steps 신설; ASML·TSMC·Micron 2026-10-17 근거 교차.
 - **이 세션 A06 범위:** 교육 명세 6개 25 Step 제공, 2개 신규 레슨 A05 직접 인계 준비. 앱 구현/시각 브라우저 실행은 미실시.
 - 남은 최우선 콘텐츠: PN/물질/전력 반도체 입문, DRAM의 실제 sensing 파형, LPDDR/RDIMM 상세, NIC/RDMA/광학, 전력/VRM/냉각, AI DC end-to-end 완결편. 자동/무인 연구 진행을 약속하지 않음.
+
+
+## Research Round 03 · 2026-10-17 · senior-depth / novice-level (ACTIVE SESSION)
+1. **Latest Issue #6** 시니어 심화 지시 확인. [질문뱅크 12 student +12 senior](research-notes/round-03-question-bank.md) 작성, 학생 WHY vs 현업 실패/측정 기준 분리.
+2. **공식·논문 triangulation:** DDR5/RDIMM/MRDIMM/LPDDR5X SOCAMM2(2026 JEDEC 공개 유통자료)/CXL **4.0**(공식 2025-11), NVIDIA RDMA/RoCE/NCCL, IBM Flash WAF/GC, NVIDIA roofline Jul2026, Uptime PUE 2026, 삼성 DRAM, 감지앰프 기술/논문 초록. Source URL/날짜/보증·마케팅 경계는 5개 deep-dives.
+3. **검산:** 64×6400/8=51.2GB/s; CXL GT/s vs GB/s; AllReduce factor N=4→1.5, 1GiB/16GiB/s×1.5=0.09375s toy; GC 1.6 WAF; capacitor 0.8J→0.1s ideal; DDR tier 11/25 units; Roofline 4TFLOP/s/100GB/s=40FLOP/B; PUE1.4 with IT1MW=1.4MW facility. Actual product performance not measured.
+4. **Story rewrite:** [07](lessons/07-server-memory-tiers.md) 4 Step, [08](lessons/08-ai-fabric-rdma-optics.md) 4 Step, [09](lessons/09-essd-reliability.md) 4 Step, [10](lessons/10-ai-datacenter-end-to-end.md) 4 Step; each ① 초보 1분 ② 조작계산 ③ senior failure/trade-off; 각 오답 3종·힌트 3단/한국어 화면·Voice. **합계 10레슨·41 Step 문서 명세**.
+5. **A05/A02 cross QA:** PR #8 최신 M01 A05에서 문턱/Voice/nextHook 수정 및 Chromium 자동화 증거 기록 확인(직접 A06 실행 아님); A02 PR #9의 numeric toggle/0.98kΩ correction source 확인; DRAM PR #10 source QA: 1T1C, charge share±0.05, bank toy 전반 합치, bit0 선택에도 0.55 고정 표시되는 copy bug P2, sense amp/restore 버튼의 물리적 시간 분리 비유 P2, [A05 D02 QA](a05-d02-cross-qa.md).
+6. **Direct handoff**: A05 Issue #4/PR #10에 신규 SceneSpec과 D02 피드백 공유. 관련 링크/검증 상태 기록. A05/A02 앱 소스 직접 수정 안 함, main 병합·배포 금지.
+7. **Unresolved / next loop:** RowHammer/TRR·GAA/CFET, SOCAMM2/JEDEC 원문 접근, CXL 실측 latency/platform support, eSSD PLP ACK/flush per-SKU, GPU memory cache policies, optical CPO/OIF/FEC, site PUE/WUE/CUE, device QA·학생 이해도 실험. 세션 종료 후 자동 연구 진행을 보장하지 않음.
