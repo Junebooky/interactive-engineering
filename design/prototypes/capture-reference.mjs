@@ -16,7 +16,7 @@ try {
   ]) {
     const context = await browser.newContext({
       viewport: { width: entry.width, height: entry.height },
-      deviceScaleFactor: 1,
+      deviceScaleFactor: entry.name === 'desktop' ? 1.5 : 2,
       reducedMotion: 'reduce',
     });
     const page = await context.newPage();
@@ -37,7 +37,7 @@ try {
     await page.locator('#primary').click();
     const phase = await page.evaluate(() => window.__a03?.getState()?.phase);
     if (phase !== 'observe') throw Error('Prediction submit failed');
-    await page.locator('#voltage').fill('1.2');
+    await page.locator('#voltage').evaluate((el) => { el.value = '1.2'; el.dispatchEvent(new Event('input', { bubbles: true })); });
     await assertNoOverflow();
     if (entry.observation) {
       await page.screenshot({ path: join(output, 'a03-v2-' + entry.name + '-observe.png'), fullPage: true });
