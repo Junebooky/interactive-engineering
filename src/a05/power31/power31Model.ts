@@ -15,7 +15,7 @@ export type Power31Event={sceneId:Power31SceneId;type:'scene.enter'|'prediction.
 export type Power31State={psu:Power31Efficiency;duty:Power31Duty;buckEta:90|100;rail:Power31Rail;resistance:Power31Resistance;deltaT:Power31DeltaT;heat:Power31Heat;cooling:Power31Cooling;pue:Power31Pue;site:Power31Site};
 export type Power31Condition={key:string;passed:boolean;hint:string};
 export type Power31Grade={passed:boolean;misconception:string|null;conditions:Power31Condition[]};
-export const power31Fresh=():Power31State=>({psu:90,duty:1/3,buckEta:100,rail:2,resistance:2,deltaT:5,heat:100,cooling:'dry',pue:1.4,site:'A'});
+export const power31Fresh=():Power31State=>({psu:90,duty:0.3333333333333333,buckEta:100,rail:2,resistance:2,deltaT:5,heat:100,cooling:'dry',pue:1.4,site:'A'});
 const round=(v:number)=>Math.round(v*1e6)/1e6;
 export function power31Psu(eta:Power31Efficiency){
  const pout=100,efficiency=eta/100,inputW=pout/efficiency,lossW=inputW-pout;
