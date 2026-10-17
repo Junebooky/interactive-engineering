@@ -389,38 +389,74 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
     }
   };
 
+  const isMosfet =
+    currentStep.simulatorType?.startsWith('mosfet') ||
+    currentStep.simulatorType === 'nmos-resistor-inverter' ||
+    currentStep.simulatorType === 'cmos-not-gate';
+  const isElec = currentStep.simulatorType?.startsWith('elec-');
+  const isElecStep1 = currentStep.id === 'step-elec-s1-ohms-law';
+
   // Status subtitle and context for 2.5D visual
   const sceneLabel =
     activePhase === 'predict'
-      ? '구조 살펴보기'
+      ? (isElec ? '01 · 회로 모형 살펴보기' : '01 · 구조 살펴보기')
       : activePhase === 'observe'
-      ? '전압 조작 · 전하 분포 관찰'
+      ? (isElec ? '02 · 스위치 조작 · 전류 관찰' : '02 · 전압 조작 · 전하 분포 관찰')
       : activePhase === 'check'
-      ? '관찰 원리 설명'
-      : '실험 완료';
+      ? '03 · 관찰 원리 설명'
+      : '04 · 핵심 발견';
 
   const sceneSignal =
     activePhase === 'predict'
       ? ''
-      : (currentParams.vgs ?? 0) >= 0.8
-      ? '전자들이 실리콘 표면에 모였어요'
-      : (currentParams.vds ?? 0) >= 1.0
-      ? '포화 영역에서도 일정한 전류가 유지돼요'
-      : '전압을 조작해 변화를 관찰하세요';
+      : isElec
+      ? currentParams.closed
+        ? '스위치가 닫혀 1kΩ 저항에 5mA가 흘러요'
+        : '스위치가 열려 전류가 0mA이지만 전원 5V는 유지돼요'
+      : isMosfet
+      ? (currentParams.vgs ?? 0) >= 0.8
+        ? '전자들이 실리콘 표면에 모였어요'
+        : (currentParams.vds ?? 0) >= 1.0
+        ? '포화 영역에서도 일정한 전류가 유지돼요'
+        : '전압을 조작해 변화를 관찰하세요'
+      : '';
+
+  const labName = isMosfet
+    ? 'MOSFET 탐험실'
+    : isElec
+    ? 'LESSON 12 · CIRCUIT LAB'
+    : lesson.title;
+
+  const labSubtitle = isMosfet
+    ? '전압이 만드는 실리콘의 변화'
+    : isElec
+    ? (currentStep.storyLead || '배터리와 저항 사이의 길을 직접 연결해 보세요.')
+    : (currentStep.storyLead || lesson.subtitle);
+
+  const labCaption =
+    activePhase === 'predict'
+      ? (isElec ? '이상적인 5V 전원 · 1kΩ 저항 · 스위치' : '게이트 · 소스 · 드레인 · 실리콘')
+      : (isElec ? '전원 5V · 1kΩ 저항 회로' : '드레인 전압 차는 0V로 고정');
+
+  const modelBubbleText = isElec
+    ? activePhase === 'predict'
+      ? '이상적인 5V 전원과 1kΩ 저항의 교육용 모델. 측정 결과는 예측을 제출한 후에 표시합니다.'
+      : '이상적인 DC 5V 전원(내부저항 0Ω), 1kΩ 저항 회로 모형입니다. 스위치가 열리면 I=0mA이며 5V 전위차는 유지됩니다.'
+    : activePhase === 'predict'
+    ? '이 화면은 교육을 위해 구조를 단순화한 nMOS 모형입니다. 실제 소자의 공정과 온도에 따라 값은 달라지며, 실험 결과는 예측을 제출한 다음 확인할 수 있습니다.'
+    : '이 장면은 교육용 nMOS 모형입니다. 문턱 전압은 0.7V로 가정하고 누설과 실제 공정 차이는 생략했습니다. VDS=0V일 때 순 드레인 전류는 0A입니다.';
 
   return (
     <main className="a03-layout" aria-label="학습 실험실">
       <div className="a03-workspace">
         {/* Left Side: 2.5D Interactive Simulator Lab Canvas */}
-        <section className="a03-lab" aria-label="MOSFET 2.5D 구조 실험 시각화">
+        <section className="a03-lab" aria-label={`${isElec ? '전기회로' : '반도체'} 2.5D 구조 실험 시각화`}>
           {/* Top Info Bar inside Lab */}
           <div className="a03-lab-top">
             <div className="a03-symbol" aria-hidden="true">⬡</div>
             <div>
-              <div className="a03-lab-name">
-                {currentStep.simulatorType?.startsWith('mosfet') ? 'MOSFET 탐험실' : `${lesson.title}`}
-              </div>
-              <div className="a03-lab-sub">전압이 만드는 실리콘의 변화</div>
+              <div className="a03-lab-name">{labName}</div>
+              <div className="a03-lab-sub">{labSubtitle}</div>
             </div>
           </div>
 
@@ -440,12 +476,69 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
             {renderSimulator()}
           </div>
 
+          {/* Experiment Control Dock for Lesson 12: Hidden in predict phase, revealed in observe/check/done */}
+          {isElecStep1 && (
+            <div className="a03-lab-dock-section" hidden={activePhase === 'predict'}>
+              <div id="experiment-dock" className="a03-dock" role="region" aria-label="실험 조작 회로 스위치">
+                <div className="a03-dock-copy">
+                  <span className="a03-dock-title">실험 조작 · 회로 스위치</span>
+                  <span className="a03-dock-sub">열림과 닫힘을 직접 비교해 보세요</span>
+                </div>
+                <div className="a03-seg" role="group" aria-label="실험 조작 회로 스위치">
+                  <button
+                    id="open-switch"
+                    type="button"
+                    aria-pressed={!currentParams.closed}
+                    className={!currentParams.closed ? 'active' : ''}
+                    onClick={() => updateParam('closed', false)}
+                  >
+                    열림
+                  </button>
+                  <button
+                    id="close-switch"
+                    type="button"
+                    aria-pressed={Boolean(currentParams.closed)}
+                    className={currentParams.closed ? 'active' : ''}
+                    onClick={() => updateParam('closed', true)}
+                  >
+                    닫힘
+                  </button>
+                </div>
+              </div>
+
+              <div id="readouts" className="a03-readouts" aria-live="polite">
+                <span>전원 전압 <b>5 V</b></span>
+                <span>전류 <b id="amp">{currentParams.closed ? '5 mA' : '0 mA'}</b></span>
+                <span id="switch-readout">{currentParams.closed ? '스위치 닫힘' : '스위치 열림'}</span>
+
+                <div className="a03-dir-group" role="group" aria-label="전류 화살표 기준">
+                  <button
+                    type="button"
+                    className={`a03-dir-btn ${(currentParams.direction ?? 'conventional') === 'conventional' ? 'active' : ''}`}
+                    onClick={() => updateParam('direction', 'conventional')}
+                    aria-pressed={(currentParams.direction ?? 'conventional') === 'conventional'}
+                    title="관습전류 (+ → − 방향)"
+                  >
+                    관습전류
+                  </button>
+                  <button
+                    type="button"
+                    className={`a03-dir-btn ${currentParams.direction === 'electron' ? 'active' : ''}`}
+                    onClick={() => updateParam('direction', 'electron')}
+                    aria-pressed={currentParams.direction === 'electron'}
+                    title="전자의 실제 이동 (− → + 방향)"
+                  >
+                    전자 이동
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Bottom Tools & Legend inside Lab */}
           <div className="a03-lab-bottom">
             <div className="a03-lab-context" id="lab-caption">
-              {activePhase === 'predict'
-                ? '게이트 · 소스 · 드레인 · 실리콘'
-                : '드레인 전압 차는 0V로 고정'}
+              {labCaption}
             </div>
 
             <div className="a03-lab-tools">
@@ -493,9 +586,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
           {/* Model Criteria Disclosure Bubble */}
           {showModelBubble && (
             <div className="a03-model-bubble" id="model-bubble">
-              {activePhase === 'predict'
-                ? '이 화면은 교육을 위해 구조를 단순화한 nMOS 모형입니다. 실제 소자의 공정과 온도에 따라 값은 달라지며, 실험 결과는 예측을 제출한 다음 확인할 수 있습니다.'
-                : '이 장면은 교육용 nMOS 모형입니다. 문턱 전압은 0.7V로 가정하고 누설과 실제 공정 차이는 생략했습니다. VDS=0V일 때 순 드레인 전류는 0A입니다.'}
+              {modelBubbleText}
             </div>
           )}
         </section>

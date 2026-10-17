@@ -264,6 +264,119 @@
   background: #285d67;
 }
 
+/* A03 Experiment Control Dock & Readouts for Lesson 12 Circuit Lab */
+.a03-lab-dock-section {
+  position: absolute;
+  left: 28px;
+  right: 25px;
+  bottom: 78px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.a03-lab-dock-section[hidden] {
+  display: none !important;
+}
+.a03-dock {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 16px;
+  background: #1a3545;
+  border: 1px solid #34566b;
+  padding: 10px 16px;
+  justify-content: space-between;
+  min-height: 64px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.a03-dock-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.a03-dock-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+}
+.a03-dock-sub {
+  font-size: 11px;
+  color: #b8cdd5;
+}
+.a03-seg {
+  display: flex;
+  gap: 4px;
+  background: #0b2533;
+  padding: 4px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.a03-seg button {
+  min-height: 44px;
+  min-width: 78px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #d5e4e9;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 0 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.a03-seg button[aria-pressed='true'],
+.a03-seg button.active {
+  background: #087c6d;
+  color: #ffffff;
+}
+.a03-readouts {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: flex-start;
+  font-size: 13px;
+  color: #d0e7ee;
+  background: rgba(14, 34, 49, 0.7);
+  padding: 6px 14px;
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+}
+.a03-readouts b {
+  color: #ffffff;
+  font-size: 15px;
+  margin-left: 6px;
+}
+.a03-dir-group {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+  background: #0b2533;
+  padding: 2px;
+  border-radius: 8px;
+}
+.a03-dir-btn {
+  border: 0;
+  background: transparent;
+  color: #a0bcc6;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.a03-dir-btn.active,
+.a03-dir-btn[aria-pressed='true'] {
+  background: #087c6d;
+  color: #ffffff;
+}
+.a03-status-line {
+  font-size: 12px;
+  color: #087c6d;
+  font-weight: 700;
+  margin-top: 9px;
+}
+
 .a03-model-bubble {
   position: absolute;
   right: 25px;
@@ -886,10 +999,79 @@
     padding: 11px;
     margin-top: 10px;
   }
+  .a03-lab-dock-section {
+    left: 14px;
+    right: 14px;
+    bottom: 42px;
+    gap: 6px;
+  }
+  .a03-dock {
+    min-height: 52px;
+    padding: 6px 10px;
+    gap: 6px;
+    border-radius: 12px;
+  }
+  .a03-dock-title {
+    font-size: 12px;
+  }
+  .a03-dock-sub {
+    font-size: 10px;
+  }
+  .a03-seg button {
+    min-width: 58px;
+    min-height: 44px;
+    font-size: 12px;
+    padding: 0 10px;
+  }
+  .a03-readouts {
+    font-size: 11px;
+    gap: 8px;
+    padding: 4px 8px;
+    flex-wrap: wrap;
+  }
+  .a03-readouts b {
+    font-size: 12px;
+    margin-left: 4px;
+  }
 }
 
 /* Extra Compact Viewport (<= 355px, e.g. 320px Galaxy Fold / iPhone SE) */
 @media (max-width: 355px) {
+  .a03-lab-dock-section {
+    left: 8px;
+    right: 8px;
+    bottom: 38px;
+    gap: 4px;
+  }
+  .a03-dock {
+    min-height: 46px;
+    padding: 4px 8px;
+    border-radius: 10px;
+  }
+  .a03-dock-title {
+    font-size: 11px;
+  }
+  .a03-dock-sub {
+    display: none;
+  }
+  .a03-seg button {
+    min-width: 48px;
+    min-height: 42px;
+    font-size: 11px;
+    padding: 0 6px;
+  }
+  .a03-readouts {
+    font-size: 10px;
+    gap: 6px;
+    padding: 3px 6px;
+  }
+  .a03-readouts b {
+    font-size: 11px;
+  }
+  .a03-dir-btn {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
   .a03-top {
     height: 52px;
     flex: 0 0 52px;

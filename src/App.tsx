@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getCourseById, getLessonById, getDefaultCourseAndLesson } from './content/courses';
+import { getCourseById, getLessonById, getDefaultCourseAndLesson, courses } from './content/courses';
 import { LearningProvider, useLearningEngine } from './engine/LearningContext';
 import { getLastActiveLesson } from './engine/progressStorage';
 import { Header } from './components/common/Header';
@@ -12,8 +12,25 @@ const AppContent: React.FC = () => {
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const [showQALab, setShowQALab] = useState(false);
 
-  // Initial load: restore from last active lesson or default to semiconductor
+  // Initial load: restore from query params, last active lesson, or default to first lesson
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const queryLessonId = searchParams.get('lesson');
+      const queryStep = searchParams.get('step');
+      const stepIndex = queryStep ? parseInt(queryStep, 10) : undefined;
+
+      if (queryLessonId) {
+        for (const c of courses) {
+          const found = c.lessons.find((l) => l.id === queryLessonId || l.slug === queryLessonId);
+          if (found) {
+            initLesson(c.id, found, stepIndex);
+            return;
+          }
+        }
+      }
+    }
+
     const lastActive = getLastActiveLesson();
     if (lastActive) {
       const restoredCourse = getCourseById(lastActive.courseId);

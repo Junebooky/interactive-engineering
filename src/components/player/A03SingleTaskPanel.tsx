@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useLearningEngine } from '../../engine/LearningContext';
 import { voiceEngine } from '../../lib/voice/webSpeechEngine';
-import { ParameterSlider } from '../interactive/ParameterSlider';
 import { SwitchToggle } from '../interactive/SwitchToggle';
 import { TruthTableInput } from '../interactive/TruthTableInput';
 
@@ -38,15 +37,34 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
   const step = lesson.steps[currentStepIndex];
   if (!step) return null;
 
+  const isElecStep1 = step.id === 'step-elec-s1-ohms-law';
   const predictionCtrl = step.controls?.find((c) => c.id === 'prediction');
   const answerCtrl = step.controls?.find((c) => c.id === 'answer');
   const otherControls = step.controls?.filter(
-    (c) => c.id !== 'prediction' && c.id !== 'answer'
+    (c) => c.id !== 'prediction' && c.id !== 'answer' && (!isElecStep1 || (c.id !== 'closed' && c.id !== 'direction'))
   ) || [];
 
   const predictionVal = currentParams.prediction;
   const isCorrect = fsmState === 'EVALUATED_CORRECT';
   const isIncorrect = fsmState === 'EVALUATED_INCORRECT';
+
+  // Exploration requirement check (e.g., visited low and high for sliders, or open/closed for switches)
+  const visitedArr = Array.isArray(currentParams.visited)
+    ? currentParams.visited
+    : typeof currentParams.visited === 'number'
+    ? [currentParams.visited]
+    : [0];
+
+  const minHighRule = step.rules?.find((r) => r.operator === 'visitedLowHigh');
+  const minHigh = typeof minHighRule?.expected === 'number' ? minHighRule.expected : 0.8;
+  const lowSeen = visitedArr.some((v) => v === 0);
+  const highSeen = visitedArr.some((v) => typeof v === 'number' && v >= minHigh);
+
+  const historyArr: string[] = Array.isArray(currentParams.history) ? currentParams.history : [];
+  const requiresOpenClosed = isElecStep1 || step.rules?.some((r) => r.expected === 'open' || r.expected === 'closed');
+  const isExplorationDone = requiresOpenClosed
+    ? historyArr.includes('open') && historyArr.includes('closed')
+    : otherControls.length === 0 || (lowSeen && highSeen);
 
   // Determine current active phase
   let currentPhase: FlowPhase = 'predict';
@@ -57,10 +75,12 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
     currentPhase = answerCtrl ? 'check' : otherControls.length > 0 ? 'observe' : 'done';
   } else if (phaseOverride) {
     currentPhase = phaseOverride;
-  } else if (predictionVal === null || predictionVal === undefined) {
-    currentPhase = 'predict';
+  } else if (predictionVal !== null && predictionVal !== undefined) {
+    // If progress restored from storage with exploration already started
+    const hasProgressed = highSeen || (historyArr.includes('open') && historyArr.includes('closed')) || Boolean(currentParams.answer);
+    currentPhase = hasProgressed ? 'observe' : 'predict';
   } else {
-    currentPhase = 'observe';
+    currentPhase = 'predict';
   }
 
   // Notify parent if phase changes
@@ -73,39 +93,37 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
     setPhaseOverride(null);
   }, [currentStepIndex]);
 
-  // Exploration requirement check (e.g., visited low and high)
-  const visitedArr = Array.isArray(currentParams.visited)
-    ? currentParams.visited
-    : typeof currentParams.visited === 'number'
-    ? [currentParams.visited]
-    : [0];
-
-  const minHigh = step.rules?.find((r) => r.operator === 'visitedLowHigh')?.expected ?? 0.8;
-  const lowSeen = visitedArr.some((v) => v === 0);
-  const highSeen = visitedArr.some((v) => typeof v === 'number' && v >= minHigh);
-  const isExplorationDone = otherControls.length === 0 || (lowSeen && highSeen);
-
   // Kicker and Titles according to phase
-  let kicker = `01 · 먼저 예측하기`;
-  let title = step.title;
-  let subtitle = step.storyLead || '화면의 구조를 살펴본 다음 나만의 가설을 세워보세요.';
+  let kicker = isElecStep1 ? `01 · 예상해 보기` : `01 · 먼저 예측하기`;
+  let title = isElecStep1 ? (predictionCtrl?.label || step.prompt) : step.title;
+  let subtitle = isElecStep1
+    ? '전류가 흐르는 길을 끊으면 무슨 일이 생길지 먼저 생각해 보세요.'
+    : (step.storyLead || '화면의 구조를 살펴본 다음 나만의 가설을 세워보세요.');
 
   if (step.stepType === 'CONCEPT') {
     kicker = `00 · 개념 도입`;
     title = step.title;
     subtitle = step.prompt;
   } else if (currentPhase === 'observe') {
-    kicker = `02 · 전압을 직접 바꿔보기`;
-    title = step.id === 'step-mosfet-s2-vds-drift' ? '드레인 전압을 올리면 무엇이 달라질까요?' : '전압을 올리면 무엇이 달라질까요?';
-    subtitle = `낮은 상태와 높은 상태를 직접 비교해 보세요.`;
+    kicker = isElecStep1 ? `02 · 직접 실험하기` : `02 · 전압을 직접 바꿔보기`;
+    title = isElecStep1
+      ? '스위치를 열고 닫으며 비교해 보세요.'
+      : (step.id === 'step-mosfet-s2-vds-drift' ? '드레인 전압을 올리면 무엇이 달라질까요?' : '전압을 올리면 무엇이 달라질까요?');
+    subtitle = isElecStep1
+      ? '왼쪽 2.5D 장면 바로 아래의 실험 조작 도크에서 스위치를 눌러 보세요.'
+      : `낮은 상태와 높은 상태를 직접 비교해 보세요.`;
   } else if (currentPhase === 'check') {
-    kicker = `03 · 관찰한 원리 설명하기`;
-    title = answerCtrl?.label || '관찰한 원리 설명하기';
-    subtitle = '직접 본 장면을 떠올려 가장 알맞은 이유를 설명해 보세요.';
+    kicker = isElecStep1 ? `03 · 설명해 보기` : `03 · 관찰한 원리 설명하기`;
+    title = isElecStep1 ? '왜 회로가 열릴 때 전류만 멈출까요?' : (answerCtrl?.label || '관찰한 원리 설명하기');
+    subtitle = isElecStep1
+      ? '방금 직접 관찰한 전압과 전류 변화를 떠올려 보세요.'
+      : '직접 본 장면을 떠올려 가장 알맞은 이유를 설명해 보세요.';
   } else if (currentPhase === 'done') {
-    kicker = `04 · 실험 완료`;
-    title = '원리를 발견했어요!';
-    subtitle = '직접 예측하고 조작한 결과를 올바르게 설명했습니다.';
+    kicker = isElecStep1 ? `04 · 핵심 발견` : `04 · 실험 완료`;
+    title = isElecStep1 ? '길을 끊으면 흐름이 멈춰요.' : '원리를 발견했어요!';
+    subtitle = isElecStep1
+      ? '스위치가 열리면 전류는 0mA예요. 하지만 배터리 양단 5V 전압은 유지됩니다.'
+      : '직접 예측하고 조작한 결과를 올바르게 설명했습니다.';
   }
 
   // Voice narration text
@@ -192,7 +210,9 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             <div className="a03-prompt">
               <h2>{predictionCtrl?.label || step.prompt}</h2>
               <p className="a03-lead">
-                실리콘의 구조를 보고 먼저 예상해 보세요. 실험 결과는 예측을 제출한 뒤 확인할 수 있어요.
+                {isElecStep1
+                  ? '전류가 흐르는 길을 끊으면 무슨 일이 생길지 먼저 생각해 보세요.'
+                  : '실리콘의 구조를 보고 먼저 예상해 보세요. 실험 결과는 예측을 제출한 뒤 확인할 수 있어요.'}
               </p>
             </div>
 
@@ -228,7 +248,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             {/* Accordion for supplementary physics background */}
             {step.detailExplanation && (
               <details className="a03-accordion">
-                <summary>실리콘 구조 및 배경 지식 펼쳐보기</summary>
+                <summary>{isElecStep1 ? '배경 지식 및 회로 구조 펼쳐보기' : '실리콘 구조 및 배경 지식 펼쳐보기'}</summary>
                 <div className="a03-accordion-content">
                   {step.detailExplanation.split('\n').map((para, i) => (
                     <p key={i}>{para}</p>
@@ -243,9 +263,11 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
         {currentPhase === 'observe' && (
           <div className="a03-phase-observe">
             <div className="a03-prompt">
-              <h2>직접 조작하며 변화를 비교해 보세요</h2>
+              <h2>{isElecStep1 ? '스위치를 열고 닫으며 비교해 보세요' : '직접 조작하며 변화를 비교해 보세요'}</h2>
               <p className="a03-lead">
-                낮은 상태(0V)와 높은 상태(≥{minHigh}V)를 모두 조작하여 화면의 전자와 전류를 관찰하세요.
+                {isElecStep1
+                  ? '왼쪽 2.5D 장면 바로 아래의 실험 조작 도크에서 스위치를 눌러 보세요.'
+                  : `낮은 상태(0V)와 높은 상태(≥${minHigh}V)를 모두 조작하여 화면의 전자와 전류를 관찰하세요.`}
               </p>
             </div>
 
@@ -323,7 +345,13 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
 
             {/* Dynamic observation prompt text */}
             <div className="a03-observe-note" role="status" aria-live="polite">
-              {step.simulatorType === 'mosfet-field' ? (
+              {isElecStep1 ? (
+                currentParams.closed ? (
+                  '스위치가 닫혀 회로에 5mA가 흐르고 있어요.'
+                ) : (
+                  '회로가 열리면 전류가 멈춰요. 하지만 배터리의 5V는 그대로 남아 있어요.'
+                )
+              ) : step.simulatorType === 'mosfet-field' ? (
                 (currentParams.vgs ?? 0) >= 0.7 ? (
                   '전압을 0.7V(Vth) 이상으로 올렸더니 전자들이 실리콘 표면에 모여 통로가 열렸어요. 하지만 VDS=0V라서 순 전류는 흐르지 않아요.'
                 ) : (
@@ -339,6 +367,14 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
                 '스위치 상태를 바꾸며 출력 전압과 논리 상태의 반전을 비교해 보세요.'
               )}
             </div>
+
+            {isElecStep1 && (
+              <div className="a03-status-line" id="status" aria-live="polite">
+                {isExplorationDone
+                  ? '관찰: 2/2 상태 확인 완료'
+                  : `관찰: ${[historyArr.includes('open'), historyArr.includes('closed')].filter(Boolean).length}/2 상태 확인`}
+              </div>
+            )}
 
             {/* Accordion for Why Explanation */}
             {step.whyExplanation && (
@@ -412,7 +448,11 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
           <div className="a03-phase-done">
             <div className="a03-model-explain">
               <strong>✦ 핵심 발견</strong>
-              {step.successMessage || '실험과 개념 확인을 성공적으로 완수했습니다.'}
+              <p>
+                {isElecStep1
+                  ? '전압은 전하를 움직이게 하는 차이이고, 전류는 그 결과로 일어나는 흐름입니다.'
+                  : (step.successMessage || '실험과 개념 확인을 성공적으로 완수했습니다.')}
+              </p>
               {step.whyExplanation && (
                 <p style={{ marginTop: '10px', color: '#556c73' }}>
                   {step.whyExplanation}
@@ -421,13 +461,15 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             </div>
 
             <p className="a03-aside-note">
-              다음 실험 단계로 넘어가 더 깊은 반도체 원리를 탐구해 보세요.
+              {isElecStep1
+                ? '다음 실험으로 넘어가 저항과 KCL의 원리를 탐구해 보세요.'
+                : '다음 실험 단계로 넘어가 더 깊은 반도체 원리를 탐구해 보세요.'}
             </p>
 
             {/* Accordion for deep-dive detail */}
             {step.detailExplanation && (
               <details className="a03-accordion">
-                <summary>상세 공학 해설 및 다음 단계 연결</summary>
+                <summary>{isElecStep1 ? '상세 회로 해설 및 다음 단계 연결' : '상세 공학 해설 및 다음 단계 연결'}</summary>
                 <div className="a03-accordion-content">
                   {step.detailExplanation.split('\n').map((para, i) => (
                     <p key={i}>{para}</p>
@@ -485,6 +527,8 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
           >
             {predictionVal === null || predictionVal === undefined
               ? '예측을 먼저 선택해 주세요'
+              : isElecStep1
+              ? '예측 제출하고 실험하기 →'
               : '예측 제출하고 실험 시작 →'}
           </button>
         )}
@@ -497,8 +541,8 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             onClick={handleObserveDone}
           >
             {isExplorationDone
-              ? '비교 완료 · 설명해 보기 →'
-              : `0V와 ${minHigh}V 이상을 비교해 주세요`}
+              ? (isElecStep1 ? '관찰 마치고 설명하기 →' : '비교 완료 · 설명해 보기 →')
+              : (isElecStep1 ? '열림과 닫힘을 모두 확인해 보세요' : `0V와 ${minHigh}V 이상을 비교해 주세요`)}
           </button>
         )}
 
