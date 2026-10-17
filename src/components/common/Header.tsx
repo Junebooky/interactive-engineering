@@ -6,9 +6,10 @@ import { sfx } from '../../lib/sound/sfx';
 
 interface HeaderProps {
   onOpenCatalog: () => void;
+  onToggleQALab?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenCatalog }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenCatalog, onToggleQALab }) => {
   const {
     lesson,
     currentStepIndex,
@@ -97,6 +98,17 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCatalog }) => {
 
       {/* Audio & Help Controls */}
       <div className="header-right">
+        {onToggleQALab && (
+          <button
+            type="button"
+            className="qa-lab-toggle-btn"
+            onClick={onToggleQALab}
+            title="A05 MOSFET 2.5D Discovery Lab 독립 프리뷰 열기"
+          >
+            <span>🧪 QA Lab</span>
+          </button>
+        )}
+
         {/* Voice Tutor Button */}
         <button
           type="button"

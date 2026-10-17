@@ -12,7 +12,15 @@ export type StepType =
   | 'APPLY' 
   | 'COMPLETE';
 
-export type SimulatorType = 'mosfet' | 'ohmsLaw' | 'gears' | 'inverter';
+export type SimulatorType =
+  | 'mosfet'
+  | 'ohmsLaw'
+  | 'gears'
+  | 'inverter'
+  | 'mosfet-field'
+  | 'mosfet-current'
+  | 'nmos-resistor-inverter'
+  | 'cmos-not-gate';
 
 export interface ScaffoldingHint {
   level: 1 | 2 | 3;
@@ -24,7 +32,7 @@ export interface ScaffoldingHint {
 export interface ValidationRule {
   targetKey: string;
   label?: string; // Human-readable condition label (e.g. "게이트 전압 0.8V ~ 1.8V 설정")
-  operator: 'eq' | 'gte' | 'lte' | 'between' | 'near';
+  operator: 'eq' | 'gte' | 'lte' | 'between' | 'near' | 'visitedLowHigh';
   expected: number | boolean | string | [number, number];
   tolerance?: number; // for 'near'
   feedbackIfFail: string;
@@ -51,11 +59,11 @@ export interface StepControl {
   id: string;
   label: string;
   unit?: string;
-  type: 'slider' | 'discreteSlider' | 'toggle' | 'truthTable' | 'gearSelector';
+  type: 'slider' | 'discreteSlider' | 'toggle' | 'truthTable' | 'gearSelector' | 'radioGroup';
   min?: number;
   max?: number;
   step?: number;
-  options?: Array<{ label: string; value: any }>;
+  options?: Array<{ label: string; value: any; description?: string; misconception?: string }>;
 }
 
 export interface LessonStep {

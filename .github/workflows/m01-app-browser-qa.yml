@@ -1,0 +1,45 @@
+name: A02 M01 App Real Browser QA
+on:
+  push:
+    branches:
+      - feat/m01-a05-a06-integration
+      - main
+  pull_request:
+    branches:
+      - feat/m01-a05-a06-integration
+      - main
+  workflow_dispatch:
+
+jobs:
+  chromium-app-qa:
+    name: Actual App Chromium E2E QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install app dependencies
+        run: npm ci
+
+      - name: Install isolated Playwright runner (no lockfile modification)
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run real app desktop + mobile browser QA
+        run: node scripts/m01-app-browser-smoke.mjs
+
+      - name: Upload Browser QA Evidence Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m01-app-browser-evidence
+          path: browser-evidence/m01-app/
+          if-no-files-found: warn
+          retention-days: 14
