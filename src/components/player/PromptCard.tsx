@@ -141,7 +141,7 @@ export const PromptCard: React.FC = () => {
             if (ctrl.type === 'gearSelector') {
               const selectedN2 = currentParams.n2 ?? 12;
               return (
-                <div key={ctrl.id} className="control-group">
+                <div key={ctrl.id} id={`control-${ctrl.id}`} className="control-group">
                   <span className="control-label">{ctrl.label}</span>
                   <div className="gear-selector-buttons">
                     {ctrl.options?.map((opt) => (
@@ -162,7 +162,7 @@ export const PromptCard: React.FC = () => {
             if (ctrl.type === 'radioGroup') {
               const currentVal = currentParams[ctrl.id];
               return (
-                <div key={ctrl.id} className="control-group radio-group-container">
+                <div key={ctrl.id} id={`control-${ctrl.id}`} className="control-group radio-group-container">
                   <span className="control-label">{ctrl.label}</span>
                   <div className="radio-options-list" role="radiogroup" aria-label={ctrl.label}>
                     {ctrl.options?.map((opt) => {

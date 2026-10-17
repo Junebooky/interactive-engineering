@@ -1,6 +1,7 @@
 import type { Lesson, LearningState, StepEvaluation } from '../types';
 import { applyDramActionAdapter } from './adapters/dramActionAdapter';
 import { applySramActionAdapter } from './adapters/sramActionAdapter';
+import { applyGpuActionAdapter } from './adapters/gpuActionAdapter';
 
 export interface LearningEngineState {
   courseId: string;
@@ -109,6 +110,7 @@ export function learningReducer(
         step?.simulatorType === 'cpu-cache-vs-dram' ||
         step?.simulatorType === 'cpu-to-gpu-data-locality'
       );
+      const isGpu = Boolean(step?.simulatorType?.startsWith('gpu-'));
 
       let nextParams = {
         ...state.currentParams,
@@ -119,6 +121,8 @@ export function learningReducer(
         nextParams = applyDramActionAdapter(step.id, state.currentParams, key, value);
       } else if (isSram && step) {
         nextParams = applySramActionAdapter(step.id, state.currentParams, key, value);
+      } else if (isGpu && step) {
+        nextParams = applyGpuActionAdapter(step.id, state.currentParams, key, value);
       } else if (typeof value === 'number' && (key === 'vgs' || key === 'vds' || key === 'vin')) {
         const prevVisited = Array.isArray(state.currentParams.visited) ? state.currentParams.visited : [0];
         if (!prevVisited.includes(value)) {
