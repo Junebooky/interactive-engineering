@@ -44,7 +44,7 @@ try{
   await p.goto(url);await p.screenshot({path:out+'/01-student-before.png',fullPage:true});await first(p,'fab-pattern-to-die');
   await p.getByRole('button',{name:'다이 절단'}).click();
   if(!((await p.getByTestId('package06-stage-status').innerText()).includes('INVALID_STAGE')))throw Error('S01 premature dice accepted');
-  if(!((await p.locator('.a05-readouts').innerText()).includes('0/6')))throw Error('premature dice advanced process');
+  if(await p.locator('.a05-readouts').count())throw Error('invalid premature dice revealed a student measurement without physical work');
   await p.getByRole('button',{name:'현재 공정/배선 안내 듣기'}).click();
   if(!((await p.getByTestId('package06-voice-text').innerText()).includes('INVALID_STAGE')))throw Error('premature dice cause not in Korean voice');
   await p.screenshot({path:out+'/02-invalid-dice-preprocess.png',fullPage:true});
