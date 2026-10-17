@@ -114,6 +114,18 @@ try {
   await assert('desktop Korean voice request does not throw', async () => {
     await page.getByRole('button', { name: '한국어 질문 듣기' }).click();
   });
+  await assert('unsupported speech shows readable Korean fallback instead of throwing', async () => {
+    const muted = await desktop.newPage();
+    muted.on('pageerror', error => failures.push({label:'speech fallback JS error',error:String(error)}));
+    await muted.addInitScript(() => { Object.defineProperty(window,'SpeechSynthesisUtterance',{value:undefined,configurable:true}); });
+    await muted.goto(baseUrl);
+    await muted.getByRole('button', {name:'한국어 질문 듣기'}).click();
+    if (!await muted.getByText('이 브라우저에서는 음성 재생을 지원하지 않아요.',{exact:false}).count()) {
+      throw Error('No text fallback when speech synthesis is absent');
+    }
+    await muted.screenshot({path:output+'/08-voice-fallback-desktop.png',fullPage:true});
+    await muted.close();
+  });
   const mobile = await browser.newContext({ ...devices['iPhone 13'], viewport: { width: 375, height: 812 } });
   const phone = await mobile.newPage();
   phone.on('pageerror', error => failures.push({ label: 'mobile JS page error', error: String(error) }));
