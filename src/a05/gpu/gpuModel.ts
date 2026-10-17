@@ -3,7 +3,7 @@ export type GpuSceneId='compute-feeding'|'memory-family-roles'|'gddr-width-rate'
 export const gpuSceneOrder:readonly GpuSceneId[]=['compute-feeding','memory-family-roles','gddr-width-rate','hbm-tradeoffs'];
 export type ComputeRate=16|32;export type FeedRate=8|16|32;
 export type PinRate=24|32;export type Placement='cpu-dimm'|'gpu-board'|'gpu-package';
-export type Family='DDR/RDIMM'|'GDDR6/GDDR7'|'HBM';
+export type Family='DDR/RDIMM'|'GDDR6'|'GDDR7'|'HBM';
 export type Topology='gddr-board'|'hbm-stack';
 export interface GpuEvent{
   sceneId:GpuSceneId;
@@ -20,7 +20,8 @@ export function computeFeeding(compute:ComputeRate,feed:FeedRate,work=64){
 }
 export const placement:Readonly<Record<Family,{site:Placement;role:string;disclaimer:string}>>={
   'DDR/RDIMM':{site:'cpu-dimm',role:'CPU/서버 측 시스템 메모리',disclaimer:'서버 모듈 형식 예시'},
-  'GDDR6/GDDR7':{site:'gpu-board',role:'GPU 보드 가까운 장치 DRAM',disclaimer:'모든 GPU가 GDDR를 쓴다는 뜻 아님'},
+  'GDDR6':{site:'gpu-board',role:'GPU 보드 가까운 장치 DRAM',disclaimer:'모든 GPU가 GDDR를 쓴다는 뜻 아님'},
+  'GDDR7':{site:'gpu-board',role:'GPU 보드 가까운 장치 DRAM',disclaimer:'모든 GPU가 GDDR를 쓴다는 뜻 아님'},
   'HBM':{site:'gpu-package',role:'일부 AI/HPC 패키지의 적층 DRAM',disclaimer:'모든 GPU에 HBM이 필수는 아님'},
 };
 export function memoryPlacementMatches(family:Family,site:Placement){return placement[family].site===site;}
@@ -49,11 +50,12 @@ export function assessGpu(id:GpuSceneId,seen:readonly string[],answer:string|nul
     tests.push({label:'feed=8에서 compute 16와 32 비교',passed:has('core16feed8')&&has('core32feed8'),help:'공급 속도를 8로 두고 compute 16/32를 모두 측정하세요.'});
     tests.push({label:'공급 제약 해소 비교',passed:has('feed32'),help:'feed를 32로 올려 병목이 이동하는지 보세요.'});
   }else if(id==='memory-family-roles'){
-    tests.push({label:'CPU DIMM ↔ DDR/RDIMM 매칭',passed:has('cpu-dimm'),help:'CPU DIMM 위치의 메모리를 선택하세요.'});
-    tests.push({label:'GPU board ↔ GDDR / GPU package ↔ HBM',passed:has('gpu-board')&&has('gpu-package'),help:'보드 GDDR와 가까운 적층 HBM의 설치 위치를 각각 관찰하세요.'});
+    tests.push({label:'CPU DIMM ↔ DDR/RDIMM 독립 매칭',passed:has('pair-DDR/RDIMM'),help:'메모리 가족과 위치를 따로 고른 뒤 짝을 검사하세요.'});
+    tests.push({label:'GDDR6·GDDR7 모두 GPU board로 매칭',passed:has('pair-GDDR6')&&has('pair-GDDR7'),help:'GDDR6/7을 각각 GPU 보드에 정확히 놓아 보세요.'});
+    tests.push({label:'HBM ↔ GPU package 독립 매칭',passed:has('pair-HBM'),help:'HBM을 GPU 패키지 위치에 배치해 보세요.'});
   }else if(id==='gddr-width-rate'){
-    tests.push({label:'128×24÷8 = 384 GB/s',passed:has('rate24'),help:'24 Gb/s/pin 상태의 결과 384 GB/s를 확인하세요.'});
-    tests.push({label:'128×32÷8 = 512 GB/s',passed:has('rate32'),help:'32 Gb/s/pin 상태의 결과 512 GB/s를 확인하세요.'});
+    tests.push({label:'24 Gb/s/pin 방문 + 384 GB/s 독립 정답',passed:has('rate24')&&has('quiz24'),help:'24 Gb/s/pin을 조작하고 숫자 선택지 중 384 GB/s를 직접 선택하세요.'});
+    tests.push({label:'32 Gb/s/pin 방문 + 512 GB/s 독립 정답',passed:has('rate32')&&has('quiz32'),help:'32 Gb/s/pin을 조작하고 숫자 선택지 중 512 GB/s를 직접 선택하세요.'});
   }else{
     tests.push({label:'GDDR board와 HBM package 둘 다 관찰',passed:has('gddr')&&has('hbm'),help:'보드 DRAM과 TSV 적층 DRAM을 비교하세요.'});
     tests.push({label:'열·비용·공정 한계 관찰',passed:has('constraints'),help:'실제 제품 우위가 아닌 정성적 열/제조 제약 패널을 열어보세요.'});
