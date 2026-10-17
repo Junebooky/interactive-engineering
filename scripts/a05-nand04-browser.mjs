@@ -59,6 +59,23 @@ try{
  });
  await qa('S02 page program vs erase, same LBA revision moved, GC valid survives + 3 misconceptions',async()=>{
   await before(p,'nand-page-block');
+  await p.getByRole('button',{name:'GC · 무효 블록 지우기'}).click();
+  if(!((await p.getByTestId('nand04-transaction-result').innerText()).includes('NO_VALID_NEW_PAGE')))throw Error('GC before programming B must reject');
+  if(!((await p.locator('.a05-readouts').innerText()).includes('B0:P0 / A')))throw Error('early GC conjured phantom B');
+  if((await p.locator('.a05-readouts').innerText()).includes('B1:P0 / B'))throw Error('uncommitted version B leaked in readout');
+  await p.getByRole('button',{name:'전이 결과 듣기'}).click();
+  if(!((await p.getByTestId('nand04-voice-text').innerText()).includes('NO_VALID_NEW_PAGE')))throw Error('early GC Voice must announce reason');
+  await p.screenshot({path:out+'/03a-page-gc-early-no-valid-B.png',fullPage:true});
+  await p.getByRole('button',{name:'같은 LBA 수정 B'}).click();
+  if(!((await p.getByTestId('nand04-transaction-result').innerText()).includes('ORDER_ERROR')))throw Error('write B before initial A must reject');
+  await p.getByRole('button',{name:'초기 A 저장'}).click();
+  await p.getByRole('button',{name:'같은 LBA 수정 B'}).click();
+  await p.getByRole('button',{name:'RESET · 새 페이지 실험'}).click();
+  const midReset=await p.locator('.a05-readouts').innerText();
+  if(!midReset.includes('미시작')||midReset.includes('B1:P0 / B'))throw Error('RESET did not revoke B evidence');
+  await p.getByRole('button',{name:'GC · 무효 블록 지우기'}).click();
+  if(!((await p.getByTestId('nand04-transaction-result').innerText()).includes('NO_VALID_NEW_PAGE')))throw Error('stale GC after RESET improperly accepted');
+  await p.screenshot({path:out+'/03b-page-reset-removes-stale-evidence.png',fullPage:true});
   await p.getByRole('button',{name:'초기 A 저장'}).click();
   await p.getByRole('button',{name:'같은 LBA 수정 B'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('B1:P0 / B')))throw Error('in place overwrite error');
@@ -82,6 +99,22 @@ try{
  });
  await qa('S04 NVMe request host→controller, READ device DMA→DDR, later GPU separate + 3 wrong',async()=>{
   await before(p,'nvme-transfer');
+  await p.getByRole('button',{name:'DDR → GPU 별도 이동'}).click();
+  if(!((await p.getByTestId('nand04-transaction-result').innerText()).includes('DATA_NOT_READY')))throw Error('GPU before host DDR must not pass');
+  if(!((await p.locator('.a05-readouts').innerText()).includes('미시작')))throw Error('early GPU action falsely generated data history');
+  await p.getByRole('button',{name:'전이 결과 듣기'}).click();
+  if(!((await p.getByTestId('nand04-voice-text').innerText()).includes('DATA_NOT_READY')))throw Error('GPU early Voice must explain blocked transfer');
+  await p.screenshot({path:out+'/06a-gpu-copy-early-blocked.png',fullPage:true});
+  await p.getByRole('button',{name:'PCIe DMA payload'}).click();
+  if(!((await p.getByTestId('nand04-transaction-result').innerText()).includes('NO_REQUEST')))throw Error('DMA before READ command must not pass');
+  await p.screenshot({path:out+'/06b-dma-before-read-no-request.png',fullPage:true});
+  await p.getByRole('button',{name:'NVMe READ 명령'}).click();
+  await p.getByRole('button',{name:'PCIe DMA payload'}).click();
+  await p.getByRole('button',{name:'RESET · 새 NVMe READ'}).click();
+  if(!((await p.locator('.a05-readouts').innerText()).includes('미시작')))throw Error('NVMe reset has stale DMA evidence');
+  await p.getByRole('button',{name:'DDR → GPU 별도 이동'}).click();
+  if(!((await p.getByTestId('nand04-transaction-result').innerText()).includes('DATA_NOT_READY')))throw Error('post-reset stale data prematurely ready');
+  await p.screenshot({path:out+'/06c-dma-reset-gpu-blocked.png',fullPage:true});
   await p.getByRole('button',{name:'NVMe READ 명령'}).click();
   let x=await p.locator('.a05-readouts').innerText();
   if(!x.includes('command')||!x.includes('Host software'))throw Error('NVMe request should originate at Host');
