@@ -164,7 +164,7 @@ export function Power31SceneLab({onEvent,onSpeech}:Power31LabProps){
        {ctl('Site A',()=>change({...state,site:'A'},'siteA'),state.site==='A')}
        {ctl('Site B',()=>change({...state,site:'B'},'siteB'),state.site==='B')}</div></>}
     </div></div>}
-   {revealed&&<div className="a05-box"><h3>관찰 결과와 원리 연결</h3><div className="a05-choice-set">
+   {revealed&&observed&&<div className="a05-box"><h3>관찰 결과와 원리 연결</h3><div className="a05-choice-set">
     {story.answers.map(c=><button key={c.id} type="button" aria-pressed={answer===c.id} className={answer===c.id?'selected':''} onClick={()=>{setAnswer(c.id);setFeedback(null);setWhy(false);}}>{c.label}</button>)}</div>
     <button className="a05-primary" type="button" onClick={()=>{const g=gradePower31(sceneId,seen,answer);setFeedback(g);emit('answer.checked',{passed:g.passed,misconception:g.misconception,evidence:seen});}}>관찰·WHY 조건 검증</button>
    </div>}
