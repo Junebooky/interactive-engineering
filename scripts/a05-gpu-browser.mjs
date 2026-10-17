@@ -71,7 +71,7 @@ try{
    await page.getByRole('button',{name:'왜? 원리 보기'}).click();
    const partialWhy=await page.getByTestId('g03-why-panel').innerText();
    if(/GDDR6\/7.*GPU 보드|GDDR7.*GPU 보드|HBM.*GPU 패키지|DDR.*CPU/.test(partialWhy))throw Error('R24: incomplete WHY leaked unattempted GDDR7/HBM/DDR placement map: '+partialWhy);
-   await page.getByRole('button',{name:'피드백 듣기'}).click();
+   await page.getByRole('button',{name:'피드백 듣기',exact:true}).click();
    const partialVoice=await page.getByTestId('gpu-voice-text').innerText();
    if(/GDDR7.*GPU 보드|GDDR6\/7.*GPU 보드|HBM.*GPU 패키지/.test(partialVoice))
      throw Error('R24: incomplete concept feedback Voice leaked other family map');
@@ -147,7 +147,7 @@ try{
    await page.getByRole('button',{name:'조건별로 확인하기'}).click();
    if(!await page.getByText('빠진 조건이 있는지').count())throw Error('wrong 32Gb/s selection wrongly passed');
    await assertVeiled('wrong-32-after-feedback');
-   await page.getByRole('button',{name:'피드백 듣기'}).click();
+   await page.getByRole('button',{name:'피드백 듣기',exact:true}).click();
    const voice=await page.locator('[data-testid="gpu-voice-text"]').allInnerTexts();
    if(voice.some(x=>['384 GB/s','512 GB/s'].some(v=>x.includes(v))))throw Error('spoken feedback leaked correct numeric values');
    await page.screenshot({path:out+'/05a-wrong-32Gbps-quiz.png',fullPage:true});
