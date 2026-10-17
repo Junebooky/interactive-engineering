@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {ElectricitySceneVisual} from './ElectricitySceneVisual';
 import {electricitySceneOrder,evaluateElectricity,rcModel} from './electricityModel';
-import type {CircuitTopology,Direction,ElecEvent,ElecFeedback,ElecSceneId} from './electricityModel';
+import type {ChargeMode,CircuitTopology,Direction,ElecEvent,ElecFeedback,ElecSceneId} from './electricityModel';
 import type {ElectricityVisualState} from './ElectricitySceneVisual';
 import '../a05Scenes.css';import './electricityScenes.css';
 
@@ -28,7 +28,7 @@ const STORIES:Record<ElecSceneId,Story>={
   hints:['끊어진 길에서 전하가 회로를 한 바퀴 돌 수 있을까요?','I=V/R이고 1kΩ는 1000Ω입니다.','전자가 음전하라는 사실을 떠올려 보세요.'],
   why:'전압은 전하당 에너지 차이(V=ΔU/q, J/C), 전류는 시간에 따른 전하량(I=dQ/dt, C/s)이에요. 단순한 이상적 DC 저항 모형에서 OPEN은 I=0, CLOSED에서는 5V/1000Ω=5mA입니다. 전류가 흐르지 않아도 전위차는 있을 수 있어요.',
   nextHook:'저항이 둘이라면 직렬과 병렬의 전류가 어떻게 달라질까요?',
-  speech:'전원에 5볼트가 있어도 길이 끊기면 전류가 흐르지 않을 수 있어요. 직접 비교해 볼까요?',
+  speech:'스위치를 열었을 때와 닫았을 때를 먼저 예상해 보세요. 전압계와 전류계가 같은 값을 말해줄까요?',
   assumption:'이상적 5V·1kΩ·DC 도선, 금속 전자/관습전류, 기생 누설·내부저항·AC 생략'
  },
  'resistors-series-parallel-kcl':{
@@ -47,7 +47,7 @@ const STORIES:Record<ElecSceneId,Story>={
   hints:['두 가지 병렬 저항을 하나로 합치면 등가저항은?','직렬 경로에 갈림길이 존재하나요?','병렬 노드 유입 10과 두 가지 유출 5+5를 비교해요.'],
   why:'직렬 등가저항 1kΩ+1kΩ=2kΩ → 5V/2kΩ=2.5mA, 저항마다 2.5V입니다. 병렬 등가저항 500Ω → 10mA 전체, 각 가지 5mA·5V. KCL에서 노드의 유입 전류와 유출 전류 합은 같아요.',
   nextHook:'그렇다면 전류를 잠깐 저장하듯 전하를 모으는 커패시터는 어떨까요?',
-  speech:'저항을 두 갈래로 바꾸면 전류가 생기는 게 아니라 나눠집니다. 합계를 계산해 볼까요?',
+  speech:'저항 두 개를 직렬과 병렬로 바꿔 보세요. 각 갈래 숫자를 더하면 어떤 규칙이 보일까요?',
   assumption:'동일 1kΩ 2개·이상적 5V·정상상태 옴 저항, 배선손실·온도/전원 제한 생략'
  },
  'capacitor-rc-charge-discharge':{
@@ -66,7 +66,7 @@ const STORIES:Record<ElecSceneId,Story>={
   hints:['한 시간상수 뒤 충전율은 1−e^(−1)입니다.','R×C의 단위는 Ω×F = 초예요.','방전은 처음 5V에서 e^(−t/τ)로 감소해요.'],
   why:'이상적인 1차 RC에서 τ=RC. 충전 VC=5(1−e^(−t/τ)), 방전 VC=5e^(−t/τ). 1kΩ·10µF면 τ=10ms, t=10ms에서 충전 3.16V, 방전 1.84V예요. DRAM 실물 리텐션은 이 시간상수와 다른 문제예요.',
   nextHook:'커패시터와 전원에 쌓이거나 소비되는 에너지는 어떻게 계산할까요?',
-  speech:'전하가 모일수록 전류는 점점 줄어들어요. 1시간상수는 전부가 아니라 약 63퍼센트 충전이에요.',
+  speech:'저항과 커패시터를 연결하고 기다려 보세요. 시간을 바꾸면 어떤 변화가 보일지 먼저 예상해 볼까요?',
   assumption:'1차 RC 이상화·초기 충전0V/방전5V·누설/ESR/DRAM 센스앰프 미포함. 10ms는 toy RC, DRAM retention 아님'
  },
  'power-energy-joules-heat':{
@@ -85,13 +85,13 @@ const STORIES:Record<ElecSceneId,Story>={
   hints:['전력은 매초 에너지를 쓰는 속도입니다.','커패시터 저장 에너지에는 V²이 있어요.','전력과 열 발생 위치를 같은 개념으로 취급하면 안 돼요.'],
   why:'5V×0.010A=0.05W=50mW; 10초 소비 에너지=0.5J. 커패시터는 ½×10µF×(5V)²=125µJ, 10V이면 500µJ. 이 실험에서 V와 I는 독립 입력이므로 고정 R 부하라고 가정하지 않으며 충전기 입력 에너지=커패시터 저장 에너지라는 주장도 아니에요.',
   nextHook:'이제 밴드·도핑·PN 접합을 통해 실리콘이 스위치가 되는 이유를 살펴볼까요?',
-  speech:'와트는 지금 쓰는 속도, 줄은 쓴 양입니다. 커패시터에는 전기장 에너지가 저장돼요.',
+  speech:'전압, 전류, 시간을 각각 바꿔 보세요. 전력과 에너지 카드의 숫자는 같은 단위일까요?',
   assumption:'V와 I는 서로 독립 조작하는 가상 부하·고정 R 아님, P 일정·부하 총에너지와 저장 Ecap 구분, 실제 GPU 열/PSU 효율 미적용'
  }
 };
 const initial=():ElectricityVisualState=>({
  volts:5,closed:false,direction:'conventional',topology:'series',
- mode:'charge',rOhms:1000,cMicroFarads:10,timeMs:0,
+ mode:'charge',rOhms:1000,cMicroFarads:10,timeMs:0,rcInitialVoltageV:0,rcSegmentStartMs:0,
  powerVolts:5,loadMilliAmps:5,seconds:1
 });
 export interface ElectricityLabProps{onEvent?:(event:ElecEvent)=>void;onSpeech?:(id:ElecSceneId,speechText:string)=>void;}
@@ -112,12 +112,30 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
  function direction(value:Direction){change({...state,direction:value},'direction '+value);seenOnce(value);}
  function topology(value:CircuitTopology){change({...state,topology:value},'topology '+value);seenOnce(value);}
  function rcObservation(next:ElectricityVisualState){
-  const current=rcModel(next.mode,next.rOhms,next.cMicroFarads,next.timeMs);
-  const atTau=next.timeMs===10&&next.rOhms===1000&&next.cMicroFarads===10;
-  if(atTau)seenOnce(next.mode==='charge'?'charge-tau':'discharge-tau');
+  const current=rcModel(next.mode,next.rOhms,next.cMicroFarads,next.timeMs,5,
+    next.rcInitialVoltageV,next.rcSegmentStartMs);
+  const atTau=next.timeMs-next.rcSegmentStartMs===10&&next.rOhms===1000&&next.cMicroFarads===10;
+  if(atTau&&next.mode==='charge'&&next.rcInitialVoltageV===0)seenOnce('charge-tau');
+  if(atTau&&next.mode==='discharge'&&next.rcInitialVoltageV===5)seenOnce('discharge-tau');
   if(current.tauMs>10)seenOnce('new-tau');
  }
  function rcChange(next:ElectricityVisualState,label:string){change(next,label);rcObservation(next);}
+ function modeFromCurrent(mode:ChargeMode){
+  const before=rcModel(state.mode,state.rOhms,state.cMicroFarads,state.timeMs,5,
+    state.rcInitialVoltageV,state.rcSegmentStartMs);
+  rcChange({...state,mode,rcInitialVoltageV:before.voltageV,rcSegmentStartMs:state.timeMs},
+    'RC continuous mode switch '+mode);
+ }
+ function rcReset(mode:ChargeMode,rOhms=state.rOhms,cMicroFarads=state.cMicroFarads){
+  rcChange({...state,mode,rOhms,cMicroFarads,timeMs:0,
+    rcSegmentStartMs:0,rcInitialVoltageV:mode==='charge'?0:5},'RC explicit new experiment');
+ }
+ function changeRcTime(timeMs:number){
+  const rewind=timeMs<state.rcSegmentStartMs;
+  rcChange({...state,timeMs,rcSegmentStartMs:rewind?0:state.rcSegmentStartMs,
+    rcInitialVoltageV:rewind?(state.mode==='charge'?0:5):state.rcInitialVoltageV},
+    rewind?'RC timeline reset':'time '+timeMs);
+ }
  function powerChange(next:ElectricityVisualState,label:string){
   change(next,label);
   if(next.powerVolts===5&&next.loadMilliAmps===10&&next.seconds===10)seenOnce('base-energy');
@@ -142,7 +160,9 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
   <main className="a05-stage">
    <section className="a05-copy">
     <span className="a05-eyebrow">{sceneId} · STEP {index+1}/4</span>
-    <h2>{story.title}</h2><p className="a05-hook">{story.hook}</p><p className="a05-question">{story.question}</p>
+    <h2>{story.title}</h2>
+    {sceneId==='charge-voltage-current-arrows'&&<p className="a05-note">선수 개념 40초: 전자는 음전하예요. 전하 Q는 쿨롱(C), 전류 I는 초당 이동한 전하(C/s)예요. 금속의 전자 이동 방향은 양전하 기준 관습전류와 반대예요. 스위치 결과는 직접 예상해 보세요.</p>}
+    <p className="a05-hook">{story.hook}</p><p className="a05-question">{story.question}</p>
     <div className="a05-box">
      <h3>예측을 먼저 기록해요</h3><p>{story.prediction}</p>
      <div className="a05-choice-set">{story.choices.map(c=><button key={c.id} type="button"
@@ -168,18 +188,19 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
       </div>}
       {sceneId==='capacitor-rc-charge-discharge'&&<div className="a05-electricity-controls">
        <strong>상태</strong><div className="a05-control-buttons">
-        {control('충전',()=>rcChange({...state,mode:'charge'},'charge'),state.mode==='charge')}
-        {control('방전',()=>rcChange({...state,mode:'discharge'},'discharge'),state.mode==='discharge')}</div>
-       <strong>R / C</strong><div className="a05-control-buttons">
-        {control('R=1kΩ',()=>rcChange({...state,rOhms:1000,timeMs:0},'R 1k'),state.rOhms===1000)}
-        {control('R=2kΩ',()=>rcChange({...state,rOhms:2000,timeMs:0},'R 2k'),state.rOhms===2000)}
-        {control('C=10µF',()=>rcChange({...state,cMicroFarads:10,timeMs:0},'C 10u'),state.cMicroFarads===10)}
-        {control('C=20µF',()=>rcChange({...state,cMicroFarads:20,timeMs:0},'C 20u'),state.cMicroFarads===20)}
+        {control('현재 전압에서 충전',()=>modeFromCurrent('charge'),state.mode==='charge')}
+        {control('현재 전압에서 방전',()=>modeFromCurrent('discharge'),state.mode==='discharge')}</div>
+       <button type="button" className="a05-primary" onClick={()=>rcReset('discharge')}>5V 완충 후 새 방전 실험</button>
+       <strong>R / C (변경 시 새 실험으로 재설정)</strong><div className="a05-control-buttons">
+        {control('R=1kΩ',()=>rcReset(state.mode,1000,state.cMicroFarads),state.rOhms===1000)}
+        {control('R=2kΩ',()=>rcReset(state.mode,2000,state.cMicroFarads),state.rOhms===2000)}
+        {control('C=10µF',()=>rcReset(state.mode,state.rOhms,10),state.cMicroFarads===10)}
+        {control('C=20µF',()=>rcReset(state.mode,state.rOhms,20),state.cMicroFarads===20)}
        </div>
        <label htmlFor="elec-rc-time">시간 <strong>{state.timeMs}ms</strong></label>
        <input id="elec-rc-time" type="range" min="0" max="100" step="10" value={state.timeMs}
-        onChange={e=>rcChange({...state,timeMs:Number(e.target.value)},'time '+e.target.value)}/>
-       <p className="a05-note">R 또는 C 변경 시 초기 시각 0ms로 돌아가요. 방전은 충전 완료 5V에서 시작하는 별도 이상적 경로입니다.</p>
+        onChange={e=>changeRcTime(Number(e.target.value))}/>
+       <p className="a05-note">중간에 방전으로 바꿔도 그 순간 커패시터 전압은 튀지 않아요. 별도 5V 완충 버튼은 초기 상태를 명시적으로 새로 만듭니다. R/C 변경·시간 되감기는 새 실험으로 재설정해요.</p>
       </div>}
       {sceneId==='power-energy-joules-heat'&&<div className="a05-electricity-controls">
        <strong>전압 (부하 전류와 독립인 교육용 입력)</strong><div className="a05-control-buttons">
