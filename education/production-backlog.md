@@ -1,5 +1,5 @@
 # A06 Production Backlog · 2026-10-17
-> 최신 계약: Issue #6. Atlas v1 115개 DAG topic. 콘텐츠 **15 lessons / 63 authored Step** = 기존 12/50 + 14 MOS 4 Step + 16 논리/클록 4 Step, **16·29 A07 review pending; 14 A07 SOURCE PASS / STORY_READY**, 승인된 STORY_READY/SCENE_READY와 다름, 제품 UI·학습자 QA는 별도. 오너의 A01 레슨별 사전 승인 게이트 없음. 앱 코드 A02, scene A05, 원고/교차 QA A06. GitHub 작성만으로 타 에이전트 자동 기동 X.
+> 최신 계약: Issue #6. Atlas v1 115개 DAG topic. 콘텐츠 **15 lessons / 63 authored Step** = 기존 12/50 + 14 MOS 4 Step + 16 논리/클록 4 Step + 29 PCIe/DMA/CXL 5 Step, **16·29 A07 review pending; 14 A07 SOURCE PASS / STORY_READY**, 승인된 STORY_READY/SCENE_READY와 다름, 제품 UI·학습자 QA는 별도. 오너의 A01 레슨별 사전 승인 게이트 없음. 앱 코드 A02, scene A05, 원고/교차 QA A06. GitHub 작성만으로 타 에이전트 자동 기동 X.
 
 ## 상태 전환의 증거 (타 소유자 명의로 임의 완료 금지)
 RESEARCHING (A06 sources/questions, not handoff) → STORY_READY (A06 vetted sources/model limits/3 misconception+hints/Voice/Step spec, **A05 제작 즉시 가능**) → A05_IN_PROGRESS (A05 branch/PR evidence) → SCENE_READY (A05 typed scene plus browser/mobile+CI and science review) → A02_INTEGRATING (A02 app engine/Voice/progress PR) → APP_QA (실제 앱 학습 flow, 접근성/Voice·regression/화면) → COMPLETE (오너 승인된 제공 범위의 최종 QA까지 완료).
@@ -28,7 +28,7 @@ RESEARCHING (A06 sources/questions, not handoff) → STORY_READY (A06 vetted sou
 |---|---|---|---|---|
 | P0 | **14 MOS capacitor accumulation/depletion/inversion** | 11,12 | **STORY_READY / A07 EDU_QA_PASS_SOURCE** 4 Step, [14 story](lessons/14-mos-capacitor-field-inversion.md) / [MIT deep dive](deep-dives/14-mos-capacitor-physics.md) | Minor quasi-static/deep depletion/C–V copy corrected, A05 #4 direct handoff; A05 SCENE_QA/APP_QA WAITING |
 | P0 | 16 combinational/sequential logic/clock | 01,12 | **A06_SELF_QA_DONE / A07_REVIEW_PENDING**, 4-Step [lesson](lessons/16-logic-clock-registers.md) / [MIT·TI deep dive](deep-dives/16-digital-logic-clock-timing.md) | A07 independent BLOCKER/MAJOR resolution→EDU_QA_PASS then A05 handoff, not yet READY |
-| P0 | 29 SerDes PCIe 7.0 PHY/IOMMU | 07/12/17 | RESEARCH_CANDIDATE A06 | bit transfer vs payload security |
+| P0 | **29 PCIe6/7·SerDes·FLIT·DMA/IOMMU·CXL** | 04/07/12/17 | **A06_SELF_QA_DONE / A07_SOURCE_REVIEW_PENDING**, 5-Step [lesson](lessons/29-serdes-pcie-dma-cxl.md), [senior Linux/PCI-SIG/CXL ledger](deep-dives/29-serdes-pcie-cxl-dma.md); shared [LESSON-PIPELINE #37](https://github.com/Junebooky/interactive-engineering/issues/37) | wait A07 source pass, fix MAJOR, only then A05 5-scene handoff |
 | P0 | 31 PSU/VRM/SiC·GaN/air·liquid CDU | 06/11/12 | RESEARCH_CANDIDATE A06 | P=VI, conversion loss/thermal/SLA |
 | P0 | 32 E2E capstone/SLO/RTO | 10/31 | RESEARCH_CANDIDATE A06 | failure/measurement end-to-end |
 | P1 | 13 GB/GiB/GT/s vs MT/s | 12 | RESEARCH_CANDIDATE A06 | units/encoding worksheet |
@@ -52,7 +52,7 @@ RESEARCHING (A06 sources/questions, not handoff) → STORY_READY (A06 vetted sou
 - A07 Issue #12 및 [A07 PR #14 Round02](https://github.com/Junebooky/interactive-engineering/pull/14) 보고 수신인은 A06 Issue #6, A01 승인/별도 보고 없음. A06는 **11/12 pre-prediction Voice spoilers 및 G03 assessment**, [Atlas ID crosswalk](id-namespace-crosswalk.md) 수정. 각각 변경 SHA를 A07에게 보내 **source 재검증/EDU_QA_PASS**를 요청. A07 review 실행은 **A07 본인의 활성 세션**에서 진행; 댓글 작성으로 에이전트가 자동 시작하지 않는다.
 - **G03 시각 구현의 A05 브라우저 패스**는 물리/수치의 일부 증거이나 학생이 오답 카드를 실제 넣어보지 못하는 평가 **MAJOR**가 독립 A07 소스 QA에 존재. `A05_SCENE_READY` 단독 선언을 교육 QA와 구별한다.
 - **D02 A05 #10** cell0=0.45/cell1=0.55 교정 및 7건 브라우저 evidence 확인. 예전 '미교정 0.55 고정' 블로커는 **닫힘**. **A02 PR #11 최신 head e0dfe83은 WL/BL→writeCell·history 어댑터를 실제 추가했고 [A02 PR #11 보고](https://github.com/Junebooky/interactive-engineering/pull/11#issuecomment-6232772631)는 통합 Chromium QA 통과를 기록.** A07의 이전 BLOCKER는 이전 head a3656e/25a090d 소스 기준이므로 **FIX_REPORTED / A07_RECHECK_PENDING**으로 강등하고, 현재 adapter의 `phase=shared→restored`가 `sensed`를 거치지 않아도 복원 evidence를 추가할 수 있는 **순서 생략 위험**과 `refresh`를 leak보다 먼저 눌러도 history 조건을 충족할 가능성을 별도 negative-case로 검토 요청. A06는 앱 실행·독립 브라우저 재검증을 하지 않음.
-- **14 MOS capacitor 원고 4 Step/정량 QA만 완료**; 신규 후속 선정 완료하지만 A07 EDU_QA_PENDING. 마스터 15레슨·63 Step은 집필량, A05 제작 가능 판정은 아님.
+- **14 MOS capacitor 원고 4 Step 독립 A07 SOURCE_PASS**, 준평형/deep-depletion와 C–V label MINOR 수정 후 **A05 직접 인계** [Issue #28](https://github.com/Junebooky/interactive-engineering/issues/28#issuecomment-6233311459). 마스터 15레슨·63 Step은 집필량, A05 제작 가능 판정은 아님.
 
 ## A05 권장 제작 순서
 (1) 다른 진행 중인 업무·A02 D02 blocker 원인과 독립 가능한 **12 회로/11 PN**은 A07 중립 문구/선수 교정 재검증 후 A05 제작. (2) 14 MOS는 A07 PASS 후 01 앞에 연결. (3) G03 PR #15 현재 코드에 독립 DDR/GDDR/HBM 카드·위치 평가 및 같은 분야 숫자 오답 테스트 추가, 원고 수정 SHA 수신. (4) 이후 기존 04 NAND/06 제조·패키징으로 파이프라인 지속. **A06 16 논리·클록 4 Step self QA pending A07; 29 SerDes/PCIe/CXL 5-Step authored and A07 review pending** (14 독립 QA 대기 중에도 병렬 연구 가능). main 병합·배포 금지.
@@ -62,3 +62,8 @@ RESEARCHING (A06 sources/questions, not handoff) → STORY_READY (A06 vetted sou
 - **12 A05 #18** independent standalone browser 7 PASS; compare newest A06 neutral pre-TTS SHA and physical SVG directions before EDU_QA_PASS, A02 app integration separate.
 - **05 A07 Round03 SRAM** source blockers explicitly registered; browser 7 PASS ≠ targeted SRAM retention negative-case PASS. A05 owns code, A06 author content after A07 review cycle. **04 NAND** copy feedback MAJOR tracked, physics violation not reported.
 - Next independent topic 29 SerDes/PCIe/NVMe/CXL boundary (01→16 is now filled in drafts); A06 to research while A07 continues review. No merge/deploy.
+
+## A06 Issue #21 공통 현황판 순서 (Round07)
+- **A06→A07 recheck:** [11 PN #26](https://github.com/Junebooky/interactive-engineering/issues/26), blob `3ce28160`; [12 RC #27](https://github.com/Junebooky/interactive-engineering/issues/27), blob `7f1a319`. All learner neutral `predictionPrompt` distinct from gated `teacherExpectedAnswer`. No independent A07 pass on new SHA yet.
+- **A06→A05 ready:** [14 MOS #28](https://github.com/Junebooky/interactive-engineering/issues/28), source A07 SOURCE_PASS, minor-revised `d356f8ae`; scene not yet created, direct A05 handoff. **A06→A07 first review:** [29 PCIe/CXL #37](https://github.com/Junebooky/interactive-engineering/issues/37), 5 steps at blob `4b4619b8` and senior source `80faa7f1`, no 2.5D produced. 16 clock [#29](https://github.com/Junebooky/interactive-engineering/issues/29) remains A07 review pending. 
+- [Common board #21](https://github.com/Junebooky/interactive-engineering/issues/21) lists 15 lesson cards; GitHub title NEXT status tracks stage/owner, and product release remains HOLD. No main merge/deploy.
