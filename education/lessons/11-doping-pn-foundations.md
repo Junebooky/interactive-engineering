@@ -10,10 +10,11 @@
 - **priorKnowledge:** P01 전하/전자; '에너지'는 흘러가는 입자 자체가 아님
 - **storyHook:** 실리콘은 금속도 절연체도 아니라는데, 스위치는 어떻게 될까요?
 - **question:** ‘전자에게 허용된 에너지 자리’ 사이의 틈을 움직이면 전하 이동 가능성이 달라질까요?
-- **prediction (before revealing):** 금속처럼 겹친 bands / 작은 gap / 큰 gap 중 상온 전자가 전도 대역에 도달하기 쉬운 구조 고르기
+- **predictionPrompt (learner-visible only):** 금속처럼 에너지 상태가 이어진 경우/작은 밴드갭/큰 밴드갭 중 상온에서 이동 가능한 캐리어가 생기기 쉬운 경우를 골라 보세요.
 - **learnerAction:** 에너지 밴드 EC-EV toy slider: overlap, ~1.1eV Si example, large gap 5eV illustrative; 열/빛으로 e−/hole pair 생성 애니메이션 토글
 - **modelInputs:** bandgapMode=overlap/Si-like/large; lightOff/on; temperature=qualitative room/warm (no quantitative carrier model)
 - **expectedObservation:** 금속은 전하 이동 상태가 많음; 반도체는 유한 gap, 열/빛·도핑에 따라 mobile carriers를 만들 수 있음; hole은 전자 빈자리의 집단적 표현
+- **teacherExpectedAnswer (gated; never pre-prediction/aria/Voice):** 금속처럼 겹친 bands / 작은 gap / 큰 gap 중 상온 전자가 전도 대역에 도달하기 쉬운 구조 고르기
 - **displayText (한두 문장):** 이 그림의 빈 공간은 진짜 구멍일까요?
 - **speechText (자연스러운 존댓말):** 금속, 실리콘, 절연체를 나란히 놓고 온도와 빛을 바꿔보세요. 왜 다른 결과가 날까요?
 
@@ -40,10 +41,11 @@
 - **priorKnowledge:** 11-S01, 전자 음전하/정공 양 유효전하
 - **storyHook:** 실리콘에 다른 원자를 조금 섞었는데, 전기가 더 잘 통할 수 있을까요?
 - **question:** 실리콘 원자 4가 전자 대신 5가 원자·3가 원자를 넣으면 뭐가 달라질까요?
-- **prediction (before revealing):** donor(P 같은 5가)는 electron majority, acceptor(B 같은 3가)는 hole majority 중 예상
+- **predictionPrompt (learner-visible only):** 5가 원자를 섞은 경우와 3가 원자를 섞은 경우, 각각 움직이는 전자·정공 가운데 누가 다수일지 고르고 그 이유를 말해 보세요.
 - **learnerAction:** 실리콘 격자 10칸 toy에서 donor/acceptor 한 개 선택, 움직이는 전자/정공과 고정된 이온 라벨 따로 띄우기. minority carrier도 보조점 1개.
 - **modelInputs:** dopant neutral/donor/acceptor; latticeCells=10 icon-only (not concentration); temp qualitative 300K
 - **expectedObservation:** donor 도핑→n형 전자 다수, acceptor→p형 정공 다수. bulk 전체가 크게 충전된 덩어리인 것은 아니며 고정 이온·모바일 캐리어가 총전하를 보완
+- **teacherExpectedAnswer (gated; never pre-prediction/aria/Voice):** donor(P 같은 5가)는 electron majority, acceptor(B 같은 3가)는 hole majority 중 예상
 - **displayText (한두 문장):** 불순물 하나로 움직일 전하가 어떻게 바뀔까요?
 - **speechText (자연스러운 존댓말):** 실리콘에 원자 카드 하나를 넣어 보세요. 이동 가능한 전자와 정공 중 무엇이 더 많아질지 먼저 골라요.
 
@@ -70,10 +72,11 @@
 - **priorKnowledge:** 11-S02, 농도 높은 쪽→낮은 쪽 확산, 전계의 힘
 - **storyHook:** n형·p형을 붙였어요. 전자가 퍼지기 시작했는데 왜 끝없이 흐르지 않을까요?
 - **question:** 농도 차이로 움직이는 확산과 전기장 때문에 반대로 움직이는 drift는 언제 균형을 이룰까요?
-- **prediction (before revealing):** n→p 전자 확산과 p→n 정공 확산 뒤 공핍층 전계 방향 n(+)→p(−), 순 DC 전류는 0일까요?
+- **predictionPrompt (learner-visible only):** 접합 직후 n쪽·p쪽에 남는 고정 이온의 부호, 내부 전기장 화살표 및 시간이 충분히 흐른 뒤 순 전류를 각각 예상해 보세요.
 - **learnerAction:** n/p 두 블록 연결, carrier arrows diffusion→이온 고정→E field n→p 화살표→균형; drift/diffusion 전류 막대 1 vs 1 balanced toy + net=0
 - **modelInputs:** junction separated/connected; normalized diffusionCurrent=1 and driftCurrent=-1 at equilibrium, no external bias
 - **expectedObservation:** 접합 주변 이동 carrier 밀도 감소, p쪽 음 acceptor 이온/n쪽 양 donor 이온 형성, built-in E field; 평형시 drift+diffusion의 net 0 despite moving carriers
+- **teacherExpectedAnswer (gated; never pre-prediction/aria/Voice):** n→p 전자 확산과 p→n 정공 확산 뒤 공핍층 전계 방향 n(+)→p(−), 순 DC 전류는 0일까요?
 - **displayText (한두 문장):** 붙인 직후의 움직임은 언제까지 이어질까요?
 - **speechText (자연스러운 존댓말):** n형과 p형을 만나게 해 볼까요? 전하가 움직이면 접합 주변에 무엇이 남을지 먼저 예상해 보세요.
 
@@ -100,10 +103,11 @@
 - **priorKnowledge:** 11-S03, W=length·V=potential·sqrt/ln
 - **storyHook:** 같은 PN 접합인데 배터리 방향만 바꿨더니 벽이 얇아졌다 두꺼워져요.
 - **question:** p단자+ / n단자−(forward)와 반대(reverse)일 때 공핍폭은 각각 어떻게 달라질까요?
-- **prediction (before revealing):** toy Va=-1/0/+0.2 V에서 W reverse > W0 > Wforward 순서 맞히기
+- **predictionPrompt (learner-visible only):** V_A=−1/0/+0.2 V 세 조건의 공핍층 폭을 큰 것부터 작은 것 순서로 직접 배열해 보세요.
 - **learnerAction:** signed Va slider -1→+0.2V, dopant Na Nd 각각 1e16 cm^-3 toy (senior unlock 1e17 for one side), 장벽 Vbi-Va와 xp/xn/W 숫자 표시, 0V 때 균형 표시
 - **modelInputs:** Si 300K; NA=ND=1e16cm^-3, ni=1e10cm^-3, epsSi=1.0359e-12F/cm, kT/q=25.852mV; Va=-1/0/+0.2 V. Advanced unequal-doping switch requires Vbi recalculation
 - **expectedObservation:** Vbi≈0.7143V toy; W(-1V)≈0.6659µm, W(0)≈0.4298µm, W(+0.2)≈0.3647µm. Symmetric x_n=x_p=W/2. Reverse widens, forward narrows
+- **teacherExpectedAnswer (gated; never pre-prediction/aria/Voice):** toy Va=-1/0/+0.2 V에서 W reverse > W0 > Wforward 순서 맞히기
 - **displayText (한두 문장):** 배터리 극성을 바꾸면 공핍층이 어떻게 될까요?
 - **speechText (자연스러운 존댓말):** p와 n 양쪽에 전압을 반대로 걸어 보세요. 어느 쪽에서 공핍층이 더 넓어질지 먼저 선택해 주세요.
 
@@ -130,10 +134,11 @@
 - **priorKnowledge:** 11-S04 + 옴의 법칙 기초
 - **storyHook:** 전류가 직선으로 커질 줄 알았는데, 다이오드는 곡선으로 휘어요.
 - **question:** 순방향 0.3V에서 0.4V로 조금 올리면 다이오드 전류가 얼마쯤 변할까요? 0.7V 미만에는 정말 0일까요?
-- **prediction (before revealing):** toy Is=1pA, ideality n=2, T=300K: at +0.3V ~0.330nA, +0.4V ~2.289nA, reverse −1V ≈−1pA 예상
+- **predictionPrompt (learner-visible only):** V_A=−1/0/+0.3/+0.4 V에서 전류의 부호와 +0.3→+0.4 V 변화량을 수치/곡선으로 먼저 예측해 보세요.
 - **learnerAction:** I-V log graph와 선형 resistor 1kΩ 비교, signed V=-1/0/0.3/0.4, leakage & breakdown caution. 마지막 PN diode vs MOS insulated gate circuit 카드 골라 P/N source/drain body diode와 field-effect path 구분
 - **modelInputs:** Is=1pA, n=2 toy, VT=25.852mV, temperature=300K, R=1kΩ comparison, bias -1/0/0.3/0.4
 - **expectedObservation:** Shockley toy I0=0, I(0.3)≈0.330nA, I(0.4)≈2.289nA, reverse≈−1pA (magnitude). 0.7V hard threshold 부정; pn junction injected current differs MOS insulated-gate field control
+- **teacherExpectedAnswer (gated; never pre-prediction/aria/Voice):** toy Is=1pA, ideality n=2, T=300K: at +0.3V ~0.330nA, +0.4V ~2.289nA, reverse −1V ≈−1pA 예상
 - **displayText (한두 문장):** 0.3V와 0.4V, 전류가 얼마나 달라질까요?
 - **speechText (자연스러운 존댓말):** 전압을 조금 올리면 다이오드 전류는 비슷하게 늘까요, 갑자기 늘까요? 두 값을 먼저 예상해 주세요.
 
@@ -185,3 +190,8 @@ More formula limits/source confidence: [11 deep dive](../deep-dives/11-pn-founda
 | pn-diode-current-to-mos | 0.3V와 0.4V에서 전류가 연속적으로 달라져요 | 교육용 쇼클리 모델에서 0.3볼트는 약 0.330나노암페어, 0.4볼트는 약 2.289나노암페어예요. '0.7볼트에서 갑자기 켜지는 완전 스위치'는 아니에요. |
 **Visibility:** predictionSubmitted=false 이면 위 post text/숫자 표·readout/Voice/aria 모두 숨김. prediction 후 학습자가 실제 변수를 조작·관찰한 상태에만 대응 post voice 활성화. 출처와 toy 배지는 항상 보이나 결론을 예고하지 않음.
 **11-S04 수학 선수:** `sqrt`는 '제곱해서 원래 수가 되는 값', `ln`은 심화 펼치기 전 설명카드. 초보 정량 QA는 공핍폭 길이 순서와 µm 단위; 연산식 전개는 선택 심화. 확률/p99은 12에서 가르치지 않으므로 후속 13 수학·단위 미니 브리지에 이관.
+
+## A07 Round 04 SOURCE MAJOR 교정 — predictionPrompt vs teacherExpectedAnswer (2026-10-17)
+- A07 review [Round04](https://github.com/Junebooky/interactive-engineering/blob/docs/a07-edu-qa-round-01/education/round-04-a06-retest-mos14.md) identified that even after display/Voice were made neutral, `prediction` was carrying a teacher key. This update turns all 5 cases into **neutral learner-visible `predictionPrompt`** plus separate **`teacherExpectedAnswer`** after the `expectedObservation` for author-only grading. **Never render** teacherExpectedAnswer, expectedObservation, correctIncorrectCriteria, post-observation text, or full misconception feedback in student UI/aria/Voice before saved prediction and actual manipulation.
+- `predictionPrompt` alone is safe to expose before action, hints appear only on learner request, and even correct numeric alternatives should not be styled or sorted as a solution. Store answer as teacher-only script/data, never pass as pre-reveal lesson props. A05 and A02 existing scenes/engine need code-level copy comparison and negative-case UI/TTS evidence; this source fix does **not** imply browser pass.
+- **STATE:** A06 canonical fix awaiting A07 independent SOURCE_RECHECK on updated blob. A05 scene changes and A02 integration are separate.
