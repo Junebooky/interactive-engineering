@@ -76,6 +76,10 @@ try{
   await p.getByRole('button',{name:'GC · 무효 블록 지우기'}).click();
   if(!((await p.getByTestId('nand04-transaction-result').innerText()).includes('NO_VALID_NEW_PAGE')))throw Error('stale GC after RESET improperly accepted');
   await p.screenshot({path:out+'/03b-page-reset-removes-stale-evidence.png',fullPage:true});
+  await p.locator('.a05-box').last().locator('.a05-choice-set button').first().click();
+  await p.getByRole('button',{name:'실험/이유 조건 검증'}).click();
+  if(await p.getByText('NAND부터 AI까지 원리를 발견했어요!').count())throw Error('post-reset correct concept alone falsely passes GC causal test');
+  await p.screenshot({path:out+'/03c-reset-correct-concept-still-fails.png',fullPage:true});
   await p.getByRole('button',{name:'초기 A 저장'}).click();
   await p.getByRole('button',{name:'같은 LBA 수정 B'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('B1:P0 / B')))throw Error('in place overwrite error');
@@ -115,6 +119,10 @@ try{
   await p.getByRole('button',{name:'DDR → GPU 별도 이동'}).click();
   if(!((await p.getByTestId('nand04-transaction-result').innerText()).includes('DATA_NOT_READY')))throw Error('post-reset stale data prematurely ready');
   await p.screenshot({path:out+'/06c-dma-reset-gpu-blocked.png',fullPage:true});
+  await p.locator('.a05-box').last().locator('.a05-choice-set button').first().click();
+  await p.getByRole('button',{name:'실험/이유 조건 검증'}).click();
+  if(await p.getByText('NAND부터 AI까지 원리를 발견했어요!').count())throw Error('post-reset correct concept falsely passes read/DMA causal sequence');
+  await p.screenshot({path:out+'/06d-reset-correct-concept-still-fails.png',fullPage:true});
   await p.getByRole('button',{name:'NVMe READ 명령'}).click();
   let x=await p.locator('.a05-readouts').innerText();
   if(!x.includes('command')||!x.includes('Host software'))throw Error('NVMe request should originate at Host');
