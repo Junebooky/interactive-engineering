@@ -1,9 +1,129 @@
-.a05-electricity-lab{background:radial-gradient(ellipse at 85% 0%,#20576b 0,#102b3e 45%,#071725 100%)}.a05-electricity-controls{display:grid;gap:12px}
-.a05-electricity-controls strong{font-size:.89rem;color:#b3ffe8}
-.a05-electricity-controls input[type=range]{width:100%;accent-color:#7cead0;min-height:44px}
-.a05-electricity-controls label{color:#d9f7ef}
-.a05-electricity-visual svg{width:100%;display:block}
-.a05-electricity-lab button:focus-visible{outline:3px solid #ffe0a8;outline-offset:3px}
-.a05-electricity-voice-status,.a05-electricity-transcript{background:#133349;color:#e2fffa;padding:12px 20px;margin:0;font:inherit}
-@media(max-width:510px){.a05-electricity-lab .a05-control-buttons{grid-template-columns:1fr}.a05-electricity-lab .a05-readouts{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(prefers-reduced-motion:reduce){.a05-electricity-lab *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* A03 P0 visual authority (Issue #65): sourced from design/UI-AUTHORITY-LESSON12-P0.md.
+   A05 physics state remains independent of presentation. A02 owns official LessonPlayer FSM. */
+:root{
+  --ie-app-bg:#F5F7F7;--ie-surface:#FFFFFF;--ie-lab-bg:#102333;
+  --ie-text-primary:#152431;--ie-text-muted:#65757C;--ie-primary:#087C6D;
+  --ie-accent-cyan:#568FAA;--ie-accent-teal:#7CE7D5;--ie-accent-amber:#F3C36C;
+  --ie-discovery-surface:#F2F4F6;--ie-border-muted:#E6EBEB;
+  --ie-scene-ink:#F1FCFD;--ie-scene-muted:#C6E1E6;--ie-scene-wire:#8FC9DC;
+  --ie-material-shadow:#071924;--ie-material-front:#203E51;--ie-material-side:#142D3D;
+  --ie-material-edge:#668E9F;--ie-lab-ground:#193244;
+}
+.a05-electricity-lab{
+  --a05-mint:var(--ie-primary);--a05-text:var(--ie-text-primary);
+  --a05-muted:var(--ie-text-muted);--a05-border:var(--ie-border-muted);
+  background:var(--ie-app-bg);color:var(--ie-text-primary)
+}
+.a05-electricity-lab .a05-head h1,.a05-electricity-lab .a05-copy h2{
+  color:var(--ie-text-primary)
+}
+.a05-electricity-lab .a05-head p:not(.a05-eyebrow),
+.a05-electricity-lab .a05-hook,.a05-electricity-lab .a05-question{
+  color:var(--ie-text-primary)
+}
+.a05-electricity-lab .a05-eyebrow{color:var(--ie-primary)}
+.a05-electricity-lab .a05-stepnav button{
+  background:var(--ie-surface);color:var(--ie-text-primary);
+  border:1px solid var(--ie-border-muted)
+}
+.a05-electricity-lab .a05-stepnav button.active{
+  background:var(--ie-primary);color:var(--ie-surface);border-color:var(--ie-primary)
+}
+.a05-electricity-lab .a05-box,.a05-electricity-lab .a05-hint,
+.a05-electricity-lab .a05-result,.a05-electricity-lab .a05-why{
+  background:var(--ie-surface);border:1px solid var(--ie-border-muted);
+  box-shadow:0 4px 16px #1023330c;color:var(--ie-text-primary)
+}
+.a05-electricity-lab .a05-box p,.a05-electricity-lab .a05-result p,
+.a05-electricity-lab .a05-why p{color:var(--ie-text-primary)}
+.a05-electricity-lab .a05-copy .a05-choice-set button,
+.a05-electricity-lab .a05-tools button,.a05-electricity-lab .a05-result button{
+  min-height:44px;background:var(--ie-discovery-surface);color:var(--ie-text-primary);
+  border:1px solid var(--ie-border-muted)
+}
+.a05-electricity-lab .a05-copy .a05-choice-set button.selected{
+  border:2px solid var(--ie-primary);background:#E4F3EF;color:var(--ie-text-primary)
+}
+.a05-electricity-lab .a05-primary{
+  background:var(--ie-primary);color:var(--ie-surface);border:0;box-shadow:none
+}
+.a05-electricity-lab .a05-note{color:var(--ie-text-muted)!important}
+.a05-electricity-lab .a05-canvas-col{
+  background:var(--ie-lab-bg);border:1px solid var(--ie-material-edge);
+  box-shadow:0 10px 30px #10233320;color:var(--ie-scene-ink)
+}
+.a05-electricity-lab .a05-canvas-header{color:var(--ie-accent-teal)}
+.a05-electricity-lab .a05-visual{
+  background:var(--ie-lab-bg);border:0;padding:0
+}
+.a05-electricity-visual svg{display:block;width:100%;height:auto}
+.a05-electricity-lab .a05-readouts span{
+  background:var(--ie-lab-ground);border:1px solid var(--ie-material-edge);
+  color:var(--ie-scene-muted)
+}
+.a05-electricity-lab .a05-readouts b{color:var(--ie-scene-ink)}
+.a05-electricity-lab .a05-model-limit{color:var(--ie-scene-muted)}
+.a05-electricity-lab .a05-model-limit strong{color:var(--ie-accent-teal)}
+.a05-electricity-lab .a05-source{color:var(--ie-scene-muted)}
+.a05-electricity-lab .a05-veiled{
+  background:var(--ie-lab-bg);color:var(--ie-scene-muted);
+  border:1px solid var(--ie-material-edge);min-height:360px
+}
+.a05-electricity-lab .a05-veiled-object{
+  background:var(--ie-material-front);border-color:var(--ie-accent-teal);
+  box-shadow:15px 12px var(--ie-material-side),17px 14px 0 1px var(--ie-material-edge)
+}
+.a05-electricity-lab .a05-veiled-object span{
+  background:var(--ie-accent-teal)
+}
+.a05-experiment-dock{
+  margin:12px 5px 7px;padding:14px 16px;
+  border-top:1px solid var(--ie-material-edge);background:var(--ie-lab-bg);
+  color:var(--ie-scene-ink)
+}
+.a05-experiment-dock h3{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+  color:var(--ie-scene-ink);font-size:1rem;margin:0 0 7px
+}
+.a05-experiment-dock h3 span{font-size:.75rem;color:var(--ie-scene-muted);font-weight:500}
+.a05-dock-instruction{font-size:.85rem;color:var(--ie-scene-muted);line-height:1.5;margin:0 0 13px}
+.a05-electricity-controls{display:grid;gap:12px}
+.a05-experiment-dock .a05-electricity-controls strong{
+  font-size:.88rem;color:var(--ie-scene-ink)
+}
+.a05-electricity-controls input[type=range]{
+  width:100%;accent-color:var(--ie-primary);min-height:44px
+}
+.a05-experiment-dock .a05-electricity-controls label{color:var(--ie-scene-ink)}
+.a05-electricity-lab .a05-experiment-dock .a05-control-buttons button,
+.a05-electricity-lab .a05-experiment-dock .a05-reset-action{
+  min-height:44px;background:var(--ie-lab-ground);color:var(--ie-scene-ink);
+  border:1px solid var(--ie-material-edge);border-radius:8px;
+  padding:10px 12px;font:inherit;font-weight:650;cursor:pointer
+}
+.a05-electricity-lab .a05-experiment-dock .a05-control-buttons button[aria-pressed=true]{
+  background:var(--ie-primary);color:var(--ie-surface);border-color:var(--ie-accent-teal)
+}
+.a05-electricity-lab .a05-experiment-dock .a05-note{color:var(--ie-scene-muted)!important}
+.a05-electricity-lab button:focus-visible,.a05-electricity-lab input:focus-visible{
+  outline:3px solid var(--ie-accent-amber);outline-offset:3px
+}
+.a05-electricity-voice-status,.a05-electricity-transcript{
+  background:var(--ie-surface);color:var(--ie-text-primary);
+  border-bottom:1px solid var(--ie-border-muted);padding:12px 20px;margin:0;font:inherit
+}
+.a05-electricity-lab .a05-result strong{color:var(--ie-primary)}
+.a05-electricity-lab .a05-next{color:var(--ie-primary)!important}
+.a05-electricity-lab .a05-hint p{color:var(--ie-text-primary)}
+@media(max-width:510px){
+ .a05-electricity-lab .a05-control-buttons{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .a05-electricity-lab .a05-readouts{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .a05-experiment-dock{padding:10px 6px;margin:9px 2px}
+ .a05-electricity-lab .a05-canvas-col{padding:8px}
+}
+@media(max-width:350px){
+ .a05-electricity-lab .a05-experiment-dock .a05-control-buttons{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ .a05-electricity-lab *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
