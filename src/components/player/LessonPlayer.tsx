@@ -20,6 +20,8 @@ import { PnSceneVisual, type PnVisualState } from '../../a05/pn/PnSceneVisual';
 import type { BandMaterial, BiasV, DiodeBiasV, Dopant, GateComparison, JunctionPhase, PnSceneId } from '../../a05/pn/pnModel';
 import { Mos14SceneVisual } from '../../a05/mos14/Mos14SceneVisual';
 import type { Mos14Bias, Mos14Device, Mos14Oxide, Mos14Phase, Mos14SceneId, Mos14State, Mos14Vds } from '../../a05/mos14/mos14Model';
+import { Nand04SceneVisual } from '../../a05/nand04/Nand04SceneVisual';
+import type { Nand04SceneId, Nand04State } from '../../a05/nand04/nand04Model';
 import type { A05Values } from '../../a05/scenePhysics';
 import '../../a05/dram/dramScenes.css';
 import '../../a05/sram/sramScenes.css';
@@ -27,6 +29,7 @@ import '../../a05/gpu/gpuScenes.css';
 import '../../a05/electricity/electricityScenes.css';
 import '../../a05/pn/pnScenes.css';
 import '../../a05/mos14/mos14.css';
+import '../../a05/nand04/nand04.css';
 import '../../a05/a05Scenes.css';
 import { BookOpen, Sparkles } from 'lucide-react';
 
@@ -305,6 +308,38 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
           <Mos14SceneVisual
             sceneId={sceneId}
             state={mos14State}
+            revealed={showObservation}
+          />
+        );
+      }
+
+      case 'nand-threshold':
+      case 'nand-page-block':
+      case 'ssd-ftl-reliability':
+      case 'nvme-transfer':
+      case 'ai-datacenter-pipeline': {
+        const nand04State: Nand04State = {
+          cell: (currentParams.cell ?? 'low') as any,
+          readV: (currentParams.readV !== undefined ? Number(currentParams.readV) : 1) as any,
+          power: (currentParams.power ?? 'on') as any,
+          pageStage: (currentParams.pageStage ?? 'initial') as any,
+          writePattern: (currentParams.writePattern ?? 'cold') as any,
+          ecc: Boolean(currentParams.ecc ?? false),
+          plp: Boolean(currentParams.plp ?? false),
+          dramCache: Boolean(currentParams.dramCache ?? false),
+          transport: (currentParams.transport ?? 'command') as any,
+          ai: (currentParams.ai ?? 'cold-load') as any,
+          servers: (currentParams.servers !== undefined ? Number(currentParams.servers) : 1) as any,
+        };
+        const hasPredictionCtrl = currentStep.controls?.some((c) => c.id === 'prediction');
+        const showObservation =
+          !hasPredictionCtrl ||
+          (currentParams.prediction !== undefined && currentParams.prediction !== null);
+
+        return (
+          <Nand04SceneVisual
+            sceneId={currentStep.simulatorType as Nand04SceneId}
+            state={nand04State}
             revealed={showObservation}
           />
         );
