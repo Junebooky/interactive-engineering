@@ -9,7 +9,7 @@
 ## 15-S01 · planar-finfet-gaa-field · 채널을 감싸면 게이트가 세 개가 되는 걸까요?
 ### ① 먼저 예상하고 조작하기
 - **sceneId:** planar-finfet-gaa-field
-- **learningGoal:** undefined
+- **learningGoal:** Planar(윗면)·FinFET(윗면+측면 둘)·GAA(전면 포위)를 비교하고 하나의 게이트 전극과 여러 제어 면을 구분하며, 전류·누설 절대 배수 주장을 물리적 PVT 반례로 기각한다.
 - **priorKnowledge:** 11,14,01
 - **storyHook:** 게이트가 채널을 위에서만 덮을 때와 양옆까지 감쌀 때, 짧은 채널은 어느 쪽이 잘 제어될까요?
 - **question:** 게이트가 채널을 위에서만 덮을 때와 양옆까지 감쌀 때, 짧은 채널은 어느 쪽이 잘 제어될까요?
@@ -40,19 +40,19 @@
 ## 15-S02 · gaa-sheet-width-perimeter · GAA 나노시트를 두 장에서 세 장으로 바꾸면 3배 빨라질까요?
 ### ① 먼저 예상하고 조작하기
 - **sceneId:** gaa-sheet-width-perimeter
-- **learningGoal:** undefined
+- **learningGoal:** 시트 폭·두께·장수를 독립 조작해 P=2(w+t)와 N×P를 계산하고, 계산한 기하학적 비율을 실제 Ion·C·동적 전력 배수와 구별한다.
 - **priorKnowledge:** 15-S01,13
 - **storyHook:** 리본 두 장에서 세 장으로 쌓았는데 전류까지 3배라고 광고할 수 있을까요?
 - **question:** 리본 두 장에서 세 장으로 쌓았는데 전류까지 3배라고 광고할 수 있을까요?
 - **predictionPrompt (learner-only):** 한 시트 폭20nm·두께5nm라면 둘레가 얼마인지, 2장과 3장의 합계 비율이 얼마일지 먼저 고르세요.
 - **displayTextBeforePrediction:** 총 표면 길이와 전류는 같은 물리량일까요?
 - **speechTextBeforePrediction:** 나노시트 두께와 폭을 자로 확인하고 시트 수를 직접 바꿔 보세요.
-- **learnerAction:** Change sheetCount2|3 and width20nm/thickness5nm reference, highlight perimeter2(w+t); compare two independently manipulated N and gateCapacitanceVaries=true|false, keep output current speed unknown instead of pretending P equals speed.
-- **modelInputs:** toy w=20nm t=5nm; perimeterEach=2(w+t)=50nm; sheetCount=2|3, total=100|150nm, ratio150/100=1.5. Assumption same mobility, bias, parasitics for geometric proxy only, NO measured Ion, C, frequency or final gate length.
+- **learnerAction:** Student first predicts total perimeter with `sheetCount=2|3`, then **independently** changes `sheetWidthNm=20|30` and `sheetThicknessNm=5|7`; show four rectangle faces and recalculate derived `perimeterEachNm=2×(w+t)` and `totalPerimeterNm=N×P` after submitted prediction. Base case N2 w20 t5 ⇒100nm and N3⇒150nm; alternative w30 t5 N2⇒140nm N3⇒210nm; alternative w20 t7 N2⇒108nm N3⇒162nm. Toy current and capacitance outputs explicitly `NOT_PROVEN`, **no unimplemented `gateCapacitanceVaries` button**.
+- **modelInputs:** `sheetCount:2|3`, `sheetWidthNm:20|30`, `sheetThicknessNm:5|7` are **real independent typed controls**; `perimeterEachNm=2*(sheetWidthNm+sheetThicknessNm)` and `totalPerimeterNm=sheetCount*perimeterEachNm` derived/read-only. Baseline w20 t5⇒P50 N2=100 N3=150 ratio1.5; w30 t5⇒P70, N2=140 N3=210; w20 t7⇒P54, N2=108 N3=162. `measuredOnCurrent=NOT_PROVEN`, `measuredGateCapacitance=NOT_PROVEN`, `realClockOrEnergyGain=NOT_PROVEN`: actual transport/contact/PVT not modeled.
 ### ② 교사용 답은 조작 뒤 공개
-- **expectedObservation (teacher-only):** Each toy rectangular sheet perimeter50nm; N2→100nm total, N3→150nm total, toy ratio1.5. This is geometric effective interface proxy, not triple current or universally 1.5× actual drive. C/contact/thermal/strain change device performance.
-- **teacherExpectedAnswer (gated):** Each toy rectangular sheet perimeter50nm; N2→100nm total, N3→150nm total, toy ratio1.5. This is geometric effective interface proxy, not triple current or universally 1.5× actual drive. C/contact/thermal/strain change device performance.
-- **correctIncorrectCriteria:** Compute N2/N3 100/150nm and1.5ratio; test width/thickness and reject guaranteed current/energy gain with one physical omitted factor.
+- **expectedObservation (teacher-only):** For baseline width20nm thickness5nm, a sheet perimeter=50nm; 2 sheets=100nm and3=150nm toy geometric ratio1.5. Width30 thickness5→perimeter70nm, N2=140/N3=210; width20 thickness7→perimeter54nm, N2=108/N3=162. Each ratio follows N=3/2 at equal w/t but real Ion, delay, gate C or switching power remain **NOT_PROVEN**.
+- **teacherExpectedAnswer (gated):** Only AFTER two independent real controls and WHY: P=2(w+t), total=N×P; baseline P50 N2=100 N3=150; w30,t5 P70 N2=140 N3=210; w20,t7 P54 N2=108 N3=162nm. All are geometric-only quantities; current and switching energy have no numerical device prediction.
+- **correctIncorrectCriteria:** Grade learner's arithmetic on two distinct manipulated axes (N2→3 and at least width20→30 or thickness5→7), correct baseline/alternate perimeter and 1.5 geometry ratio; require WHY contact/C/strain prevent measured current/energy inference. No arbitrary UI visit or phantom variable gives PASS.
 - **misconceptions:** [m1] 시트가 2장에서3장이 되면 전류는 무조건3배예요. / [m2] 폭20nm짜리 사각 시트의 둘레도20nm예요. / [m3] 시트를 늘려 구동전류가 좋아지면 동적 스위칭 전력은 무조건 작아져요.
 - **hints L1/L2/L3 (on request):** [L1] 네 변을 더해 보세요. / [L2] 2장과3장의 비율은 3/2일까요 3/1일까요? / [L3] 게이트 용량도 추가될 수 있어요.
 - **misconceptionFeedback/m1 (gated):** 두 장에서 세 장이 되면 시트 수의 비는1.5예요. 실제 구동전류도 그 비를 따른다는 보장은 없어요.
@@ -62,7 +62,7 @@
 - **displayTextAfterObservation (gated):** 장난감 표면 길이는 100에서150nm로 늘어도 칩 속도는 계산할 수 없어요.
 - **speechTextAfterObservation (gated):** 두 장과 세 장의 전체 둘레는 각각 백, 백오십 나노미터예요. 전류와 스위칭 에너지는 기생저항과 게이트 용량을 더 확인해야 해요.
 ### ③ 시니어 설계 리뷰 및 부정분기
-- **physicsAssumptions:** toy w=20nm t=5nm; perimeterEach=2(w+t)=50nm; sheetCount=2|3, total=100|150nm, ratio150/100=1.5. Assumption same mobility, bias, parasitics for geometric proxy only, NO measured Ion, C, frequency or final gate length. Full physical parasitics and PVT unmodeled; no commercial speed or wafer yield proof.
+- **physicsAssumptions:** Rectangular geometric teaching cross-section only; w20|30nm t5|7nm N2|3. Derived P and N×P with real typed control; contact, mobility, oxide, workfunction, gate capacitance and thermal unknown, device Ion/power NOT_PROVEN. No SPICE or foundry prediction.
 - **seniorDesignReview:** Quantum confinement, strain and channel stress, contact parasitic, vertical stack spacing and electrostatic vs Ion/capacitance co-optimization.
 - **sourceRefs:** [D1][D2][D3]
 - **negativePathTest:** Test every m1/m2/m3 cause-specific wrong physical answer and a correct-first path. Derived teacher numbers/after voice must not appear in before student DOM/Voice/aria. Passing requires two distinct actual controls + causal WHY, not clicking every card. A05 Chrome/browser/Voice QA only after A07 exact-source PASS.
@@ -71,19 +71,19 @@
 ## 15-S03 · cfet-complementary-stacking · CFET은 HBM처럼 칩을 포개는 걸까요?
 ### ① 먼저 예상하고 조작하기
 - **sceneId:** cfet-complementary-stacking
-- **learningGoal:** undefined
+- **learningGoal:** 수직 n+p 상보 CFET과 n+n·HBM TSV 적층을 구분하고, 콘택트 가용성의 독립 조건 및 이상적 pair 투영면적과 실제 셀 양산 밀도 차이를 평가한다.
 - **priorKnowledge:** 01,06,15-S02
 - **storyHook:** CMOS의 nFET과 pFET을 위아래로 포개면 메모리 적층과 같은 걸까요?
 - **question:** CMOS의 nFET과 pFET을 위아래로 포개면 메모리 적층과 같은 걸까요?
 - **predictionPrompt (learner-only):** 인버터의 n+p와 n+n 조합 중 올바른 걸 고르고, 옆으로2.4 toy면적 vs 수직1.2 toy면적의 의미를 예상해 보세요.
 - **displayTextBeforePrediction:** 어떤 두 소자를 포개야 CMOS가 성립할까요?
 - **speechTextBeforePrediction:** n형과 p형 카드를 위아래에 놓아 보고 두께와 면적을 구분해 봐요.
-- **learnerAction:** Choose n+p|n+n|p+p|HBM-TSV cards and sideBySide|verticalStack placement; independently show contactAvailable=true|false to block product-level density conclusion even for valid n+p; sort imec forksheet research vs commercial status.
-- **modelInputs:** devicePair=n+p|n+n|p+p|HBM stack, projectedSide=2×(1+.2)=2.4 toy area units, idealVertical=1+.2=1.2 toy, ideal pair reduction50%; contacts/routing/overlay/thermal/yield deliberately excluded, so product cell density=UNKNOWN.
+- **learnerAction:** Independently choose `devicePair=n+p|n+n|p+p|HBM-TSV`, `placement=adjacent|vertical` and **real** `contactAvailable=true|false`. Show hypothetical adjacent projection2.4 and vertical n+p projection1.2 toy units as *ungraded geometry evidence* if valid pair; `contactAvailable=false` must emit `INCOMPLETE_CONTACTS` and **cannot pass a functional CFET claim** even if n+p geometry and 1.2 toy projection match. `productDensityGain=NOT_PROVEN` always. Classify imec forksheet/CFET R&D status distinct from commercial HVM.
+- **modelInputs:** Typed `devicePair:'n+p'|'n+n'|'p+p'|'HBM-TSV'`, `placement:'adjacent'|'vertical'`, `contactAvailable:boolean` (independent actual control), `projectedAdjacentAreaToy=2*(1+.2)=2.4`, `projectedVerticalAreaToy=1+.2=1.2`. `pairComplementary=(devicePair==='n+p')`; `state=WRONG_DEVICE_PAIR` unless n+p; `state=INCOMPLETE_CONTACTS` when n+p vertical and !contactAvailable; `state=TOY_CONCEPT_VALID` when n+p vertical and contactAvailable; `productDensityGain=NOT_PROVEN` in ALL states (routing, overlay, heat, yield excluded).
 ### ② 교사용 답은 조작 뒤 공개
-- **expectedObservation (teacher-only):** Only vertical n+p can represent complementary CFET research pair; n+n cannot provide p-type pull-up and HBM TSV stacks distinct memory dies. Hypothetical pair projected footprint2.4→1.2 units=50% toy saving, NOT observed cell/silicon density or commercial CFET 2026 completion.
-- **teacherExpectedAnswer (gated):** Only vertical n+p can represent complementary CFET research pair; n+n cannot provide p-type pull-up and HBM TSV stacks distinct memory dies. Hypothetical pair projected footprint2.4→1.2 units=50% toy saving, NOT observed cell/silicon density or commercial CFET 2026 completion.
-- **correctIncorrectCriteria:** Physically test n+p and n+n or HBM to distinguish function, calculate projected area and explain contacts/manufacturability/source status.
+- **expectedObservation (teacher-only):** n+p vertical with contactAvailable=true is *toy geometry/functional pair concept* with projection1.2 vs adjacent2.4, not measured real cell density; n+n cannot make complementary p pull-up; TSV memory-stack not transistor stack. n+p vertical but `contactAvailable=false` ⇒`INCOMPLETE_CONTACTS` and **no functional or commercial PASS**. Regardless of contact, `productDensityGain=NOT_PROVEN`.
+- **teacherExpectedAnswer (gated):** Complementary CMOS needs nFET+pFET; projected adjacent2.4 vs ideal vertical1.2 only toy pair geometry (50% of projected toy footprint). Functional conceptual gate additionally requires `contactAvailable=true`; otherwise `INCOMPLETE_CONTACTS`. Any actual standard cell density, heat/yield, or universal CFET HVM proof remains `NOT_PROVEN`.
+- **correctIncorrectCriteria:** Student must test n+p vertical contacts true and n+p vertical contacts false PLUS n+n or HBM alternative; treat `INCOMPLETE_CONTACTS` as scientific invalid despite numeric1.2; name physical contact/thermal challenges and research-vs-production. Correct-first allowed after two independent manipulated states+WHY.
 - **misconceptions:** [m1] nFET 두 개를 쌓으면 위쪽이 자동으로 pFET이 돼요. / [m2] CFET은 HBM 메모리 다이를 TSV로 묶는 기술이에요. / [m3] 토이 면적을 절반으로 줄였으면 상용 칩 전체 밀도도 반드시 두 배가 돼요.
 - **hints L1/L2/L3 (on request):** [L1] CMOS pull-up이 무슨 소자였죠? / [L2] 메모리 다이와 트랜지스터는 같은 단위인가요? / [L3] 실제 접점과 배선은 어느 공간을 사용하나요?
 - **misconceptionFeedback/m1 (gated):** nFET+nFET은 pFET pull-up을 만들지 못해요. CFET의 complementary는 n+p 뜻이에요.
@@ -93,7 +93,7 @@
 - **displayTextAfterObservation (gated):** 상보 n+p 수직 CFET은 연구·제조 난제가 남은 소자 아키텍처예요.
 - **speechTextAfterObservation (gated):** CFET은 n형과 p형을 쌓는 설계예요. 면적 가능성과 양산된 칩의 밀도는 다르고, HBM 칩 적층과도 별개죠.
 ### ③ 시니어 설계 리뷰 및 부정분기
-- **physicsAssumptions:** devicePair=n+p|n+n|p+p|HBM stack, projectedSide=2×(1+.2)=2.4 toy area units, idealVertical=1+.2=1.2 toy, ideal pair reduction50%; contacts/routing/overlay/thermal/yield deliberately excluded, so product cell density=UNKNOWN. Full physical parasitics and PVT unmodeled; no commercial speed or wafer yield proof.
+- **physicsAssumptions:** Pair projected toy adjacent2.4 vs ideal vertical1.2 units; pin contacts can be represented by contactAvailable boolean but real access/yield/thermal unmodeled. Geometry cannot prove actual silicon density in ANY state; `productDensityGain=NOT_PROVEN`. Imec forksheet/CFET status research, not broad HVM.
 - **seniorDesignReview:** Forksheet insulating divider and CFET sequential/monolithic integration are research concepts, no universal 2026 HVM; access contacts and self-heating determine full cell area.
 - **sourceRefs:** [D4][D1]
 - **negativePathTest:** Test every m1/m2/m3 cause-specific wrong physical answer and a correct-first path. Derived teacher numbers/after voice must not appear in before student DOM/Voice/aria. Passing requires two distinct actual controls + causal WHY, not clicking every card. A05 Chrome/browser/Voice QA only after A07 exact-source PASS.
@@ -102,7 +102,7 @@
 ## 15-S04 · backside-power-ir-drop · 전원을 칩 뒤로 보내면 데이터센터 전력도 절반일까요?
 ### ① 먼저 예상하고 조작하기
 - **sceneId:** backside-power-ir-drop
-- **learningGoal:** undefined
+- **learningGoal:** FinFET/GAA 채널 구조와 앞·뒤 전력배선을 독립 비교하고 V=IR 및 P=I²R를 계산해 국소 레일 손실을 전체 GPU/시설 전력으로 오해하지 않는다.
 - **priorKnowledge:** 12,31,15-S01
 - **storyHook:** 좁은 칩 앞면 배선 복도에서 전원선을 뒤로 보내면 어떤 값이 실제로 바뀔까요?
 - **question:** 좁은 칩 앞면 배선 복도에서 전원선을 뒤로 보내면 어떤 값이 실제로 바뀔까요?
@@ -133,19 +133,19 @@
 ## 15-S05 · device-ppa-node-energy · 2nm와 36% 전력 절감, 무엇을 확인해야 믿을 수 있나요?
 ### ① 먼저 예상하고 조작하기
 - **sceneId:** device-ppa-node-energy
-- **learningGoal:** undefined
+- **learningGoal:** 동일 활동도·C·f에서 전압 변화의 αCV²f 동적 전력만 계산하고, 누설·타이밍 미확정 상태와 파운드리 세대명·CFET 연구/양산 상태를 구분한다.
 - **priorKnowledge:** 13,31,15-S04
 - **storyHook:** 파운드리 공정 이름은 나노미터, 개선 수치는 퍼센트. 무엇이 실제 측정됐을까요?
 - **question:** 파운드리 공정 이름은 나노미터, 개선 수치는 퍼센트. 무엇이 실제 측정됐을까요?
 - **predictionPrompt (learner-only):** VDD만1.0V에서0.8V로 낮추고 활동도·용량·주파수가 같을 때 **동적 스위칭** 전력의 변화를 예측해 보세요. 총 서버전력도 같은 비율일까요?
 - **displayTextBeforePrediction:** 숫자가 좋아 보여도 무엇의 비율인지 먼저 정할까요?
 - **speechTextBeforePrediction:** 전압을 내리고 변하지 않은 조건과 미측정 조건을 따로 골라봐요. 연구와 제품 출하도 구분해 봐요.
-- **learnerAction:** Change toy VDD=1.0|.8V with α=.2, C1nF, f1GHz; independently toggle 'otherConditionsFixed' vs unknown static current and latency; sort official statuses Samsung SF3 2022 initial HVM, TSMC N2 Q4-2025 HVM, Intel 18A RibbonFET+PowerVia product process, imec forksheet/CFET research. Select node2nm vs measured gateLength=UNKNOWN.
-- **modelInputs:** toy Pdyn=α C V² f; α=.2, C=1e-9 F, f=1e9 Hz, V1→.2W, V.8→.128W, ratio.64 and savings36% of dynamic component only. Ptotal=Pdyn+V×Ileak + unknown overhead, latency throughput energy/task UNKNOWN. Node names not universal transistor gate lengths; official adoption statuses not independent cross-vendor PPA results.
+- **learnerAction:** Student changes `Vdd=1.0|0.8V` then **independently** toggles `scenario='fixedDynamicOnly'|'leakageAndTimingUnknown'` while examining `vendorSourceStatus` cards (Samsung SF3 initial announced 2022, TSMC N2 HVM stated 4Q25, Intel 18A platform manufacturer claims, imec outer-wall forksheet/CFET research). In both scenarios calculate explicitly **conditional** α=.2,C=1nF,f=1GHz dynamic component 0.2→0.128W only *under the stipulated fixed α,C,f*. All `totalChipPowerSaving`, `energyPerTaskGain`, actual frequency and `actualGateLength` stay `NOT_PROVEN`; unknown-leakage scenario MUST reject global 36% marketing claim.
+- **modelInputs:** Typed `Vdd:1.0|0.8`, `scenario:'fixedDynamicOnly'|'leakageAndTimingUnknown'`, `alphaFixed=0.2`, `capacitanceFaradFixed=1e-9`, `frequencyHzFixed=1e9` are explicit classroom assumptions. `PdynamicToy=alpha*C*Vdd^2*f`: at V1.0→0.2W, at .8→0.128W, ratio.64, 36% reduction of **conditional dynamic portion**. If scenario=fixedDynamicOnly, return `DYNAMIC_ONLY_TOY_PASS` on correct arithmetic+scope; if scenario=leakageAndTimingUnknown, return `SYSTEM_GAIN_NOT_PROVEN` for all claims on total/energy/timing (still display conditional dynamic calculation). Always `totalChipPowerSaving=NOT_PROVEN`, `energyPerTaskGain=NOT_PROVEN`, `realFrequencyChange=NOT_PROVEN`, `physicalGateLengthNm=UNKNOWN`. `vendorSourceStatus={samsungSF3:'manufacturer_2022_initial_production',tsmcN2:'manufacturer_2025Q4_HVM_reported',intel18A:'manufacturer_process_claim',imecForksheetCFET:'research_not_universal_HVM'}`; node labels 2nm/18A categorical only.
 ### ② 교사용 답은 조작 뒤 공개
-- **expectedObservation (teacher-only):** Ideal dynamic only decreases .2W→.128W when voltage1→.8 at fixed α,C,f, a36% reduction of that component. Not necessarily 36% whole chip/AI facility energy improvement and not a '2nm' gate physical length guarantee. imec CFET research should not be called mass production.
-- **teacherExpectedAnswer (gated):** Ideal dynamic only decreases .2W→.128W when voltage1→.8 at fixed α,C,f, a36% reduction of that component. Not necessarily 36% whole chip/AI facility energy improvement and not a '2nm' gate physical length guarantee. imec CFET research should not be called mass production.
-- **correctIncorrectCriteria:** Two VDD states and separate leakage/unknown toggle, compute watts and ratio, reject marketing node exact gate-length or research→HVM leap; distinguish power(W) from energy(J/task).
+- **expectedObservation (teacher-only):** Under stipulated α=.2 C1nF f1GHz, voltage 1.0→0.8 produces conditional dynamic 0.2→0.128W, ratio.64, -36% of that component. `scenario=leakageAndTimingUnknown` must show `SYSTEM_GAIN_NOT_PROVEN`: neither total chip power, latency nor task energy can be inferred. Both scenarios `totalChipPowerSaving=NOT_PROVEN` and node 2nm/18A label ≠ literal physical gate length. Vendor statuses must not equate imec research with universal CFET production.
+- **teacherExpectedAnswer (gated):** Math for *toy dynamic part* conditional on fixed α/C/f only: .2W at1V, .128W at.8V, -36%. `fixedDynamicOnly` => DYNAMIC_ONLY_TOY_PASS, not whole-chip; `leakageAndTimingUnknown` => SYSTEM_GAIN_NOT_PROVEN for product total and per-task energy, not false measured benefits. Node name physical gate length UNKNOWN; imec forksheet CFET is research not all-foundry HVM.
+- **correctIncorrectCriteria:** Require two distinct Vdd settings plus actual `scenario` toggle and one real `vendorSourceStatus` research-vs-manufacturer classification; grade dynamic math only as conditional, reject total-chip 36%, physical gate length=2nm, imec research→universal HVM even if learner manipulated controls. Correct-first permitted without deliberate incorrect branch.
 - **misconceptions:** [m1] 2nm 공정이면 모든 실제 트랜지스터 게이트 길이가2nm예요. / [m2] 동적전력36%를 줄이면 서비스·냉각 포함 시설 총 사용전력도 반드시36% 줄어요. / [m3] imec CFET 시뮬레이션 발표는 모든 파운드리의 CFET 양산 완료를 증명해요.
 - **hints L1/L2/L3 (on request):** [L1] 노드명과 실제 gateLength 측정치는 동일할까요? / [L2] 누설과 회로 속도는 이번 토이 수식에 있나요? / [L3] 연구·양산 발표 상태는 다른 종류의 증거예요.
 - **misconceptionFeedback/m1 (gated):** 2nm는 공정 세대 이름이며 모든 물리 길이가 동일한2nm로 측정됐다는 뜻은 아니에요.
@@ -155,7 +155,7 @@
 - **displayTextAfterObservation (gated):** 동적 스위칭 전력만 36% 감소하는 장난감 모형이에요.
 - **speechTextAfterObservation (gated):** 전압을1볼트에서0.8볼트로 낮추면 고정된 다른 조건에서 동적 전력은0.2에서0.128와트로 낮아져요. 총전력과 칩 성능은 따로 실측해야 해요.
 ### ③ 시니어 설계 리뷰 및 부정분기
-- **physicsAssumptions:** toy Pdyn=α C V² f; α=.2, C=1e-9 F, f=1e9 Hz, V1→.2W, V.8→.128W, ratio.64 and savings36% of dynamic component only. Ptotal=Pdyn+V×Ileak + unknown overhead, latency throughput energy/task UNKNOWN. Node names not universal transistor gate lengths; official adoption statuses not independent cross-vendor PPA results. Full physical parasitics and PVT unmodeled; no commercial speed or wafer yield proof.
+- **physicsAssumptions:** α=.2 C1nF f1GHz fixed only for conditional dynamic proxy. Real leakage, target frequency, timing/thermal, task count, PVT and energy total unknown. `scenario` and `vendorSourceStatus` actual typed learner states, totalChipPowerSaving/systemThroughput/energyPerTask all NOT_PROVEN. Brand node not measured gate length.
 - **seniorDesignReview:** Iso-power vs iso-frequency and VDD/TDP PPA baselines, switching vs static energy, DTCO/EDA node portability, manufacturer status timeline and source bias.
 - **sourceRefs:** [D1][D2][D3][D4][D6]
 - **negativePathTest:** Test every m1/m2/m3 cause-specific wrong physical answer and a correct-first path. Derived teacher numbers/after voice must not appear in before student DOM/Voice/aria. Passing requires two distinct actual controls + causal WHY, not clicking every card. A05 Chrome/browser/Voice QA only after A07 exact-source PASS.
@@ -177,3 +177,10 @@
 [D4] imec research forksheet to CFET https://www.imec-int.com/en/articles/outer-wall-forksheet-bridge-nanosheet-and-cfet-device-architectures-logic-technology
 [D5] Intel PowerVia thermal/debug https://www.intel.com/content/www/us/en/newsroom/news/powervia-test-shows-industry-leading-performance.html
 [D6] Toy symbolic idealized circuit/electrostatics relations, not verified foundry product SPICE.
+
+## A06 R20-01–04 corrected causal teaching state contracts (2026-10-17)
+- [A07 original independent R20 audit](https://github.com/Junebooky/interactive-engineering/blob/docs/a07-edu-qa-round-01/education/round-20-lesson15-gaa-cfet-bspdn-first-audit.md) judged all 5 physical/math/model stories and 15 misconception-specific feedback scientifically sound on **older** blob `3cd5fdad`, but MAJOR_OPEN educational control contract. **A06 now corrected** all five literal undefined learningGoal fields to measurable Korean objectives.
+- S02 real independent `sheetCount2|3`, `sheetWidthNm20|30`, `sheetThicknessNm5|7` controls, all derived perimeters, dropped phantom gateCapacitanceVaries toggle. Baseline w20,t5 P50, N2=100,N3=150; alternate w30,t5 P70, N2=140,N3=210; w20,t7 P54, N2=108,N3=162nm; power/current NOT_PROVEN.
+- S03 real independent typed `contactAvailable` and state INCOMPLETE_CONTACTS on n+p vertical when false, irrespective of toy area1.2; productDensityGain NOT_PROVEN for all scenarios.
+- S05 typed `scenario` vs actual manufacturer/research `vendorSourceStatus`; αCV²f dynamic0.2→0.128W under fixed α,C,f remains conditional, both scenarios totalChipPowerSaving=NOT_PROVEN; reject leap from imec research to universal mass production.
+- These changes do not overwrite A07 old-SHA source verdict, and new exact lesson SHA must be re-reviewed. A05 scene/runtime/browser NOT YET authorized.
