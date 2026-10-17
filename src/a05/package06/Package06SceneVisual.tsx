@@ -10,7 +10,7 @@ function Piece({x,y,w=146,h=75,title,sub,tint='#9de8d7'}:{x:number;y:number;w?:n
  <path d={`M${x} ${y}h${w-17}l17 13h-${w}Z`} fill={tint} opacity=".22"/>
  <T x={x+11} y={y+29} size={17}>{title}</T><T x={x+11} y={y+53} size={12} color="#cee8ee">{sub}</T></g>;
 }
-export function Package06SceneVisual({sceneId,state,revealed}:{sceneId:Package06SceneId;state:Package06State;revealed:boolean}){
+export function Package06SceneVisual({sceneId,state,revealed,evidence=[]}:{sceneId:Package06SceneId;state:Package06State;revealed:boolean;evidence?:readonly string[]}){
  const uid=useId().replace(/:/g,'');
  if(!revealed)return <div className="a05-veiled" aria-label="제조 공정·KGD 수율·HBM TSV 경로·열의 정답과 수치는 예측하고 직접 실험 전까지 숨겨져 있습니다">
   <div className="a05-veiled-object" aria-hidden="true"><span/></div><p>먼저 예상한 후 공정·검사·배선·열을 직접 조작해 보세요.</p></div>;
@@ -44,8 +44,8 @@ export function Package06SceneVisual({sceneId,state,revealed}:{sceneId:Package06
     </g>)}
     <Piece x={440} y={151} w={177} title={state.screening==='KGD'?'KGD 4개':'무선별 4개'} sub={'pkg pass '+y.packageSuccess.toFixed(5)} tint="#f5d7a1"/>
     <T x={64} y={292} size={15}>작은 die 개별 Y = {y.individual.toFixed(6)}</T>
-    <T x={64} y={318} size={14}>4개 무선별 동시 양품 Y = {y.fourUnscreened.toFixed(6)}</T>
-    <T x={64} y={340} size={12}>KGD ideal {state.screening==='KGD'?'ON':'OFF'} · Assembly {state.assembly*100}% · 평균 후보 {y.expectedCandidatesForOnePackage.toFixed(3)}개</T>
+    <T x={64} y={318} size={14}>{evidence.includes('none')?'4개 무선별 동시 양품 Y = '+y.fourUnscreened.toFixed(6):'무선별 4개 조립 조건을 아직 관찰하지 않았어요'}</T>
+    <T x={64} y={340} size={12}>KGD {state.screening==='KGD'?'ON':'OFF'} · Assembly {state.assembly*100}% · 후보 {evidence.includes('KGD')?y.expectedCandidatesForOnePackage.toFixed(3)+'개':'선별 후 공개'}</T>
    </>}
    {sceneId==='hbm-tsv-interposer'&&<>
     <T x={55} y={99} size={19} color="#b8fbe6">가상 HBM 제조 연결 ≠ UI 시각화 방식 2.5D</T>
@@ -82,8 +82,8 @@ export function Package06SceneVisual({sceneId,state,revealed}:{sceneId:Package06
     <span>완료 단계<b>{state.fab.length}/6</b></span><span>정합 순서<b>{state.fab.length===6?'수행 완료':'미완성'}</b></span><span>가상 층<b>{state.layers}</b></span><span>결함 마커<b>{state.defect?'ON':'OFF'}</b></span>
    </>:sceneId==='chiplet-yield-model'?<>
     <span>단일100mm²<b>{y.mono}</b></span><span>작은25mm² 1개<b>{y.individual}</b></span>
-    <span>모든 4다이 통과 (무선별)<b>{y.fourUnscreened}</b></span>
-    <span>선택한 package 성공<b>{y.packageSuccess}</b></span><span>KGD 후보 개수 기대치<b>{y.expectedCandidatesForOnePackage}</b></span>
+    <span>모든 4다이 통과 (무선별)<b>{evidence.includes('none')?y.fourUnscreened:'미관찰'}</b></span>
+    <span>선택한 package 성공<b>{evidence.includes(state.screening)?y.packageSuccess:'선택 후 계산'}</b></span><span>KGD 후보 개수 기대치<b>{evidence.includes('KGD')?y.expectedCandidatesForOnePackage:'미관찰'}</b></span>
    </>:sceneId==='hbm-tsv-interposer'?<>
     <span>현재 구조<b>{state.topology}</b></span><span>GPU↔외부 메모리<b>{ic.externalToGpu}</b></span>
     <span>HBM 내부<b>{ic.insideHbm}</b></span><span>인터포저 후보<b>{state.interposer}</b></span>
