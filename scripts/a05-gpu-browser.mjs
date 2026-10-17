@@ -58,7 +58,7 @@ try{
    await page.getByRole('button',{name:'선택한 짝 검사하기'}).click();
    if(!await page.getByText('오답: HBM은',{exact:false}).count())throw Error('S02 independent wrong pairing not visible');
    const assumptionsAfterOne=await page.locator('.a05-model-limit').innerText();
-   if(/GDDR6\\/7 board|DDR\\/RDIMM CPU|HBM package/.test(assumptionsAfterOne))throw Error('S02 other-family answer leaked after first graded HBM match');
+   if(['GDDR6/7 board','DDR/RDIMM CPU','HBM package'].some(secret=>assumptionsAfterOne.includes(secret)))throw Error('S02 other-family answer leaked after first graded HBM match');
    await page.screenshot({path:out+'/04a-wrong-hbm-at-cpu-dimm.png',fullPage:true});
    await page.getByRole('button',{name:'DDR/RDIMM',exact:true}).click();
    await page.getByRole('button',{name:'CPU DIMM',exact:true}).click();
