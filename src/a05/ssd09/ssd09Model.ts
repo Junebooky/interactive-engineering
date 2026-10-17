@@ -82,7 +82,6 @@ export function plpAdvance(old:PlpTrial,action:PlpAction):PlpResult{
   t.flush='completed';t.mediaCommitted=true;t.phase='flush-completed';return result(true,'OK_FLUSH_COMPLETED','Flush COMPLETED (가정한 기기 계약 범위): media commit 완료.');
  }
  if(action==='fua-complete'){
-  if(t.phase==='idle')return result(false,'NO_PENDING_WRITE','먼저 host write가 필요합니다.');
   t.fuaCompleted=true;t.mediaCommitted=true;t.phase='media-committed';
   return result(true,'OK_FUA_COMPLETED','FUA WRITE COMPLETED under declared supported policy; media durable in this toy.');
  }
