@@ -12,9 +12,9 @@ describe('A05 Lesson31 PSU/VRM/PDN/CDU/PUE/WUE independent physics and student c
   expect(a.lossW).not.toBe(10);
  });
  it('buck IDEAL CCM voltage D*12 = 3/4/6; efficiency 90 only separate power/current branch',()=>{
-  expect(power31Buck(.25).vout).toBe(3);expect(power31Buck(1/3).vout).toBe(4);
+  expect(power31Buck(.25).vout).toBe(3);expect(power31Buck(0.3333333333333333).vout).toBe(4);
   expect(power31Buck(.5).vout).toBe(6);
-  const b=power31Buck(1/3,90);
+  const b=power31Buck(0.3333333333333333,90);
   expect(b).toMatchObject({vout:4,pout:40,eta:90});
   expect(b.pin).toBeCloseTo(44.444444,5);expect(b.iin).toBeCloseTo(3.703704,5);
   expect(b.loss).toBeCloseTo(4.444444,5);
