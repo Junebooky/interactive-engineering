@@ -60,9 +60,13 @@
 - **expectedObservation:** 호스트 주소가 같아도 물리 페이지 이동; 컨트롤러가 수명·오류·QoS 관리; 일부 eSSD에는 전원 보호 설계
 - **correctIncorrectCriteria:** 논리/물리 위치 차이와 eSSD의 평가 기준을 설명하면 성공
 - **misconceptions (3 expected mistakes):** ① 모든 eSSD는 반드시 PLP가 있다 ② 모든 SSD는 DRAM 캐시를 내장한다 ③ ECC면 오류 확률 0
-- **hints (level 1/2/3):** ① 같은 논리주소는 꼭 같은 물리 칸일까요? ② DRAM 없는 SSD도 존재할까요? ③ 갑작스러운 정전에 대비하는 설계는 제품마다 같을까요?
+- **hints (level 1/2/3):** ① PLP는 실제 제품 사양을 확인해야 해요. eSSD라는 이름만으로 유무를 알 수 있을까요? ② DRAM 캐시 없이 동작하는 SSD도 있어요. 호스트 메모리 버퍼 등 설계 차이를 찾아봐요. ③ ECC는 오류 가능성을 줄이지만 정정 한계가 있어요. 한계를 넘는 비트 오류는 어떡할까요?
 - **feedback/correct:** “보셨죠? SSD 컨트롤러가 FTL·마모 평준화·GC·ECC를 조정해요. eSSD는 용량만이 아니라 안정적 지연·내구성·전원 장애 대비 같은 목표를 함께 봅니다.”
-- **feedback/incorrect:** “그렇게 생각하기 쉬워요. 같은 논리주소는 꼭 같은 물리 칸일까요? 다시 해볼까요?”
+- **feedback/incorrect (generic):** “어떤 기능이 이 제품에 실제로 있는지 다시 확인해 볼까요?”
+- **misconceptionFeedback/ssd-plp-universal:** “eSSD도 제품마다 달라요. 정전 보호(PLP)는 개별 제품 데이터시트에서 지원 여부와 보호 범위를 확인해야 해요.”
+- **misconceptionFeedback/ssd-dram-universal:** “SSD의 주소 관리에 모든 모델이 전용 DRAM을 요구하지는 않아요. DRAMless 설계·호스트 메모리 활용도 가능해요.”
+- **misconceptionFeedback/ecc-perfect:** “ECC가 오류를 줄여도 복구 불가능한 오류는 남을 수 있어요. 무엇을 어느 수준까지 정정하는지 확인해야 하죠.”
+- **validation branch mapping:** `selectedMisconception` ∈ `ssd-plp-universal | ssd-dram-universal | ecc-perfect`, 각 오답 선택에 해당하는 message만 노출; LBA/FTL 질문은 별도 `ftl-address` 선택지에서만 노출.
 - **feedback/hint:** “바로 답을 보여드리기보다 DRAM 없는 SSD도 존재할까요?”
 - **explanation:** SSD 컨트롤러가 FTL·마모 평준화·GC·ECC를 조정해요. eSSD는 용량만이 아니라 안정적 지연·내구성·전원 장애 대비 같은 목표를 함께 봅니다.
 - **nextHook:** SSD에서 GPU까지 데이터는 어떤 길로 갈까요?
@@ -78,10 +82,10 @@
 - **storyHook:** SSD에 저장된 숫자는 GPU로 어떻게 갈까요?
 - **question:** PCIe와 NVMe는 같은 말일까요?
 - **prediction:** 장치/명령/통로/매체 카드 미리 매칭.
-- **learnerAction:** NVMe read → PCIe transport → SSD controller → NAND → host DDR → GPU 메모리의 대표 경로 조작
+- **learnerAction:** **명령과 데이터 화살표 분리**: (1) NVMe READ command: 호스트 소프트웨어/큐→PCIe→SSD 컨트롤러→NAND 읽기 준비; (2) read payload: NAND→SSD 컨트롤러→PCIe DMA→host DDR; (3) 필요시 host DDR→GPU 메모리로 PCIe/플랫폼별 전송. 다른 DMA/직접 경로는 옵션으로 분기
 - **modelInputs:** request read, transport PCIe, device SSD, media NAND, path standard-host-staging toy
-- **expectedObservation:** NVMe는 명령/인터페이스, PCIe는 전송, SSD는 장치, NAND는 저장 매체; DMA 등 데이터 경로가 따로 있음
-- **correctIncorrectCriteria:** 네 층 구분 및 데이터 이동의 방향을 설명하면 성공
+- **expectedObservation:** 호스트→PCIe→SSD 컨트롤러 방향의 **명령**, NAND→컨트롤러→PCIe DMA→호스트 메모리 방향의 **읽기 데이터**, 이후 GPU로 향하는 **별도 전송**을 화살표 색/레이블로 구별. NVMe는 명령/호스트 인터페이스, PCIe는 전송, SSD는 장치, NAND는 매체
+- **correctIncorrectCriteria:** 네 층 구분과 (요청 host→SSD, read-data SSD→host, host→GPU 별도) **세 화살표**를 각각 맞히면 성공; 컨트롤러/PCIe를 건너뛴 직행 경로는 오답
 - **misconceptions (3 expected mistakes):** ① NVMe는 SSD를 꽂는 물리 케이블이다 ② CPU가 항상 바이트 하나씩 직접 복사해야 한다 ③ SSD 데이터를 읽으면 항상 바로 HBM에 적재된다
 - **hints (level 1/2/3):** ① 읽으라는 명령은 누가 주나요? ② 전송하는 길과 명령 규칙이 같을까요? ③ DMA나 GPUDirect Storage 같은 대안 경로는 어떻게 달라질까요?
 - **feedback/correct:** “보셨죠? SSD를 무엇으로 읽으라고 요청할지는 NVMe, PCIe는 대표적인 데이터 전송 통로이며 실제 데이터 경로는 플랫폼마다 다릅니다.”
