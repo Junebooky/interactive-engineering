@@ -12,7 +12,7 @@ type Story = {
   prediction: string; predictions: Choice[];
   finalPrompt: string; finalChoices?: Choice[];
   displayText: string; speechText: string; why: string; nextHook: string;
-  hints: readonly [string, string, string]; assumptions: string;
+  hints: readonly [string, string, string]; assumptions: string; misconceptions?: readonly [string, string, string];
 };
 const STORIES: Record<A05SceneId, Story> = {
   'mosfet-field': {
@@ -108,6 +108,11 @@ const STORIES: Record<A05SceneId, Story> = {
     why: 'CMOS는 pMOS 풀업과 nMOS 풀다운을 상보적으로 구동해 안정 상태에서 직접 VDD→GND 관통 경로를 억제해요. 실제 회로에는 누설 및 스위칭 전력이 존재합니다. 이는 이전의 저항형 nMOS 회로와 다른 토폴로지예요.',
     nextHook: '이제 논리 1을 만들었어요. 그 1을 오랫동안 기억하려면 무엇이 필요할까요? → DRAM',
     assumptions: '5 V 이상적인 CMOS 정지 논리 예제 · 실제 트랜지스터 곡선/누설/과도 응답은 생략',
+    misconceptions: [
+      'CMOS의 소비 전력이 항상 0은 아니에요. 실제 누설과 전환 중 전력이 남아요.',
+      '논리 1은 단순히 전자가 있다는 뜻이 아니라 회로에서 정의한 전압 범위예요.',
+      'NOT 게이트의 두 트랜지스터는 DRAM의 1T1C 저장 셀과 다른 구조예요.',
+    ],
   },
 };
 
@@ -169,9 +174,9 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
     setResult(next);
     emit('answer.checked', { passed: next.passed, observationPassed: next.observationPassed, answerPassed: next.answerPassed });
   }
-  function speak() {
-    emit('voice.requested', { text: story.speechText });
-    onSpeech?.(sceneId, story.speechText);
+  function speak(text: string) {
+    emit('voice.requested', { text });
+    onSpeech?.(sceneId, text);
   }
   const controlKey = sceneId === 'mosfet-field' ? 'vgs' : sceneId === 'mosfet-current' ? 'vds' : 'vin';
   const controlValue = values[controlKey];
@@ -241,7 +246,7 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
           </div>
         </>}
         <div className="a05-tools">
-          <button type="button" onClick={speak}>한국어 설명 듣기</button>
+          <button type="button" onClick={() => speak(story.speechText)}>한국어 질문 듣기</button>
           {prediction !== null && <button type="button" disabled={hintCount === 3} onClick={() => {
             setHintCount(prev => Math.min(prev + 1, 3));
             emit('hint.opened', { level: Math.min(hintCount + 1, 3) });
@@ -254,10 +259,15 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
           <h3>{result.passed ? '원리를 연결했어요!' : '어느 조건이 다른지 확인해 볼까요?'}</h3>
           {result.conditions.map(c => <p key={c.label}><strong>{c.passed ? '✓' : '△'} {c.label}</strong> — {c.feedback}</p>)}
           {!result.answerPassed && finalChoices && <p>{finalChoices.find(c => c.id === finalChoice)?.misconception}</p>}
+          {story.misconceptions && <details><summary>헷갈리기 쉬운 생각 3가지</summary>
+            {story.misconceptions.map((m, i) => <p key={i}>{i + 1}. {m}</p>)}
+          </details>}
           {result.passed && <p>좋아요. 다음 질문으로 이어가 볼까요?</p>}
+          <button type="button" onClick={() => speak(result.passed ? '직접 관찰한 결과와 원리를 잘 연결했어요. ' + story.nextHook : result.conditions.filter(c => !c.passed).map(c => c.feedback).join(' '))}>검사 결과 듣기</button>
           <button type="button" onClick={() => setShowWhy(!showWhy)}>{showWhy ? '원리 접기' : '왜 그럴까요? 원리 보기'}</button>
         </section>}
         {showWhy && result && <div className="a05-why"><h3>왜 그럴까요?</h3><p>{story.why}</p>
+          <button type="button" className="a05-audio" onClick={() => speak(story.why)}>원리 듣기</button>
           {result.passed && <p className="a05-next">{story.nextHook}</p>}</div>}
         {result?.passed && index < a05SceneIds.length - 1 && <button type="button" className="a05-primary" onClick={() => moveTo(index + 1)}>다음 질문으로 →</button>}
         {result?.passed && index === a05SceneIds.length - 1 && <div className="a05-why"><p className="a05-next">{story.nextHook}</p><p>이 샘플은 A02 앱 진도와 연동되지 않아요.</p></div>}
