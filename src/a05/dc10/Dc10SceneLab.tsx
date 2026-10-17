@@ -89,7 +89,10 @@ export function Dc10SceneLab({onEvent,onSpeech}:Dc10LabProps){
   setAnswer(null);setFeedback(null);setWhy(false);emit('parameter.changed',{key,physical:next});
  }
  function probe(){
-  const x=dc10Probe(sceneId,state);setHasProbe(x.evidence!==null);setStatus(x.display);
+  const x=dc10Probe(sceneId,state);
+  // Every explicitly probed route fault is a valid OBSERVATION, even when not a mastery-proof key.
+  // Only unsupported KV offload must remain veiled; never award evidence for off-contract faults.
+  setHasProbe(sceneId==='ai-dc-end-to-end-resilience'||x.evidence!==null);setStatus(x.display);
   if(x.evidence)setEvidence(prev=>prev.includes(x.evidence!)?prev:[...prev,x.evidence!]);
   emit('observation.recorded',{accepted:x.evidence!==null,evidence:x.evidence,display:x.display,physical:state,result:x.result});
  }
