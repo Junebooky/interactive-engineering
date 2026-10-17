@@ -53,6 +53,27 @@ try{
    await page.getByRole('button',{name:'GPU 보드',exact:true}).click();
    await noFamilySolution('selected-but-not-graded');
    await page.screenshot({path:out+'/04b-g03-s02-no-answer-before-grade.png',fullPage:true});
+   // A07 R12 P1 scientific evaluation: first WRONG GDDR6 must never reveal GDDR7 placement.
+   await page.getByRole('button',{name:'CPU DIMM',exact:true}).click();
+   await page.getByRole('button',{name:'선택한 짝 검사하기'}).click();
+   const wrongG6=await page.getByTestId('gpu-family-match-feedback').innerText();
+   if(!wrongG6.includes('GDDR6')||wrongG6.includes('GDDR7')||!wrongG6.includes('GPU 보드'))throw Error('A07 P1 GDDR6 error must correct GDDR6 ONLY: '+wrongG6);
+   const g6aria=await page.locator('.a05-canvas-col [aria-label]').evaluateAll(nodes=>nodes.map(x=>x.getAttribute('aria-label')).join(' '));
+   if(/GDDR7.*GPU 보드|GDDR7.*gpu-board/.test(g6aria))throw Error('GDDR7 solution leaked via ARIA when only GDDR6 wrong');
+   await page.getByRole('button',{name:'현재 가족 매칭 피드백 듣기'}).click();
+   const g6voice=await page.getByTestId('gpu-voice-text').innerText();
+   if(!g6voice.includes('GDDR6')||g6voice.includes('GDDR7'))throw Error('GDDR6 voice improperly leaked other independent GDDR7 answer');
+   await page.screenshot({path:out+'/04c-wrong-gddr6-only-no-gddr7.png',fullPage:true});
+   await page.getByRole('button',{name:'GDDR7',exact:true}).click();
+   if(await page.getByTestId('gpu-family-match-feedback').count())throw Error('switch to GDDR7 did not clear old-family grade');
+   await noFamilySolution('GDDR7-selected-not-graded');
+   await page.getByRole('button',{name:'선택한 짝 검사하기'}).click();
+   const wrongG7=await page.getByTestId('gpu-family-match-feedback').innerText();
+   if(!wrongG7.includes('GDDR7')||wrongG7.includes('GDDR6')||!wrongG7.includes('GPU 보드'))throw Error('GDDR7 wrong answer must correct GDDR7 ONLY: '+wrongG7);
+   await page.getByRole('button',{name:'현재 가족 매칭 피드백 듣기'}).click();
+   const g7voice=await page.getByTestId('gpu-voice-text').innerText();
+   if(!g7voice.includes('GDDR7')||g7voice.includes('GDDR6'))throw Error('GDDR7 voice improperly leaked previous GDDR6 answer');
+   await page.screenshot({path:out+'/04d-wrong-gddr7-only.png',fullPage:true});
    // Wrong matching is now possible: old pre-matched controls hid this misconception.
    await page.getByRole('button',{name:'HBM',exact:true}).click();
    await page.getByRole('button',{name:'선택한 짝 검사하기'}).click();
