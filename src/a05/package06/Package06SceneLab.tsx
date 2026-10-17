@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {Package06SceneVisual} from './Package06SceneVisual';
-import {fabAdvance,fabStageValid,freshPackage06,gradePackage06,package06Order,chipletYield,interconnect,packageThermal} from './package06Model';
+import {fabAdvance,fabStageValid,freshPackage06,gradePackage06,package06Order} from './package06Model';
 import type {FabAction,InterposerKind,Package06Event,Package06Grade,Package06SceneId,Package06State,PackageTopology,Screening} from './package06Model';
 import '../a05Scenes.css';import './package06.css';
 type Option={id:string;text:string;correction?:string};
