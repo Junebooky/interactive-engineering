@@ -38,7 +38,7 @@ const LESSON:Record<GpuSceneId,Story>={
     question:'보드와 패키지 자리 차이는 메모리의 용도를 어떻게 바꿀까요?',
     prediction:'이 셋 가운데 HBM은 DRAM일까요, 다른 저장 소자일까요?',
     predictions:[{id:'all-dram',text:'모두 DRAM인데 패키징과 목표가 달라요.'},{id:'hbm-other',text:'HBM은 DRAM과 전혀 다른 비휘발 저장장치예요.'}],
-    prompt:'CPU DIMM, GPU 보드, GPU 패키지를 하나씩 눌러 각 가족과 위치를 연결하세요.',
+    prompt:'메모리 가족과 장착 위치를 각각 독립적으로 선택하세요. 잘못된 짝도 직접 눌러 판단해 보세요.',
     answers:[
       {id:'all-dram-roles',text:'셋 모두 DRAM이고 DDR/RDIMM·GDDR·HBM은 위치/대역폭/열/비용이 달라요.'},
       {id:'not-dram',text:'HBM은 DRAM이 아니고 전원 꺼도 모델이 남아요.',correction:'HBM은 적층된 DRAM이므로 데이터는 휘발하며 전원·리프레시가 필요해요.'},
@@ -56,8 +56,8 @@ const LESSON:Record<GpuSceneId,Story>={
     hook:'128bit 폭에서 핀마다 매초 24 또는 32기가비트를 보내는 가상 연결을 상상해 보세요.',
     question:'128×24÷8과 128×32÷8의 단위는 무엇일까요?',
     prediction:'핀당 속도를 24에서 32 Gb/s로 바꾸면 대역폭 상한은?',
-    predictions:[{id:'384-512',text:'384에서 512 GB/s가 될 것 같아요.'},{id:'x3',text:'PAM3라서 매 신호가 정확히 3비트를 실어요.'}],
-    prompt:'128bit×24Gb/s/pin → 384 GB/s, 128bit×32Gb/s/pin → 512 GB/s를 조작해 검산하고 NRZ/PAM3의 신호 높이를 비교하세요.',
+    predictions:[{id:'rise',text:'전송률이 커지면 이론 대역폭도 커질 것 같아요.'},{id:'same',text:'전송률이 바뀌어도 대역폭은 같을 것 같아요.'}],
+    prompt:'가상의 128bit 버스에 24 또는 32Gb/s/pin을 적용하고 GB/s 숫자 퀴즈 두 문제에 답하세요. 정답 검증 전까지 계기판을 가립니다.',
     answers:[
       {id:'theoretical-pam3',text:'이론 GB/s=bit폭×Gb/s/pin÷8; PAM3는 신호 레벨 3개이지 3bit/clk 아님.'},
       {id:'same-gb',text:'Gb/s와 GB/s는 똑같은 단위예요.',correction:'대문자 B는 바이트이고 8비트=1바이트이므로 ÷8 해야 해요.'},
@@ -86,7 +86,7 @@ const LESSON:Record<GpuSceneId,Story>={
     hints:['학습 전원 OFF 상태에서도 모델 가중치를 보관하려면 무엇이 필요할까요?','가까운 적층 구조의 발열은 공짜로 사라질까요?','TSV는 HBM 내부 층 간 길, 인터포저는 GPU와 HBM을 연결하는 별도 길이에요.'],
     why:'HBM은 DRAM 다이를 수직으로 적층하고 층 사이 TSV를 이용합니다. GPU와 HBM 사이 고밀도 연결은 인터포저나 다른 패키징 방식으로 구현할 수 있어요. 넓은 I/O 이점에도 제조 수율·열·비용·공급 제약이 남습니다. 이 인터랙션은 정성적 구조 비교이지 제품별 실측 성능 비교가 아닙니다.',
     next:'그렇다면 AI 모델은 전원이 꺼진 뒤 어디에 남아 있을까요? NAND와 SSD 이야기로 이어가요.',
-    speech:'GPU 옆 HBM은 넓은 길을 만들지만 열과 제조 제약도 같이 생겨요. 보드 GDDR와 비교해 보세요.',
+    speech:'보드 쪽과 패키지 쪽 배치를 비교해 봐요. 어떤 차이가 있을지 예상해 볼까요?',
     assumptions:'HBM도 DRAM · TSV 층간, interposer/연결층 GPU↔HBM · 정성적 교육용 비교, 실제 온도·대역폭 수치 아님',
   },
 };
@@ -97,17 +97,39 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
   const [state,setState]=useState<GpuVisualState>(fresh),[prediction,setPrediction]=useState<string|null>(null);
   const [answer,setAnswer]=useState<string|null>(null),[seen,setSeen]=useState<string[]>([]);
   const [hint,setHint]=useState(0),[feedback,setFeedback]=useState<GpuFeedback|null>(null),[why,setWhy]=useState(false);
+  const [matching,setMatching]=useState<string|null>(null);
+  const [rateAnswers,setRateAnswers]=useState<{24:number|null;32:number|null}>({24:null,32:null});
   function emit(type:GpuEvent['type'],payload?:GpuEvent['payload']){onEvent?.({sceneId,type,payload});}
   function obs(id:string){setSeen(v=>v.includes(id)?v:[...v,id]);}
   function change(next:GpuVisualState,description:string){setState(next);setFeedback(null);setWhy(false);emit('parameter.changed',{description});}
   function enter(i:number){
     if(i<0||i>=gpuSceneOrder.length)return;
-    setIndex(i);setState(fresh());setPrediction(null);setAnswer(null);setSeen([]);setHint(0);setFeedback(null);setWhy(false);
+    setIndex(i);setState(fresh());setPrediction(null);setAnswer(null);setSeen([]);setHint(0);setFeedback(null);setWhy(false);setMatching(null);setRateAnswers({24:null,32:null});
     onEvent?.({sceneId:gpuSceneOrder[i],type:'scene.enter'});
   }
   function compute(v:ComputeRate){change({...state,compute:v},'compute '+v);if(state.feed===8)obs(v===16?'core16feed8':'core32feed8');}
   function feed(v:FeedRate){change({...state,feed:v},'feed '+v);if(v===32)obs('feed32');}
-  function memory(site:Placement,family:Family){change({...state,site,family},family+' at '+site);obs(site);}
+  function memoryFamily(family:Family){change({...state,family},'family '+family);setMatching(null);}
+  function memorySite(site:Placement){change({...state,site},'site '+site);setMatching(null);}
+  function gradeMatch(){
+    const correct=state.family==='DDR/RDIMM'?state.site==='cpu-dimm':
+      state.family==='HBM'?state.site==='gpu-package':state.site==='gpu-board';
+    setMatching(correct?'정합: '+state.family+' → '+state.site:
+      state.family==='HBM'?'오답: HBM은 대표적으로 GPU 패키지 가까운 적층 DRAM이에요.':
+      state.family==='DDR/RDIMM'?'오답: DDR/RDIMM은 이 서버 모형에서 CPU DIMM 쪽에 놓여요.':
+      '오답: GDDR6과 GDDR7은 이 모형에서 GPU 보드 DRAM이에요.');
+    if(correct)obs('pair-'+state.family);
+    emit('parameter.changed',{description:'pair graded',family:state.family,site:state.site,correct});
+  }
+  function numericChoice(pinRate:PinRate,value:number){
+    setRateAnswers(xs=>({...xs,[pinRate]:value}));
+    setSeen(xs=>{
+      const without=xs.filter(x=>x!=='quiz'+pinRate);
+      return value===(pinRate===24?384:512)?[...without,'quiz'+pinRate]:without;
+    });
+    setFeedback(null);setWhy(false);
+    emit('parameter.changed',{description:'rate quiz',pinRate,value});
+  }
   function rate(v:PinRate){change({...state,pinRate:v},'rate '+v);obs(v===24?'rate24':'rate32');}
   function topology(v:Topology){change({...state,topology:v},'topology '+v);obs(v==='hbm-stack'?'hbm':'gddr');}
   function constraints(){change({...state,showConstraints:true},'constraints');obs('constraints');}
@@ -148,10 +170,16 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
               </div>
             </div>}
             {sceneId==='memory-family-roles'&&<div className="a05-gpu-controls">
-              {action('CPU DIMM → DDR/RDIMM',()=>memory('cpu-dimm','DDR/RDIMM'),state.site==='cpu-dimm')}
-              {action('GPU 보드 → GDDR6/GDDR7',()=>memory('gpu-board','GDDR6/GDDR7'),state.site==='gpu-board')}
-              {action('GPU 패키지 → HBM',()=>memory('gpu-package','HBM'),state.site==='gpu-package')}
-              <p className="a05-note">모두 DRAM이며 위치/대역폭/전력/비용의 상대적 선택은 제품마다 달라요.</p>
+              <strong>① 메모리 가족 선택</strong><div className="a05-control-buttons">
+                {(['DDR/RDIMM','GDDR6','GDDR7','HBM'] as const).map(f=>action(f,()=>memoryFamily(f),state.family===f))}
+              </div><strong>② 설치 위치 별도 선택</strong><div className="a05-control-buttons">
+                {action('CPU DIMM',()=>memorySite('cpu-dimm'),state.site==='cpu-dimm')}
+                {action('GPU 보드',()=>memorySite('gpu-board'),state.site==='gpu-board')}
+                {action('GPU 패키지',()=>memorySite('gpu-package'),state.site==='gpu-package')}
+              </div>
+              <button type="button" className="a05-primary" onClick={gradeMatch}>선택한 짝 검사하기</button>
+              {matching&&<p className="a05-note" role="status">{matching}</p>}
+              <p className="a05-note">GDDR6·GDDR7 모두 GPU 보드가 적절한 예시입니다. 실제 GPU의 메모리 지원은 제품마다 다릅니다.</p>
             </div>}
             {sceneId==='gddr-width-rate'&&<div className="a05-gpu-controls">
               <strong>핀당 전송률 / 이론 상한</strong><div className="a05-control-buttons">
@@ -160,7 +188,15 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
               </div><strong>신호 레벨 모형</strong><div className="a05-control-buttons">
                 {action('NRZ 2레벨',()=>change({...state,signal:'NRZ' as Signal},'NRZ'),state.signal==='NRZ')}
                 {action('PAM3 3레벨',()=>change({...state,signal:'PAM3' as Signal},'PAM3'),state.signal==='PAM3')}
-              </div></div>}
+              </div>
+              <strong>독립 계산 ① 128bit × 24Gb/s/pin ÷ 8 = ? GB/s</strong>
+              <div className="a05-control-buttons">{([384,192,3072] as const).map(v=>action(v+' GB/s',()=>numericChoice(24,v),rateAnswers[24]===v))}</div>
+              <strong>독립 계산 ② 128bit × 32Gb/s/pin ÷ 8 = ? GB/s</strong>
+              <div className="a05-control-buttons">{([512,384,4096] as const).map(v=>action(v+' GB/s',()=>numericChoice(32,v),rateAnswers[32]===v))}</div>
+              <p className="a05-note" role="status">{rateAnswers[24]===null||rateAnswers[32]===null?
+                '두 문제의 숫자를 직접 선택하면 계기판과 정답 확인 단계가 열립니다.':
+                '이제 이론 모형 계기판을 비교하고 답을 검증하세요.'}</p>
+              </div>}
             {sceneId==='hbm-tradeoffs'&&<div className="a05-gpu-controls">
               <div className="a05-control-buttons">
                 {action('GDDR GPU 보드',()=>topology('gddr-board'),state.topology==='gddr-board')}
@@ -197,7 +233,8 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
       </section>
       <section className="a05-canvas-col" aria-label="2.5D GPU 메모리 인터랙티브 시각화">
         <div className="a05-canvas-header"><span>LIVE GPU 2.5D · G03</span><span>{reveal?'관찰':'예측 먼저'}</span></div>
-        <GpuSceneVisual sceneId={sceneId} state={state} revealed={reveal}/>
+        <GpuSceneVisual sceneId={sceneId} state={state} revealed={
+          reveal&&(sceneId!=='gddr-width-rate'||(rateAnswers[24]!==null&&rateAnswers[32]!==null))}/>
         <div className="a05-model-limit"><strong>모형 범위</strong> {story.assumptions}</div>
         <div className="a05-source">A06 PR #7 G03 스토리보드 / A05 직접 구현 / 공인 제품 수치 아님</div>
       </section>
