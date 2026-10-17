@@ -15,8 +15,8 @@ const STORIES:Record<ElecSceneId,Story>={
  'charge-voltage-current-arrows':{
   title:'배터리 5V를 연결했는데 계기는 무엇을 보여줄까요?',
   hook:'전압이 있다는 것과 전류가 흐른다는 것은 같은 일이 아니에요.',
-  question:'스위치가 열린 5V·1kΩ 회로에서 전류가 5A일까요, 0A일까요?',
-  prediction:'전원 단자에 5V가 걸려 있지만 회로가 열려 있다면?',
+  question:'이상적 전원 5V와 1kΩ에서 스위치 OPEN/CLOSED일 때 전류와 전압을 예측해 보세요.',
+  prediction:'이상적 전원 5V·저항 1kΩ에서 스위치 OPEN/CLOSED 각각의 전원단자 전압과 회로 전류를 예상해 보세요.',
   choices:[{id:'open-zero',text:'전압은 있어도 전류는 0이에요.'},{id:'always-current',text:'전압이 5V이면 언제나 전류도 5A예요.'}],
   prompt:'5V 선택→스위치 OPEN과 CLOSED→전자/관습전류의 두 화살표를 비교해 보세요.',
   answers:[
@@ -34,8 +34,8 @@ const STORIES:Record<ElecSceneId,Story>={
  'resistors-series-parallel-kcl':{
   title:'전류가 둘로 갈라지면 더 생기는 걸까요?',
   hook:'같은 1kΩ 두 개, 어떻게 연결하느냐에 따라 회로가 달라져요.',
-  question:'직렬이면 총 2.5mA, 병렬이면 10mA가 왜 될까요?',
-  prediction:'두 1kΩ 저항을 병렬로 바꿨을 때 전체 전류는?',
+  question:'저항 연결을 바꾸면 각 저항의 전압과 전원 전체 전류가 어떻게 달라질까요?',
+  prediction:'5V, 1kΩ 저항 2개를 직렬/병렬로 놓았을 때 각 저항 전압과 전원 총 전류를 숫자로 예상해 보세요.',
   choices:[{id:'10',text:'두 가지 5mA가 합쳐져 10mA가 돼요.'},{id:'2p5',text:'직렬과 같아서 언제나 2.5mA예요.'}],
   prompt:'직렬/병렬을 바꾸고 등가저항, 전체 전류, 소자 전압, KCL을 비교하세요.',
   answers:[
@@ -54,7 +54,7 @@ const STORIES:Record<ElecSceneId,Story>={
   title:'전하를 모으는 커패시터, 언제 다 찰까요?',
   hook:'저항과 커패시터를 잇자 전압이 차츰 움직여요. 기다리는 시간은 누가 정할까요?',
   question:'1kΩ×10µF의 시간상수 10ms에서 몇 볼트가 될까요?',
-  prediction:'10ms를 기다리면 5V를 전부 채울까요?',
+  prediction:'R=1kΩ, C=10µF, 전원 5V일 때 충전 10ms/30ms의 전압과 완충 후 방전 10ms 전압을 예상해 보세요.',
   choices:[{id:'63',text:'완전히 5V는 아니고 약 3.16V(63%)예요.'},{id:'100',text:'10ms에 정확히 5.00V가 돼요.'}],
   prompt:'R=1/2kΩ, C=10/20µF, 시간 0–100ms를 조절하고, 충전 10ms→방전 10ms→R/C 두배 실험을 해보세요.',
   answers:[
@@ -66,14 +66,14 @@ const STORIES:Record<ElecSceneId,Story>={
   hints:['한 시간상수 뒤 충전율은 1−e^(−1)입니다.','R×C의 단위는 Ω×F = 초예요.','방전은 처음 5V에서 e^(−t/τ)로 감소해요.'],
   why:'이상적인 1차 RC에서 τ=RC. 충전 VC=5(1−e^(−t/τ)), 방전 VC=5e^(−t/τ). 1kΩ·10µF면 τ=10ms, t=10ms에서 충전 3.16V, 방전 1.84V예요. DRAM 실물 리텐션은 이 시간상수와 다른 문제예요.',
   nextHook:'커패시터와 전원에 쌓이거나 소비되는 에너지는 어떻게 계산할까요?',
-  speech:'저항과 커패시터를 연결하고 기다려 보세요. 시간을 바꾸면 어떤 변화가 보일지 먼저 예상해 볼까요?',
+  speech:'시간 눈금을 움직이기 전에 10밀리초 뒤 전압을 예상해 보세요. 저항이나 커패시턴스도 바꿔볼까요?',
   assumption:'1차 RC 이상화·초기 충전0V/방전5V·누설/ESR/DRAM 센스앰프 미포함. 10ms는 toy RC, DRAM retention 아님'
  },
  'power-energy-joules-heat':{
   title:'와트와 줄은 같은 뜻일까요?',
   hook:'똑같은 전압에서도 회로마다 전력·에너지가 달라질까요?',
   question:'5V×10mA×10초와 10µF 커패시터 5V의 에너지는 같을까요?',
-  prediction:'50mW로 10초 작동하면 쓴 에너지는?',
+  prediction:'5V·10mA를 10초 사용할 때 전력/에너지와 10µF 커패시터가 5V일 때 저장에너지를 예상해 보세요.',
   choices:[{id:'half',text:'0.5J. 전력과 시간의 곱이에요.'},{id:'50',text:'50W와 50J가 같은 뜻이므로 50J예요.'}],
   prompt:'전압 5/10V, 부하 전류 5/10mA, 작동 1/10초를 조합하고 50mW→0.5J→커패시터125µJ를 확인하세요.',
   answers:[
@@ -85,7 +85,7 @@ const STORIES:Record<ElecSceneId,Story>={
   hints:['전력은 매초 에너지를 쓰는 속도입니다.','커패시터 저장 에너지에는 V²이 있어요.','전력과 열 발생 위치를 같은 개념으로 취급하면 안 돼요.'],
   why:'5V×0.010A=0.05W=50mW; 10초 소비 에너지=0.5J. 커패시터는 ½×10µF×(5V)²=125µJ, 10V이면 500µJ. 이 실험에서 V와 I는 독립 입력이므로 고정 R 부하라고 가정하지 않으며 충전기 입력 에너지=커패시터 저장 에너지라는 주장도 아니에요.',
   nextHook:'이제 밴드·도핑·PN 접합을 통해 실리콘이 스위치가 되는 이유를 살펴볼까요?',
-  speech:'전압, 전류, 시간을 각각 바꿔 보세요. 전력과 에너지 카드의 숫자는 같은 단위일까요?',
+  speech:'5볼트, 10밀리암페어, 10초를 골라 보세요. 에너지와 소비 속도는 같은 단위일까요?',
   assumption:'V와 I는 서로 독립 조작하는 가상 부하·고정 R 아님, P 일정·부하 총에너지와 저장 Ecap 구분, 실제 GPU 열/PSU 효율 미적용'
  }
 };
