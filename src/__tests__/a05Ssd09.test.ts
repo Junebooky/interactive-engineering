@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {fresh09,gradeSsd09,latencyModel,latencyPick,newPlpTrial,plpAdvance,plpEnergy,plpOutcome,ssd09Order,ssdEndurance,ssdWaf,voltageWindows} from '../a05/ssd09/ssd09Model';
+import {fresh09,gradeSsd09,latencyModel,latencyPick,newPlpTrial,plpAdvance,plpConfigure,plpEnergy,plpOutcome,ssd09Order,ssdEndurance,ssdWaf,voltageWindows} from '../a05/ssd09/ssd09Model';
 import type {PlpAction,PlpTrial} from '../a05/ssd09/ssd09Model';
 describe('A05 Lesson09 educational threshold spacing, WAF, ordered PLP and nearest rank tail',()=>{
  it('four typed scenes and 16 centers are separated by exactly FIFTEEN gaps, not 16 bins',()=>{
@@ -48,6 +48,46 @@ describe('A05 Lesson09 educational threshold spacing, WAF, ordered PLP and neare
   let insufficient=newPlpTrial({plpEnabled:true,remainingWorkJ:1.2});
   insufficient=plpAdvance(plpAdvance(insufficient,'write').trial,'ack').trial;
   expect(plpAdvance(insufficient,'power-loss').evidence).toBe('energy-insufficient');
+ });
+ it('A07 R23-01 afterMediaCommit ACK requires accepted media commit BEFORE emitting success',()=>{
+  const policy=plpConfigure(newPlpTrial(),{volatileCache:false,ackMode:'afterMediaCommit'});
+  expect(policy).toMatchObject({accepted:true,code:'CONFIG_OK'});
+  const write=plpAdvance(policy.trial,'write').trial;
+  const premature=plpAdvance(write,'ack');
+  expect(premature).toMatchObject({accepted:false,code:'MEDIA_COMMIT_REQUIRED'});
+  expect(premature.trial.ack).toBe(false);
+  const committed=plpAdvance(write,'media-commit').trial;
+  const acknowledged=plpAdvance(committed,'ack');
+  expect(acknowledged).toMatchObject({accepted:true,code:'OK_ACK',evidence:'durable-under-declared-policy'});
+  expect(acknowledged.trial.events).toEqual(['write','media-commit','ack']);
+  expect(plpAdvance(acknowledged.trial,'power-loss').evidence).toBe('durable-under-declared-policy');
+ });
+ it('A07 R23-02 cannot retroactively install PLP or change cache/ACK policy during WRITE or after power-outage',()=>{
+  let t=newPlpTrial({volatileCache:true,ackMode:'volatileCache',plpEnabled:false});
+  t=plpAdvance(plpAdvance(t,'write').trial,'ack').trial;
+  expect(plpConfigure(t,{plpEnabled:true,remainingWorkJ:.4})).toMatchObject({accepted:false,code:'CONFIG_LOCKED'});
+  t=plpAdvance(t,'power-loss').trial;
+  expect(t.powerLossVerdict).toBe('at-risk');expect(plpOutcome(t)).toBe('at-risk');
+  for(const config of [{plpEnabled:true,remainingWorkJ:.4 as const},{volatileCache:false},{ackMode:'afterMediaCommit' as const}]){
+   const rejected=plpConfigure(t,config);
+   expect(rejected).toMatchObject({accepted:false,code:'CONFIG_LOCKED'});
+   expect(rejected.trial).toBe(t);expect(plpOutcome(rejected.trial)).toBe('at-risk');
+  }
+  expect(plpOutcome({...t,plpEnabled:true,remainingWorkJ:.4})).toBe('at-risk'); // stamped verdict
+  const next=plpAdvance(t,'reset').trial;
+  expect(next).toMatchObject({phase:'idle',powerLossVerdict:null,episode:1});
+  expect(plpConfigure(next,{plpEnabled:true,remainingWorkJ:.4}).accepted).toBe(true);
+ });
+ it('PLP energy possible/insufficient are incident results not merely enabling a toggle',()=>{
+  for(const [work,evidence] of [[.4,'energetically-possible-unverified'],[1.2,'energy-insufficient']] as const){
+   let trial=plpConfigure(newPlpTrial(),{plpEnabled:true,remainingWorkJ:work}).trial;
+   expect(plpOutcome(trial)).toBe('pending-contract');
+   trial=plpAdvance(plpAdvance(trial,'write').trial,'ack').trial;
+   expect(plpOutcome(trial)).toBe('pending-contract');
+   trial=plpAdvance(trial,'power-loss').trial;
+   expect(plpOutcome(trial)).toBe(evidence);
+   expect(trial.powerLossVerdict).toBe(evidence);
+  }
  });
  it('reset/replayed trial never reuses last ACK/FLUSH/COMMIT transaction evidence',()=>{
   let t:PlpTrial=newPlpTrial();
