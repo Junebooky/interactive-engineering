@@ -84,10 +84,20 @@ try {
     await page.screenshot({ path: `${output}/03-app-s01-unveiled.png`, fullPage: true });
 
     // Manipulate slider
-    const slider = page.locator('.parameter-slider input[type="range"]');
-    await slider.fill('0.6');
-    await slider.fill('0.7');
-    await slider.fill('1.2');
+    const slider = page.locator('input[type="range"]');
+    await slider.waitFor({ state: 'visible' });
+    await slider.evaluate((el) => {
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+      setter.call(el, '0.6');
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    await slider.evaluate((el) => {
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+      setter.call(el, '1.2');
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
 
     // Wrong misconception test
     await page.locator('.radio-option-btn').filter({ hasText: '전자들이 산화막을 뚫고' }).click();
@@ -107,9 +117,9 @@ try {
 
     // Deep-dive Why modal
     await page.getByRole('button', { name: /Why\? 원리/ }).click();
-    await page.waitForSelector('.why-modal-overlay');
+    await page.waitForSelector('.why-modal, .modal-backdrop');
     await page.screenshot({ path: `${output}/06-app-s01-why-modal.png`, fullPage: true });
-    await page.locator('.why-close-btn').click();
+    await page.locator('.modal-close-btn').click();
 
     // Advance to Step 2
     await page.getByRole('button', { name: /계속하기/ }).click();
@@ -122,8 +132,14 @@ try {
     await page.locator('.radio-option-btn').filter({ hasText: '0 V에서는 0' }).click();
 
     // Slider
-    const slider = page.locator('.parameter-slider input[type="range"]');
-    await slider.fill('1.5');
+    const slider = page.locator('input[type="range"]');
+    await slider.waitFor({ state: 'visible' });
+    await slider.evaluate((el) => {
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+      setter.call(el, '1.5');
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
 
     // Concept answer
     await page.locator('.radio-option-btn').filter({ hasText: '전압 차가 있어야' }).click();
@@ -193,11 +209,11 @@ try {
 
     // QA Lab launcher in header
     await page.locator('.qa-lab-toggle-btn').click();
-    await page.waitForSelector('.a05-lab-container');
+    await page.waitForSelector('.qa-lab-overlay, .a05-lab-container');
     await page.screenshot({ path: `${output}/11-app-qa-lab-modal.png`, fullPage: true });
 
     // Close QA Lab
-    await page.locator('.qa-close-btn').click();
+    await page.locator('.qa-lab-close-btn').click();
     await checkViewport(page, 'Desktop 1440');
   });
 
