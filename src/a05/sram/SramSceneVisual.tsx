@@ -1,4 +1,5 @@
 import {useId} from 'react';
+import type {ReactNode} from 'react';
 import {access6T,dataLocality,latch,simulateLru} from './sramModel';
 import type {AccessMode,Bit,SramSceneId} from './sramModel';
 
@@ -11,7 +12,7 @@ export interface SramVisualState{
 type Props={sceneId:SramSceneId;state:SramVisualState;revealed:boolean};
 const M='#73e9cb',C='#66cce9',G='#ffd28a';
 function Label({x,y,children,color='#e3f5f8',size=14}:{
- x:number;y:number;children:React.ReactNode;color?:string;size?:number
+ x:number;y:number;children:ReactNode;color?:string;size?:number
 }){return <text x={x} y={y} fill={color} fontWeight="650" fontSize={size}>{children}</text>;}
 function Tile({x,y,w,h,title,subtitle,fill='#20445a',accent=M}:{
  x:number;y:number;w:number;h:number;title:string;subtitle:string;fill?:string;accent?:string
