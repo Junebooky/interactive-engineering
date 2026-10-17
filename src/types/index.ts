@@ -45,7 +45,12 @@ export type SimulatorType =
   | 'mos14-oxide-field'
   | 'mos14-accumulation-inversion'
   | 'mos14-capacitance-cv'
-  | 'mos14-cap-to-nmosfet';
+  | 'mos14-cap-to-nmosfet'
+  | 'nand-threshold'
+  | 'nand-page-block'
+  | 'ssd-ftl-reliability'
+  | 'nvme-transfer'
+  | 'ai-datacenter-pipeline';
 
 export interface ScaffoldingHint {
   level: 1 | 2 | 3;
