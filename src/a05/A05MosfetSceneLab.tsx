@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { A05SceneVisual } from './A05SceneVisual';
 import {
   a05SceneIds, evaluateA05Scene, initialSceneValues,
@@ -186,7 +186,7 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
         {a05SceneIds.map((id, i) => <button key={id} type="button"
           aria-current={i === index ? 'step' : undefined} aria-label={'장면 ' + (i + 1)}
           className={i === index ? 'active' : ''}
-          disabled={i > index || (i < index && i < 0)}
+          disabled={i > index}
           onClick={() => moveTo(i)}>{String(i + 1).padStart(2, '0')}</button>)}
       </nav>
     </header>
