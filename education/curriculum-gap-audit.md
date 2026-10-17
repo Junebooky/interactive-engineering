@@ -24,3 +24,10 @@
 
 ## Acceptance / handoff
 A06: create missing B00 lessons (or equivalent named curriculum), crosswalk IDs, backlog, and prerequisite gates; send first updated story SHA to A07 for **source** retest. A05 continues unrelated ready scene work; only affected lesson's MAJOR gate applies. Main merge/deploy owner-only.
+## Round 02 status update · A06 PR#7 head 095d651 (2026-10-17)
+This supersedes **file-absence** and **no-authored-prerequisite** statements in the first-round historical snapshot:
+- 12 electrical and 11 doping/PN are now **actual STORY_READY authored lessons** (4+5 steps), so earlier claims that no F01/F02 foundation modules existed are **historical, not current**. 14 MOS capacitor is still RESEARCHING, and 11/12 pre-prediction narration requires correction.
+- `education/production-backlog.md` is now **present**; previous 404 is resolved. Update its stale D02 fixed bug and A05 new 05/G03 implementation status, without conflating standalone SCENE_READY with A02 full APP_QA.
+- Current Atlas v1 115 topic IDs are unique as topic IDs, but require explicit namespaces for reused labels (e.g. device-topic `D02` and lesson DRAM `D02-S02`; old SRAM topic `M01` versus MOS scene `M01-S01`). Mapping crosswalk still missing.
+- **New MAJOR pedagogical graph issue:** P01 charge assigned to lesson11 while topic P02 voltage in lesson12 depends on P01 and lesson11 requires 12 intro. Give the first basic-charge microstep in 12 and leave semiconductor hole science to 11. P08 `statistics/log/exponential/probability/p99` mapped to 12 STORY_READY even though p99/probability are **not taught there**; reflect partial status and bridge before 11/09 respectively.
+- Detailed 9-Step lesson 11/12 QA and G03 #15 scene assessment issues in [Round 02](round-02-foundations-g03-audit.md). A06 remains owner of content roadmap; A07 does not impose an A01 gate.
