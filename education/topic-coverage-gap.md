@@ -30,3 +30,13 @@
 
 ## 조사 질문 / improvement-backlog 연결
 왜 HBM이 모든 GPU를 대체하지 않는가? / 모델이 이미 VRAM에 있는데 eSSD가 매 토큰 필요할까? / CXL 메모리 확장은 HBM을 완전히 대체하는가? / QoS는 평균만 보아도 되는가? / 새 GDDR/HBM/PCIe/NVMe 세대가 실제 제품에 적용되었는가? → 확인한 답만 본 레슨으로 승격하고 출처/검증일/버전 보관.
+
+
+## 2026-10-17 추가 조사/완료 상태 업데이트
+- 기존 P0 "SRAM/CPU 캐시·레지스터": **05 레슨에서 6T·hit/miss/CPU↔DRAM 데이터 지역성 4-Step 스토리보드 제작**. 레지스터·TLB·일관성/NUMA의 심화는 여전히 후보.
+- 기존 P0 "2.5D/3D 패키징, TSV, 인터포저, chiplet": **06 레슨에서 웨이퍼 제조·칩렛 Poisson toy·HBM TSV·인터포저·열 4-Step 스토리보드 제작**. 신호·전력 무결성/실제 CoWoS-S/R/L/SRAM-HBM 연결과 비용·테스트 심화는 남음.
+- 새 P0 "학습자 경로 분기": 01 CMOS의 다음 질문은 **SRAM 05**와 **DRAM 02**를 나란히 제시. SRAM용 6T 저장과 DRAM 1T1C 저장의 휘발성/리프레시 차이, 캐시라인/DDR 구분.
+- 새 P1 "패키징 수율 모델의 오개념": Y=exp(-D×A)는 **다이 양품 확률**이며 KGD/조립·패키지 수율을 빼고 '칩렛 전체 수율 높다' 단정하지 않기.
+- 새 P1 "광 인터커넥트": 단순 전송률뿐 아니라 트랜시버/전력/거리/광모듈·스위치 포함. 제품/표준 수치 확인 없이 도식만 구분.
+- 리뷰 수정: G03-S01 완전 파이프라인 중첩과 직렬 모델의 시간 결과를 명시; N04-S03 오개념 3개 각각 별도 피드백, N04-S04 command와 read payload 분리.
+- 추가 검증: 05는 Hamburg 대학 6T + Arm 2026 cache, 06은 ASML 제조·TSMC CoWoS 및 SoIC/3DFabric·Micron HBM를 활용([accuracy-notes](accuracy-notes.md)).
