@@ -18,7 +18,9 @@ export const WhyModal: React.FC = () => {
 
   const handleSpeak = () => {
     sfx.playClick();
-    voiceEngine.speak(step.whyExplanation, { force: true });
+    if (step.whyExplanation) {
+      voiceEngine.speak(step.whyExplanation, { force: true });
+    }
   };
 
   return (

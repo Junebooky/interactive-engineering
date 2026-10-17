@@ -1,10 +1,28 @@
-import type { LessonStep, StepEvaluation } from '../types';
+import type { LessonStep, StepEvaluation, RuleEvaluationResult } from '../types';
 
 export function evaluateStepRules(
   step: LessonStep,
   currentParams: Record<string, any>
 ): StepEvaluation {
-  for (const rule of step.rules) {
+  const rules = step.rules || [];
+
+  // If there are no rules (e.g. INTRO, CONCEPT, EXPLAIN steps), auto-pass
+  if (rules.length === 0) {
+    return {
+      passed: true,
+      message: step.successMessage || '개념 확인을 완료했습니다.',
+      whyExplanation: step.whyExplanation || '',
+      voiceLine: step.successVoice || step.successMessage || '개념 확인을 완료했습니다.',
+      ruleResults: [],
+    };
+  }
+
+  const ruleResults: RuleEvaluationResult[] = [];
+  let firstFailMessage = '';
+  let firstFailVoice = '';
+  let failDiagnosis = '';
+
+  for (const rule of rules) {
     const val = currentParams[rule.targetKey];
     let isPassed = false;
 
@@ -33,21 +51,38 @@ export function evaluateStepRules(
         isPassed = false;
     }
 
-    if (!isPassed) {
-      return {
-        passed: false,
-        message: rule.feedbackIfFail,
-        whyExplanation: step.whyExplanation,
-        voiceLine: rule.voiceIfFail || rule.feedbackIfFail,
-        failDiagnosis: `조건 미달: ${rule.targetKey} = ${val} (목표: ${rule.operator} ${JSON.stringify(rule.expected)})`,
-      };
+    ruleResults.push({
+      targetKey: rule.targetKey,
+      label: rule.label || `${rule.targetKey} 조건`,
+      passed: isPassed,
+      message: isPassed ? '조건 만족' : rule.feedbackIfFail,
+    });
+
+    if (!isPassed && !firstFailMessage) {
+      firstFailMessage = rule.feedbackIfFail;
+      firstFailVoice = rule.voiceIfFail || rule.feedbackIfFail;
+      failDiagnosis = `조건 미달: ${rule.targetKey} = ${val} (목표: ${rule.operator} ${JSON.stringify(rule.expected)})`;
     }
+  }
+
+  const allPassed = ruleResults.every((r) => r.passed);
+
+  if (!allPassed) {
+    return {
+      passed: false,
+      message: firstFailMessage,
+      whyExplanation: step.whyExplanation || '',
+      voiceLine: firstFailVoice,
+      failDiagnosis,
+      ruleResults,
+    };
   }
 
   return {
     passed: true,
-    message: step.successMessage,
-    whyExplanation: step.whyExplanation,
-    voiceLine: step.successVoice,
+    message: step.successMessage || '완벽합니다!',
+    whyExplanation: step.whyExplanation || '',
+    voiceLine: step.successVoice || step.successMessage || '완벽합니다!',
+    ruleResults,
   };
 }

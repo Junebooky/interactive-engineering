@@ -17,7 +17,7 @@ export const ohmsLawLesson: Lesson = {
       storyLead: '배터리에 전압이 걸려 있어도 도선이 끊겨 있다면 전자가 움직일 수 있을까요?',
       prompt: '캔버스 상단의 나이프 스위치를 클릭하여 닫힌 루프(Closed Circuit)를 완성하세요. 도선 속 전자가 순환하기 시작하며 전구에 불이 켜지는지 확인하세요.',
       detailExplanation: '전류는 전하의 연속적인 흐름입니다. 스위치가 열려 있으면 공기라는 거대한 절연체가 도선을 가로막아 전자가 이동할 수 없습니다. 스위치를 닫아 금속 도체의 연속적인 폐회로가 형성되면, 배터리의 전기장에 의해 모든 도선 내 전자들이 동시에 표류(Drift)하기 시작합니다.',
-      whyExplanation: '전기 회로는 닫힌 루프(Closed Loop)에서만 키르히호프의 전류 법칙(KCL)과 전압 법칙(KVL)을 만족합니다. 스위치 단락 시 전위차가 도선 전체에 광속에 가까운 전자기파로 전파되어 거의 즉시 전류가 흐릅니다.',
+      whyExplanation: '스위치가 열려 있으면 단자 간의 극단적인 절연 저항으로 인해 전류가 0이 됩니다. 스위치를 닫아 도체 폐루프가 완성되면 배터리의 전위차에 의해 전기장이 형성되어 도선 전체에 전하의 지속적인 순환 전류가 흐릅니다.',
       simulatorType: 'ohmsLaw',
       initialParams: {
         voltage: 12.0,
@@ -37,6 +37,7 @@ export const ohmsLawLesson: Lesson = {
       ],
       rules: [
         {
+          label: '스위치 상태 (ON/OFF)',
           targetKey: 'switchClosed',
           operator: 'eq',
           expected: true,
@@ -103,6 +104,7 @@ export const ohmsLawLesson: Lesson = {
       ],
       rules: [
         {
+          label: '가변 저항값 (R)',
           targetKey: 'resistance',
           operator: 'lte',
           expected: 25.0,
@@ -148,8 +150,8 @@ export const ohmsLawLesson: Lesson = {
       stepType: 'CHECK',
       storyLead: '이제 실전 회로 설계자로서 직접 부품 값을 결정해봅시다!',
       prompt: '배터리 전압이 12V로 고정되어 있습니다. 회로에 정확히 0.4A (400mA)의 정격 전류를 흘리기 위한 최적의 저항값 R을 옴의 법칙(R = V / I)으로 계산하여 설정하세요.',
-      detailExplanation: '계산식: R = V / I = 12V / 0.4A = 30Ω 입니다. \n실제 회로 설계에서도 정격 전류를 초과하면 부품이 타버리고, 부족하면 정상 동작하지 않기 때문에 옴의 법칙을 이용한 정밀한 저항 선정이 필수적입니다.',
-      whyExplanation: '회로에 직렬로 연결된 저항은 전류 제한 저항(Current Limiting Resistor) 역할을 합니다. 12V 배터리에서 0.4A가 흐르면 저항에서 소비되는 열전력은 P = 0.4A × 12V = 4.8W이므로, 5W 이상의 권선 저항이나 시멘트 저항을 채택해야 안전합니다.',
+      detailExplanation: '계산식: R = V / I = 12V / 0.4A = 30Ω 입니다. \n실제 회로 설계에서도 정격 전류를 초과하면 부품이 손상될 수 있고, 부족하면 정상 동작하지 않으므로 옴의 법칙을 이용한 부품 선정이 기본이 됩니다.',
+      whyExplanation: '본 회로는 이상적인 12V 전압원과 단일 저항 부하를 가정한 기초 교육용 단순화 모델입니다. 실제 전력 P = V × I = 4.8W가 발생하므로 부품 선정 시 허용 정격(Wattage)과 발열 특성을 종합적으로 고려해야 합니다.',
       simulatorType: 'ohmsLaw',
       initialParams: {
         voltage: 12.0,
@@ -169,6 +171,7 @@ export const ohmsLawLesson: Lesson = {
       ],
       rules: [
         {
+          label: '목표 설계 저항값 (R)',
           targetKey: 'resistance',
           operator: 'near',
           expected: 30.0,

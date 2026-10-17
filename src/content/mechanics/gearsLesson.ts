@@ -37,6 +37,7 @@ export const gearsLesson: Lesson = {
       ],
       rules: [
         {
+          label: '구동 기어 회전각',
           targetKey: 'angle1',
           operator: 'gte',
           expected: 360,
@@ -105,6 +106,7 @@ export const gearsLesson: Lesson = {
       ],
       rules: [
         {
+          label: '감속비 종동 기어 잇수 (N_2)',
           targetKey: 'n2',
           operator: 'eq',
           expected: 24,
@@ -173,6 +175,7 @@ export const gearsLesson: Lesson = {
       ],
       rules: [
         {
+          label: '토크 증폭 종동 기어 잇수 (N_2)',
           targetKey: 'n2',
           operator: 'eq',
           expected: 36,

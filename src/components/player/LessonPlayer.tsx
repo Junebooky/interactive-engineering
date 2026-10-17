@@ -9,6 +9,7 @@ import { Mosfet2DScene } from '../../simulations/mosfet/Mosfet2DScene';
 import { InverterCircuit2D } from '../../simulations/mosfet/InverterCircuit2D';
 import { Circuit2DScene } from '../../simulations/ohmsLaw/Circuit2DScene';
 import { Gear2DScene } from '../../simulations/gears/Gear2DScene';
+import { BookOpen, Sparkles } from 'lucide-react';
 
 interface LessonPlayerProps {
   onOpenCatalog: () => void;
@@ -46,7 +47,9 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
   const currentStep = lesson.steps[currentStepIndex];
   if (!currentStep) return null;
 
-  // Render the appropriate 2.5D simulator scene
+  const hasSimulator = Boolean(currentStep.simulatorType);
+
+  // Render the appropriate 2.5D simulator scene if one is specified
   const renderSimulator = () => {
     switch (currentStep.simulatorType) {
       case 'mosfet':
@@ -107,17 +110,41 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
 
         {/* Central or Right Stage */}
         <section className="stage-area" aria-label="인터랙티브 실습 영역">
-          <div className="stage-grid">
-            {/* Prompt & Storytelling Card */}
-            <div className="stage-prompt-col">
-              <PromptCard />
-            </div>
+          {hasSimulator ? (
+            <div className="stage-grid">
+              {/* Prompt & Storytelling Card */}
+              <div className="stage-prompt-col">
+                <PromptCard />
+              </div>
 
-            {/* 2.5D Interactive Simulator Canvas */}
-            <div className="stage-canvas-col">
-              {renderSimulator()}
+              {/* 2.5D Interactive Simulator Canvas */}
+              <div className="stage-canvas-col">
+                {renderSimulator()}
+              </div>
             </div>
-          </div>
+          ) : (
+            /* Explanatory / Concept Step Layout (No simulator required) */
+            <div className="stage-concept-grid">
+              <div className="stage-concept-main">
+                <PromptCard />
+              </div>
+              <div className="stage-concept-visual">
+                <div className="concept-info-card">
+                  <div className="concept-info-icon">
+                    <Sparkles className="text-cyan-400" size={32} />
+                  </div>
+                  <h3 className="concept-info-title">핵심 공학 개념</h3>
+                  <p className="concept-info-desc">
+                    {currentStep.prompt}
+                  </p>
+                  <div className="concept-info-footer">
+                    <BookOpen size={16} className="text-slate-400" />
+                    <span>개념을 숙지한 후 하단의 확인 버튼을 눌러 다음 단계로 진행하세요.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       </div>
 

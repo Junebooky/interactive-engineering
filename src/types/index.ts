@@ -23,11 +23,19 @@ export interface ScaffoldingHint {
 
 export interface ValidationRule {
   targetKey: string;
+  label?: string; // Human-readable condition label (e.g. "게이트 전압 0.8V ~ 1.8V 설정")
   operator: 'eq' | 'gte' | 'lte' | 'between' | 'near';
   expected: number | boolean | string | [number, number];
   tolerance?: number; // for 'near'
   feedbackIfFail: string;
   voiceIfFail?: string;
+}
+
+export interface RuleEvaluationResult {
+  targetKey: string;
+  label?: string;
+  passed: boolean;
+  message: string;
 }
 
 export interface StepEvaluation {
@@ -36,6 +44,18 @@ export interface StepEvaluation {
   whyExplanation: string;
   voiceLine: string;
   failDiagnosis?: string;
+  ruleResults: RuleEvaluationResult[]; // Condition-by-condition pass/fail breakdown
+}
+
+export interface StepControl {
+  id: string;
+  label: string;
+  unit?: string;
+  type: 'slider' | 'discreteSlider' | 'toggle' | 'truthTable' | 'gearSelector';
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: Array<{ label: string; value: any }>;
 }
 
 export interface LessonStep {
@@ -43,45 +63,39 @@ export interface LessonStep {
   title: string;
   stepType: StepType;
   storyLead: string; // 서사형 문제 제기 / 의문 (Storytelling lead)
-  prompt: string;    // 학습자 조작 지시문
+  prompt: string;    // 학습자 조작 지시문 또는 핵심 설명
   detailExplanation?: string; // 추가 개념 설명
-  whyExplanation: string; // "Why?" 버튼 클릭 시 노출되는 물리적/공학적 심층 원리
+  whyExplanation?: string; // "Why?" 버튼 클릭 시 노출되는 물리적/공학적 심층 원리
   
-  simulatorType: SimulatorType;
-  initialParams: Record<string, any>;
+  // Optional for pure explanatory/concept steps (e.g. INTRO, CONCEPT, EXPLAIN)
+  simulatorType?: SimulatorType;
+  initialParams?: Record<string, any>;
   
-  // Controls available in prompt card or canvas
-  controls: Array<{
-    id: string;
-    label: string;
-    unit?: string;
-    type: 'slider' | 'discreteSlider' | 'toggle' | 'truthTable' | 'gearSelector';
-    min?: number;
-    max?: number;
-    step?: number;
-    options?: Array<{ label: string; value: any }>;
-  }>;
+  // Controls available in prompt card or canvas (optional for explanation steps)
+  controls?: StepControl[];
 
-  // Validation rules for passing this step
-  rules: ValidationRule[];
-  successMessage: string;
-  successVoice: string;
+  // Validation rules for passing this step (optional, empty means auto-pass/informational)
+  rules?: ValidationRule[];
+  successMessage?: string;
+  successVoice?: string;
   
   // Voice narration scripts (Web Speech API)
-  voice: {
-    intro: string;         // 스텝 진입 시 자연스러운 튜터 가이드
+  voice?: {
+    intro?: string;        // 스텝 진입 시 자연스러운 튜터 가이드
     milestone?: {          // 특정 임계 조건 달성 시 (쿨다운 4초)
       triggerParam: string;
       threshold: number;
       direction: 'above' | 'below';
       speech: string;
     };
-    explanation: string;   // 성공 후 또는 Why 해설 음성
+    explanation?: string;  // 성공 후 또는 Why 해설 음성
   };
 
-  // Contextual scaffolding hints for Help panel
-  hints: ScaffoldingHint[];
+  // Contextual scaffolding hints for Help panel (optional)
+  hints?: ScaffoldingHint[];
 }
+
+export type Step = LessonStep;
 
 export interface Lesson {
   id: string;

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, useCallback, type ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import type { Lesson } from '../types';
 import { learningReducer, initialEngineState, type LearningEngineState } from './learningReducer';
 import { evaluateStepRules } from './validationEngine';
@@ -27,9 +27,18 @@ const LearningContext = createContext<LearningContextValue | null>(null);
 export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(learningReducer, initialEngineState);
 
+  // Track true milestone crossing events to prevent repetitive voice triggers
+  const crossedMilestonesRef = useRef<Set<string>>(new Set());
+
+  // Reset milestone crossings when step changes
+  useEffect(() => {
+    crossedMilestonesRef.current.clear();
+  }, [state.currentStepIndex, state.lesson?.id]);
+
   // Initialize lesson with LocalStorage restoration
   const initLesson = useCallback((courseId: string, lesson: Lesson) => {
     voiceEngine.cancel();
+    crossedMilestonesRef.current.clear();
     const saved = loadLessonProgress(courseId, lesson.id);
 
     if (saved) {
@@ -59,18 +68,24 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   }, []);
 
-  // Update parameter and trigger milestone voice if threshold crossed
+  // Update parameter and trigger voice only on true threshold crossing event
   const updateParam = useCallback((key: string, value: any) => {
     dispatch({ type: 'UPDATE_PARAM', payload: { key, value } });
 
-    // Check milestone voice
+    // Check true milestone crossing event
     if (state.lesson) {
       const step = state.lesson.steps[state.currentStepIndex];
       if (step?.voice?.milestone && step.voice.milestone.triggerParam === key) {
         const { threshold, direction, speech } = step.voice.milestone;
         const reached = direction === 'above' ? value >= threshold : value <= threshold;
-        if (reached) {
+        const milestoneKey = `${step.id}_${key}_${threshold}_${direction}`;
+
+        if (reached && !crossedMilestonesRef.current.has(milestoneKey)) {
+          crossedMilestonesRef.current.add(milestoneKey);
           voiceEngine.speak(speech, { isMilestone: true });
+        } else if (!reached && crossedMilestonesRef.current.has(milestoneKey)) {
+          // Reset so that crossing again from outside the threshold will trigger
+          crossedMilestonesRef.current.delete(milestoneKey);
         }
       }
     }
@@ -84,7 +99,7 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
     dispatch({ type: 'END_INTERACTION' });
   }, []);
 
-  // Submit check and evaluate rules
+  // Synchronous evaluation eliminating race conditions with step transitions
   const submitCheck = useCallback(() => {
     if (!state.lesson) return;
     const currentStep = state.lesson.steps[state.currentStepIndex];
@@ -93,19 +108,20 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
     dispatch({ type: 'SUBMIT_CHECK' });
     sfx.playClick();
 
-    // Small delay to simulate evaluation feel
-    setTimeout(() => {
-      const result = evaluateStepRules(currentStep, state.currentParams);
-      dispatch({ type: 'EVAL_RESULT', payload: result });
+    const result = evaluateStepRules(currentStep, state.currentParams);
+    dispatch({ type: 'EVAL_RESULT', payload: result });
 
-      if (result.passed) {
-        sfx.playCorrect();
-        voiceEngine.speak(result.voiceLine);
-      } else {
-        sfx.playIncorrect();
+    if (result.passed) {
+      sfx.playCorrect();
+      if (result.voiceLine) {
         voiceEngine.speak(result.voiceLine);
       }
-    }, 120);
+    } else {
+      sfx.playIncorrect();
+      if (result.voiceLine) {
+        voiceEngine.speak(result.voiceLine);
+      }
+    }
   }, [state.lesson, state.currentStepIndex, state.currentParams]);
 
   const retry = useCallback(() => {
@@ -119,7 +135,7 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     if (state.lesson) {
       const step = state.lesson.steps[state.currentStepIndex];
-      const hint = step?.hints.find(h => h.level === (level || 1));
+      const hint = step?.hints?.find(h => h.level === (level || 1));
       if (hint?.voiceLine) {
         voiceEngine.speak(hint.voiceLine);
       }
@@ -181,7 +197,7 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (state.lesson && state.courseId) {
       const stepId = state.lesson.steps[state.currentStepIndex]?.id;
       const prevSaved = loadLessonProgress(state.courseId, state.lesson.id);
-      const simulatorInputs = { ...(prevSaved?.simulatorInputs || {}) };
+      const simulatorInputs = { ...prevSaved?.simulatorInputs };
       if (stepId) {
         simulatorInputs[stepId] = state.currentParams;
       }

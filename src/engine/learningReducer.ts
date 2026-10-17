@@ -53,7 +53,7 @@ export function learningReducer(
     case 'INIT_LESSON': {
       const { courseId, lesson, restoredStepIndex = 0, restoredParams, completedStepIds = [] } = action.payload;
       const initialStep = lesson.steps[restoredStepIndex] || lesson.steps[0];
-      const params = restoredParams || { ...initialStep.initialParams };
+      const params = restoredParams || { ...initialStep?.initialParams };
 
       return {
         ...state,
@@ -102,10 +102,17 @@ export function learningReducer(
         ...state.currentParams,
         [action.payload.key]: action.payload.value,
       };
+
+      // Invariant: Changing parameters after evaluation (CORRECT or INCORRECT)
+      // invalidates prior evaluation result and returns to INTERACTING
+      const isPostEvaluation =
+        state.fsmState === 'EVALUATED_CORRECT' || state.fsmState === 'EVALUATED_INCORRECT';
+
       return {
         ...state,
-        fsmState: state.fsmState === 'EVALUATED_INCORRECT' ? 'INTERACTING' : state.fsmState,
+        fsmState: isPostEvaluation ? 'INTERACTING' : state.fsmState === 'STEP_INTRO' ? 'INTERACTING' : state.fsmState,
         currentParams: nextParams,
+        evaluation: isPostEvaluation ? null : state.evaluation,
         isDirty: true,
       };
     }
@@ -227,7 +234,7 @@ export function learningReducer(
       const currentStep = state.lesson.steps[state.currentStepIndex];
       return {
         ...state,
-        currentParams: { ...currentStep.initialParams },
+        currentParams: { ...currentStep?.initialParams },
         fsmState: 'STEP_INTRO',
         evaluation: null,
         isDirty: false,

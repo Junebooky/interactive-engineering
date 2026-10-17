@@ -9,6 +9,23 @@ export const mosfetLesson: Lesson = {
   description: '게이트 전압으로 전도 채널을 열고, 드레인 전압으로 전류를 흘린 뒤, 풀다운 스위치를 결합해 디지털 컴퓨터의 기본 소자인 NOT 게이트를 완성하는 완결형 공학 실습입니다.',
   category: 'semiconductor',
   steps: [
+    // Step 0: 개념 도입 (설명형 Step - 시뮬레이터 생략 가능 계약 검증)
+    {
+      id: 'step-mosfet-s0-concept',
+      title: '개념 도입: 왜 반도체로 스위치를 만들까?',
+      stepType: 'CONCEPT',
+      storyLead: '물리적인 접점이나 마모되는 기계 부품 없이, 1초에 수십억 번 켜고 끌 수 있는 스위치는 어떻게 가능할까요?',
+      prompt: '현대 모든 컴퓨터 칩은 기계적 접점 대신 실리콘 결정과 전계(Electric Field)를 이용해 전류를 제어하는 MOSFET 트랜지스터로 만들어집니다. 아래 원리를 읽고 학습을 시작하세요.',
+      detailExplanation: 'MOSFET(금속-산화막-반도체 전계효과 트랜지스터)은 현대 집적회로의 가장 기초적인 단위 소자입니다. 물리적인 가동 부품이 전혀 없기 때문에 마모되지 않고 나노초(ns) 이하의 극도로 빠른 속도로 0과 1 신호를 스위칭할 수 있습니다.',
+      whyExplanation: '컴퓨터의 덧셈, 기억, 통신은 모두 0과 1이라는 두 상태를 고속으로 전환하는 과정입니다. 반도체는 전압에 따라 도체(전류 통함)와 부도체(전류 차단)의 성질을 자유자재로 오갈 수 있어 이상적인 스위치 재료가 됩니다.',
+      successMessage: 'MOSFET의 기본 개념을 확인했습니다. 이제 직접 게이트 전압을 조작해 전도 채널을 열어봅시다!',
+      successVoice: '모스펫의 기본 개념을 확인했습니다. 직접 게이트 전압을 조작해 채널을 열어봅시다.',
+      voice: {
+        intro: '현대 컴퓨터의 심장인 반도체 트랜지스터의 세계에 오신 것을 환영합니다. 설명을 읽고 다음 단계로 넘어가보세요.',
+        explanation: '반도체는 전압을 통해 전도성을 제어할 수 있는 신비로운 재료입니다.',
+      },
+    },
+
     // Step 1: 문턱 전압과 채널 형성
     {
       id: 'step-mosfet-s1-channel',
@@ -36,6 +53,7 @@ export const mosfetLesson: Lesson = {
       ],
       rules: [
         {
+          label: '게이트 전압 V_GS',
           targetKey: 'vgs',
           operator: 'between',
           expected: [0.8, 1.8],
@@ -104,6 +122,7 @@ export const mosfetLesson: Lesson = {
       ],
       rules: [
         {
+          label: '드레인 전압 V_DS',
           targetKey: 'vds',
           operator: 'gte',
           expected: 0.8,
@@ -168,6 +187,7 @@ export const mosfetLesson: Lesson = {
       ],
       rules: [
         {
+          label: '게이트 입력 전압 V_in',
           targetKey: 'vin',
           operator: 'gte',
           expected: 2.5,
@@ -230,6 +250,7 @@ export const mosfetLesson: Lesson = {
       ],
       rules: [
         {
+          label: '입력 0일 때 출력 (out0)',
           targetKey: 'out0',
           operator: 'eq',
           expected: 1,
@@ -237,6 +258,7 @@ export const mosfetLesson: Lesson = {
           voiceIfFail: '입력이 0일 때 nMOS가 꺼지므로 출력은 1이 됩니다.',
         },
         {
+          label: '입력 1일 때 출력 (out1)',
           targetKey: 'out1',
           operator: 'eq',
           expected: 0,

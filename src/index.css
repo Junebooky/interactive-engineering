@@ -1444,6 +1444,106 @@ html, body {
   background: #059669;
 }
 
+/* Condition-by-Condition Rule Results Pills */
+.rule-results-pills {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.rule-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.rule-pill.pill-pass {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.rule-pill.pill-fail {
+  background: rgba(244, 63, 94, 0.2);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: #fb7185;
+}
+
+/* Explanatory / Concept Stage View */
+.stage-concept-grid {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  gap: 1.5rem;
+  align-items: start;
+  width: 100%;
+}
+
+.stage-concept-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.stage-concept-visual {
+  display: flex;
+  flex-direction: column;
+}
+
+.concept-info-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.concept-info-icon {
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  padding: 1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.concept-info-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.concept-info-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.concept-info-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-default);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
 /* Responsive Media Queries (Mobile & Tablet) */
 @media (max-width: 1024px) {
   .player-workspace {
@@ -1451,7 +1551,7 @@ html, body {
     padding: 1rem;
   }
 
-  .stage-grid {
+  .stage-grid, .stage-concept-grid {
     grid-template-columns: 1fr;
   }
 

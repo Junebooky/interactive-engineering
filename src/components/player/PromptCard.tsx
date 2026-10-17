@@ -63,79 +63,81 @@ export const PromptCard: React.FC = () => {
         </div>
       )}
 
-      {/* Interactive Controls Section */}
-      <div className="prompt-controls-section">
-        {step.controls.map((ctrl) => {
-          if (ctrl.type === 'slider') {
-            const val = currentParams[ctrl.id] ?? ctrl.min ?? 0;
-            // Snaps
-            const snapPoints = ctrl.id === 'vgs' ? [0.7] : ctrl.id === 'resistance' ? [30.0] : [];
-            return (
-              <ParameterSlider
-                key={ctrl.id}
-                id={ctrl.id}
-                label={ctrl.label}
-                value={val}
-                min={ctrl.min ?? 0}
-                max={ctrl.max ?? 100}
-                step={ctrl.step ?? 0.1}
-                unit={ctrl.unit}
-                snapPoints={snapPoints}
-                onChange={(newVal) => updateParam(ctrl.id, newVal)}
-                onPointerDown={startInteraction}
-                onPointerUp={endInteraction}
-              />
-            );
-          }
+      {/* Interactive Controls Section (if controls exist) */}
+      {step.controls && step.controls.length > 0 && (
+        <div className="prompt-controls-section">
+          {step.controls.map((ctrl) => {
+            if (ctrl.type === 'slider') {
+              const val = currentParams[ctrl.id] ?? ctrl.min ?? 0;
+              // Snaps
+              const snapPoints = ctrl.id === 'vgs' ? [0.7] : ctrl.id === 'resistance' ? [30.0] : [];
+              return (
+                <ParameterSlider
+                  key={ctrl.id}
+                  id={ctrl.id}
+                  label={ctrl.label}
+                  value={val}
+                  min={ctrl.min ?? 0}
+                  max={ctrl.max ?? 100}
+                  step={ctrl.step ?? 0.1}
+                  unit={ctrl.unit}
+                  snapPoints={snapPoints}
+                  onChange={(newVal) => updateParam(ctrl.id, newVal)}
+                  onPointerDown={startInteraction}
+                  onPointerUp={endInteraction}
+                />
+              );
+            }
 
-          if (ctrl.type === 'toggle') {
-            const checked = Boolean(currentParams[ctrl.id]);
-            return (
-              <SwitchToggle
-                key={ctrl.id}
-                id={ctrl.id}
-                label={ctrl.label}
-                checked={checked}
-                onToggle={(newVal) => updateParam(ctrl.id, newVal)}
-              />
-            );
-          }
+            if (ctrl.type === 'toggle') {
+              const checked = Boolean(currentParams[ctrl.id]);
+              return (
+                <SwitchToggle
+                  key={ctrl.id}
+                  id={ctrl.id}
+                  label={ctrl.label}
+                  checked={checked}
+                  onToggle={(newVal) => updateParam(ctrl.id, newVal)}
+                />
+              );
+            }
 
-          if (ctrl.type === 'truthTable') {
-            return (
-              <TruthTableInput
-                key={ctrl.id}
-                out0={currentParams.out0 ?? null}
-                out1={currentParams.out1 ?? null}
-                onChange={(key, val) => updateParam(key, val)}
-              />
-            );
-          }
+            if (ctrl.type === 'truthTable') {
+              return (
+                <TruthTableInput
+                  key={ctrl.id}
+                  out0={currentParams.out0 ?? null}
+                  out1={currentParams.out1 ?? null}
+                  onChange={(key, val) => updateParam(key, val)}
+                />
+              );
+            }
 
-          if (ctrl.type === 'gearSelector') {
-            const selectedN2 = currentParams.n2 ?? 12;
-            return (
-              <div key={ctrl.id} className="control-group">
-                <span className="control-label">{ctrl.label}</span>
-                <div className="gear-selector-buttons">
-                  {ctrl.options?.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      className={`selector-btn ${selectedN2 === opt.value ? 'active' : ''}`}
-                      onClick={() => updateParam('n2', opt.value)}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+            if (ctrl.type === 'gearSelector') {
+              const selectedN2 = currentParams.n2 ?? 12;
+              return (
+                <div key={ctrl.id} className="control-group">
+                  <span className="control-label">{ctrl.label}</span>
+                  <div className="gear-selector-buttons">
+                    {ctrl.options?.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        className={`selector-btn ${selectedN2 === opt.value ? 'active' : ''}`}
+                        onClick={() => updateParam('n2', opt.value)}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          }
+              );
+            }
 
-          return null;
-        })}
-      </div>
+            return null;
+          })}
+        </div>
+      )}
     </div>
   );
 };

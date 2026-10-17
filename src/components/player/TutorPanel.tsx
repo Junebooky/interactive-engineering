@@ -50,52 +50,61 @@ export const TutorPanel: React.FC = () => {
 
         {/* Tiered Scaffolding Hints */}
         <div className="hints-list">
-          {step.hints.map((hint) => {
-            const isUnlocked = activeHintLevel >= hint.level;
-            return (
-              <div
-                key={hint.level}
-                className={`hint-card ${isUnlocked ? 'unlocked' : 'locked'}`}
-              >
-                <div className="hint-card-header">
-                  <div className="hint-level-badge">
-                    <Lightbulb size={14} />
-                    <span>힌트 {hint.level}단계</span>
+          {step.hints && step.hints.length > 0 ? (
+            step.hints.map((hint) => {
+              const isUnlocked = activeHintLevel >= hint.level;
+              return (
+                <div
+                  key={hint.level}
+                  className={`hint-card ${isUnlocked ? 'unlocked' : 'locked'}`}
+                >
+                  <div className="hint-card-header">
+                    <div className="hint-level-badge">
+                      <Lightbulb size={14} />
+                      <span>힌트 {hint.level}단계</span>
+                    </div>
+                    {isUnlocked && hint.voiceLine && (
+                      <button
+                        type="button"
+                        className="hint-voice-btn"
+                        onClick={() => handleSpeakHint(hint.voiceLine!)}
+                        title="음성으로 듣기"
+                      >
+                        <Volume2 size={15} />
+                        <span>듣기</span>
+                      </button>
+                    )}
                   </div>
-                  {isUnlocked && hint.voiceLine && (
-                    <button
-                      type="button"
-                      className="hint-voice-btn"
-                      onClick={() => handleSpeakHint(hint.voiceLine!)}
-                      title="음성으로 듣기"
-                    >
-                      <Volume2 size={15} />
-                      <span>듣기</span>
-                    </button>
+
+                  <div className="hint-title">{hint.title}</div>
+
+                  {isUnlocked ? (
+                    <div className="hint-content">
+                      <p>{hint.description}</p>
+                    </div>
+                  ) : (
+                    <div className="hint-locked-row">
+                      <span>더 자세한 힌트가 필요하신가요?</span>
+                      <button
+                        type="button"
+                        className="unlock-hint-btn"
+                        onClick={() => openHint(hint.level)}
+                      >
+                        힌트 열기
+                      </button>
+                    </div>
                   )}
                 </div>
-
-                <div className="hint-title">{hint.title}</div>
-
-                {isUnlocked ? (
-                  <div className="hint-content">
-                    <p>{hint.description}</p>
-                  </div>
-                ) : (
-                  <div className="hint-locked-row">
-                    <span>더 자세한 힌트가 필요하신가요?</span>
-                    <button
-                      type="button"
-                      className="unlock-hint-btn"
-                      onClick={() => openHint(hint.level)}
-                    >
-                      힌트 열기
-                    </button>
-                  </div>
-                )}
+              );
+            })
+          ) : (
+            <div className="hint-card unlocked">
+              <div className="hint-title">개념 설명 단계</div>
+              <div className="hint-content">
+                <p>본 단계는 핵심 공학 개념을 학습하는 설명형 단계입니다. 본문의 원리 설명을 차근차근 읽어보세요.</p>
               </div>
-            );
-          })}
+            </div>
+          )}
         </div>
       </div>
     </aside>
