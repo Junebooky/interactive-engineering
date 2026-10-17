@@ -1,3 +1,4 @@
+> **2026-10-17 A06 신규 수치 선수 레슨 13**: [student-first 13-S01..S05](lessons/13-units-probability-percentiles.md), source **blob `ea03cc4069bb49c6dfed7dc1edce8a4dd659ac27`** + [research math](deep-dives/13-units-statistics-slo.md) **blob `40178ec0ec3b5fb75275a2341d4d85200c4faca8`**, [#45](https://github.com/Junebooky/interactive-engineering/issues/45) A06 author [x], A07 independent SOURCE PASS [ ]. **17 authored lessons /73 Steps** (= prior 16/68 + 13 new5); old 16/68 below historical. Coverage P06/P08 lesson draft improved, no full learner/scene/app pass. Prereq 12→13 then 09/07/29/10 and 06 yield math.
 > **2026-10-17 A06 Round09 신규 레슨 실제 집필 반영:** [31 GPU 전원·냉각·PUE/WUE 5-Step](lessons/31-gpu-power-thermal-data-center.md) + [TI/DOE 공학 검산](deep-dives/31-vrm-cdu-pue-wue.md) **A06 자체 QA 완료 / A07 독립 SOURCE REVIEW 대기**. 현재 합계 **16개 원고/68 Step** = 기존 15/63+신규31 5 Step. [협업 카드 #38](https://github.com/Junebooky/interactive-engineering/issues/38) `NEXT:A07`. 신규 31은 A07 SOURCE PASS/ A05 제작/ A02 제품완료 판정이 아님. 전수 지도 115 topic/계획32 번호는 유지하고, PDF/제조사 SKU 성능을 toy로 혼동하지 않음.
 > **2026-10-17 A06 신규 라운드:** A07이 11·12·14 및 다른 레슨을 독립 검수하는 동안 **16 CMOS 논리·래치/플립플롭·클록 4-Step**을 자율 조사·작성. [16 lesson](lessons/16-logic-clock-registers.md) + [MIT 6.004/TI 공학 검산](deep-dives/16-digital-logic-clock-timing.md). A06 자체 QA만 완료, A07 독립 검토/EDU_QA_PASS는 **미완료**. 따라서 01→16→05 경로의 교육 자료는 존재해도 16의 SCENE_READY/앱 출시를 뜻하지 않음. 현재 총 원고 **15개/63 Step**.
 
@@ -16,6 +17,7 @@
 | 학습 순서(권장) | Unit / 레슨 | 선수 | 학습목표/핵심 질문 | 실험·평가 | 시간(기획 추정) | 상태 |
 |---|---|---|---|---|---|---|
 | 1 | U0 **12 전압·전류·RC 회로** | 없음 | V/I/R/RC/에너지 구분 | 옴·RC 4 Step | 40~50분 | STORY_READY |
+| **1b (필수 수치 선수)** | U0 **13 단위·확률·p99·SLO** | 12 기본 전력/지수 | bit/B, GB/GiB·MT/s/GT/s→Poisson/ln→정확 p99/버킷 추정→SLO budget | **5-Step** [student-first storyboard](lessons/13-units-probability-percentiles.md), [official source ledger](deep-dives/13-units-statistics-slo.md) | 45~55분(기획) | **A06_SOURCE_DONE / A07_EDU_REVIEW_PENDING · #45** |
 | 2 | U0 **11 밴드/도핑/PN 다이오드** | 12 첫 10분 | 반도체 물질/접합과 드리프트·확산 | 도핑, Vbi, 공핍폭, I–V | 45~55분 | STORY_READY |
 | 3 | U1 **14 MOS 커패시터·표면반전** | 11,12 | 산화막 전계·축적·공핍·반전→MOSFET | 게이트 전압·Cox 4-Step | 35~45분 | **A07_EDU_QA_PENDING (A06_SELF_QA)** |
 | 4 | U1 **01 MOSFET→CMOS NOT** | 11,14 | VGS, VDS, logic bit 구분 | MOSFET 4 Step | 40~50분 | STORY_READY/A05 |
@@ -39,7 +41,7 @@
 | 확장 D | 22 SiC/GaN,24 ADC/MEMS/opto,30 silicon photonics | 11,31 | 전력/광/센서·신뢰성 | bandgap/optics | 각 45~65분 | Research candidate |
 | 확장 E | 26 ZNS/NVMe-oF,27 스토리지 복제 | 04,08,09 | SSD 데이터/분산 일관성 | namespace/replica | 각 45~60분 | Research candidate |
 
-**보충 레슨 13**: GB/s·MT/s·GT/s·ns, 1GiB/1GB·차원 분석, 03/07/08/29의 학생에게 필요한 25~40분 선택 브리지. **status=RESEARCH_CANDIDATE**, 12와 중복 단위는 짧은复習만; 신규 제안은 GPU 대역폭 계산/PCIe signaling별로 독립 설계.
+**신규 레슨 13 정식 원고 A06 완성 / A07 검수 대기**: [13 GB/GiB·MT/s/GT/s·지수/확률·p99·히스토그램·SLO 5-Step](lessons/13-units-probability-percentiles.md) 와 [NIST/PCI-SIG/Google SRE/Prometheus 심화 검산](deep-dives/13-units-statistics-slo.md). [card #45](https://github.com/Junebooky/interactive-engineering/issues/45) **NEXT:A07**. 12 회로/지수 후 13을 06/07/08/09/10/29 앞에 조건별 배치; P06/P08의 기본 수준은 자체 원고로 커버, 외부/현장 교육 검증 아님.
 
 **Step 설계:** 각 planned lesson은 4~5 Step 예상, 개별 Step 예측→조작→관찰→원리→다음 질문, 오개념 3개 이상/힌트 3층/다른 원인별 피드백/UI Text vs Korean Voice/비유의 물리적 한계. 이미 STORY_READY인 01~12는 [기존 레슨](lessons/) 원고를 source-of-truth로 한다. 위 예상 시간은 학습자 시험 없이 정한 **기획값**. 추정 총 코어 학습시간 13~18시간, 깊이/분기별 달라진다.
 
@@ -54,9 +56,9 @@
 | P03 저항·옴의 법칙·KCL/KVL | P02 | core · 12 · **STORY_READY*** | 왜 저항·옴의 법칙·KCL/KVL이(가) 필요할까요? → **V/I/R 연결·노드 보존** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P04** |
 | P04 커패시터·RC 충전/방전 | P03 | core · 12 · **STORY_READY*** | 왜 커패시터·RC 충전/방전이(가) 필요할까요? → **RC 응답 곡선** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P05** |
 | P05 전력 W·에너지 J/Wh·열 | P03 | core · 12 · **STORY_READY*** | 왜 전력 W·에너지 J/Wh·열이(가) 필요할까요? → **P=VI·J/Wh 변환** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P06** |
-| P06 bit·byte·GB/s·ns·MT/s·GT/s | P03 | core · 13 · **RESEARCH_CANDIDATE** | 왜 bit·byte·GB/s·ns·MT/s·GT/s이(가) 필요할까요? → **전송률·대역폭 계산** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P07** |
+| P06 bit·byte·GB/s·ns·MT/s·GT/s | P03 | core · 13-S01/S02 · **A06_AUTHOR_DONE / A07_QA_PENDING** | 왜 bit·byte·GB/s·ns·MT/s·GT/s이(가) 필요할까요? → **전송률·대역폭 계산** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P07** |
 | P07 밴드구조·밴드갭·결정 | P01 | core · 11 · **STORY_READY*** | 왜 밴드구조·밴드갭·결정이(가) 필요할까요? → **도체/절연체/반도체 밴드 그림** | 단위/지수/이상 RC 가정; [R1][R2]; 2026-10-17 학습 명세 보유; → **P08** |
-| P08 통계·로그·지수·확률·p99 | P03 | core · **12-S03 지수만 소개·PARTIAL; 13 수학+통계 보충 후보** | 11-S04의 sqrt/ln 짧은 카드, 09-S04 전에 퍼센타일/분포를 별도 도입 → **수학 bridge/히스토그램** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P09** |
+| P08 통계·로그·지수·확률·p99 | P03 | core · **12-S03 기초지수 + 13-S03/S04/S05 Poisson·ln·p99·SLO AUTHOR_DONE, A07_QA_PENDING** | 11-S04의 sqrt/ln 짧은 카드, 09-S04 전에 퍼센타일/분포를 별도 도입 → **수학 bridge/히스토그램** | 단위/지수/이상 RC 가정; [R1][R2]; 세부 팩트 재검증 대기; → **P09** |
 | P09 드리프트·확산·이동도 | P02, P07 | core · 11 · **STORY_READY*** | 왜 드리프트·확산·이동도이(가) 필요할까요? → **확산·전계 분리** | 단위/지수/이상 RC 가정; [R1][R2]; 2026-10-17 학습 명세 보유; → **P10** |
 | P10 전자농도·페르미준위·온도 | P07, P08 | advanced · 11 · **STORY_READY*** | 왜 전자농도·페르미준위·온도이(가) 필요할까요? → **thermal population toy** | 단위/지수/이상 RC 가정; [R1][R2]; 2026-10-17 학습 명세 보유; → **D** |
 
