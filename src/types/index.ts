@@ -36,7 +36,12 @@ export type SimulatorType =
   | 'elec-charge-current'
   | 'elec-resistor-kcl'
   | 'elec-rc-delay'
-  | 'elec-power-energy';
+  | 'elec-power-energy'
+  | 'pn-band-gap'
+  | 'pn-doping'
+  | 'pn-equilibrium'
+  | 'pn-depletion-bias'
+  | 'pn-diode-to-mos';
 
 export interface ScaffoldingHint {
   level: 1 | 2 | 3;
