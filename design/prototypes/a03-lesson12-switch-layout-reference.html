@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>A03 · Lesson12 Switch UI Reference — Design concept</title>
+<style>
+:root{font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;color:#152431;background:#F5F7F7;
+--ie-app-bg:#F5F7F7;--ie-lab-bg:#102333;--ie-primary:#087C6D;--ie-surface:#fff;--ie-muted:#65757C;--ie-tint:#F2F4F6;--ie-electric:#7CE7D5;--ie-conductor:#568FAA;--ie-voltage:#F3C36C;}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow-x:hidden}button{font:inherit;cursor:pointer}button:disabled{cursor:not-allowed;opacity:.48}
+button:focus-visible,input:focus-visible{outline:3px solid #F3C36C;outline-offset:3px}
+.page{min-height:100dvh;max-height:100dvh;display:flex;flex-direction:column;padding:0 24px 24px;overflow:hidden}
+header{display:flex;height:64px;min-height:64px;align-items:center;gap:24px;margin:0 -24px 20px;padding:0 27px;background:#fff;border-bottom:1px solid #E6EBEB}
+.exit{border:0;background:none;font-size:14px;font-weight:700;color:#243842;min-width:88px;min-height:44px}
+.stepper{width:180px;height:5px;border-radius:99px;background:#E2E9E9;overflow:hidden;margin:auto}.stepper span{display:block;width:40%;height:100%;background:#087C6D}
+.head-right{font-size:12px;color:#62767A;min-width:120px;text-align:right}
+.shell{width:100%;max-width:1460px;margin:0 auto;flex:1;display:grid;grid-template-columns:minmax(0,1.76fr) minmax(380px,.80fr);gap:18px;min-height:0}
+.lab{position:relative;overflow:hidden;border-radius:24px;background:radial-gradient(ellipse at 50% 68%,#1A3950 0%,#102333 70%);display:flex;flex-direction:column;color:#fff}
+.lab-header{position:relative;z-index:2;padding:24px 28px 6px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.lab-eyebrow{font-size:11px;color:#98C6C9;font-weight:800;letter-spacing:.12em}
+h1{font-size:27px;letter-spacing:-.035em;line-height:1.28;margin:8px 0 8px}.lab-lead{color:#C3D8DF;font-size:13px;margin:0}
+.info{border:1px solid #477586;background:#18394B;color:#D5E9EF;border-radius:50%;width:38px;height:38px;flex-shrink:0;font-size:18px}
+.diagram{flex:1;min-height:210px;display:flex;justify-content:center;align-items:center;padding:6px 20px 0}
+.diagram svg{display:block;width:min(94%,840px);max-height:100%;filter:drop-shadow(0 18px 22px #00131F88)}
+.lab-bottom{z-index:2;position:relative;padding:10px 26px 23px;display:flex;flex-direction:column;gap:11px}
+.dock{display:flex;align-items:center;gap:10px;border-radius:16px;background:#1A3545;border:1px solid #34566B;padding:11px 12px;justify-content:space-between;min-height:68px}
+.dock-copy{display:flex;flex-direction:column;gap:4px}.dock-title{font-size:14px;font-weight:800}.dock-sub{font-size:11px;color:#B8CDD5}
+.seg{display:flex;gap:4px;background:#0B2533;padding:4px;border-radius:12px;flex-shrink:0}
+.seg button{min-height:44px;min-width:78px;border:0;border-radius:9px;background:transparent;color:#D5E4E9;font-weight:700;padding:0 14px}
+.seg button[aria-pressed=true]{background:#087C6D;color:#fff}
+.dock[hidden],.readouts[hidden]{display:none}
+.readouts{display:flex;gap:12px;justify-content:flex-start;font-size:12px;color:#D0E7EE}
+.readouts b{color:#fff;font-size:15px;margin-left:8px}
+.sheet{display:flex;flex-direction:column;min-height:0;background:#fff;border-radius:24px;padding:25px 26px 21px;overflow:hidden}
+.sheet-scroll{overflow:auto;min-height:0;flex:1;scrollbar-width:thin}
+.kicker{font-size:11px;font-weight:800;color:#087C6D;letter-spacing:.075em}
+h2{font-size:23px;line-height:1.42;letter-spacing:-.035em;margin:13px 0}
+.body{font-size:14px;line-height:1.75;color:#65757C;margin:8px 0 22px}
+.choice{display:flex;align-items:flex-start;gap:12px;cursor:pointer;border:1px solid #E6EBEB;border-radius:13px;padding:15px 13px;margin:9px 1px;font-size:14px;line-height:1.5;color:#233942}
+.choice:has(input:checked){border:2px solid #087C6D;background:#E9F5F2;padding:14px 12px}
+.choice input{accent-color:#087C6D;margin:4px 0 0;width:18px;height:18px;flex-shrink:0}
+.secondary-section{margin:18px 0;padding-top:12px;border-top:1px solid #EEF1F1}
+.tutor{display:flex;align-items:center;gap:10px;margin-top:20px;background:#F2F4F6;border-radius:14px;padding:11px 12px}
+.avatar{background:#D4EAE4;color:#087C6D;width:35px;height:35px;display:grid;place-items:center;border-radius:50%;font-size:17px}
+.tutor strong{display:block;font-size:12px}.tutor small{display:block;color:#65757C;font-size:11px;margin-top:3px}
+.tutor button{margin-left:auto;border:0;background:#fff;border-radius:50%;width:38px;height:38px;color:#087C6D}
+.actionbar{display:flex;gap:9px;align-items:center;margin-top:17px}
+.actionbar .primary{flex:1;border:none;min-height:49px;border-radius:11px;background:#087C6D;color:#fff;font-weight:800;font-size:14px}
+.actionbar .secondary{border:1px solid #E6EBEB;background:#F2F4F6;color:#30414B;border-radius:11px;padding:0 12px;min-height:49px;font-size:12px}
+.reveal-note{padding:15px 16px;border-radius:14px;background:#F2F4F6;font-size:14px;line-height:1.7;margin:15px 0}
+.mobile-grip{display:none}
+.status-line{font-size:12px;color:#087C6D;font-weight:700;margin-top:9px}
+@media(max-width:860px){.page{padding:0;max-height:100dvh;height:100dvh;overflow:hidden}header{height:55px;min-height:55px;margin:0;padding:0 14px;background:#fff}.head-right{min-width:56px}.stepper{width:110px}
+.shell{display:flex;flex-direction:column;gap:0;max-height:calc(100dvh - 55px);min-height:0}.lab{height:48dvh;flex:0 0 48dvh;border-radius:0}.lab-header{padding:12px 15px 0}.lab-eyebrow{font-size:10px}h1{font-size:18px;margin:4px 0}.lab-lead{font-size:11px}.info{width:32px;height:32px}.diagram{min-height:100px;padding:0 12px}.diagram svg{width:min(97%,600px)}.lab-bottom{padding:1px 12px 10px;gap:5px}.dock{min-height:56px;padding:5px 9px;gap:7px}.dock-title{font-size:12px}.dock-sub{font-size:10px}.seg button{min-width:58px;min-height:44px;font-size:12px;padding:0 10px}.readouts{font-size:10px}.readouts b{font-size:12px}.sheet{flex:1;padding:9px 16px max(12px,env(safe-area-inset-bottom));border-radius:18px 18px 0 0;margin-top:-1px;min-height:0}.mobile-grip{display:block;margin:0 auto 9px;width:36px;height:4px;border-radius:10px;background:#CAD2D5}.kicker{font-size:10px}h2{font-size:18px;margin:9px 0}.body{font-size:12px;margin:7px 0 12px}.choice{font-size:12px;padding:11px 10px;margin:7px 1px}.choice:has(input:checked){padding:10px 9px}.tutor{margin-top:12px;padding:8px}.actionbar{margin-top:8px}.actionbar .primary{min-height:49px}}
+@media(max-width:370px), (max-height:700px){.lab{height:42dvh;flex-basis:42dvh}.lab-header{padding-top:8px}.lab-lead{display:none}.lab-bottom{padding:1px 9px 7px}.diagram{min-height:75px}.sheet{padding-left:12px;padding-right:12px}.dock-title{font-size:11px}.seg button{min-width:49px}.readouts{gap:7px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="page">
+<header><button class="exit" aria-label="레슨 나가기" onclick="alert('A03 디자인 레퍼런스입니다. 실제 레슨 이동은 A02가 연결합니다.')">← 나가기</button><div class="stepper" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="2" aria-label="레슨 진행 2/5"><span></span></div><div class="head-right">2 / 5</div></header>
+<main class="shell">
+<section class="lab" aria-label="전기회로 2.5D 실험실">
+<div class="lab-header"><div><div class="lab-eyebrow">LESSON 12 · CIRCUIT LAB</div><h1>스위치를 열면 전류는 어떻게 될까요?</h1><p class="lab-lead">배터리와 저항 사이의 길을 직접 연결해 보세요.</p></div><button class="info" title="이상적인 5V 전원과 1kΩ 저항의 교육용 모델. 측정 결과는 예측을 제출한 후에 표시합니다." aria-label="모델 기준">ⓘ</button></div>
+<div class="diagram">
+<svg viewBox="0 0 780 420" role="img" aria-label="전원 5볼트, 저항 1킬로옴과 열림·닫힘 스위치로 이루어진 회로 모형. 조작은 장면 하단의 실험 도크에서 합니다.">
+<defs><linearGradient id="base" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#274A63"/><stop offset="1" stop-color="#153145"/></linearGradient><linearGradient id="battery" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F6D58C"/><stop offset="1" stop-color="#AD7935"/></linearGradient><linearGradient id="res" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#C0E5EA"/><stop offset="1" stop-color="#568FAA"/></linearGradient></defs>
+<path d="M65 95 L680 95 715 126 715 346 685 373 65 373 42 350 42 121Z" fill="url(#base)" stroke="#37657D" stroke-width="3"/><path d="M65 95 L680 95 715 126 95 126Z" fill="#3B6177" opacity=".52"/>
+<g stroke="#75B3BF" stroke-width="10" stroke-linejoin="round" stroke-linecap="round" fill="none">
+<path d="M168 177 H300"/><path d="M457 177 H602 V305 H168 V255"/>
+</g>
+<g><rect x="118" y="147" width="100" height="115" rx="15" fill="#122434" opacity=".5" transform="translate(9 9)"/><rect x="118" y="147" width="100" height="115" rx="15" fill="url(#battery)" stroke="#FFE8B0" stroke-width="2"/><text x="168" y="191" font-size="20" font-weight="800" text-anchor="middle" fill="#332D23">5 V</text><text x="168" y="221" font-size="14" font-weight="700" text-anchor="middle" fill="#332D23">전원</text><text x="168" y="245" font-size="12" text-anchor="middle" fill="#4D4031">+  −</text></g>
+<g><path d="M550 151 L635 151 651 165 651 219 635 232 550 232 537 220 537 164Z" fill="url(#res)" stroke="#D6F5FF" stroke-width="2"/><path d="M550 151 L635 151 651 165 563 165Z" fill="#D9F5F6" opacity=".6"/><text x="594" y="188" text-anchor="middle" font-size="21" font-weight="800" fill="#102333">1kΩ</text><text x="594" y="208" text-anchor="middle" font-size="13" font-weight="650" fill="#17374D">저항</text></g>
+<g id="switch-drawing"><path d="M300 177 H340 M427 177 H457" stroke="#7CE7D5" stroke-width="11" stroke-linecap="round"/><circle cx="340" cy="177" r="11" fill="#9DE5DF" stroke="#D7F7F1" stroke-width="3"/><circle cx="427" cy="177" r="11" fill="#9DE5DF" stroke="#D7F7F1" stroke-width="3"/><path id="switch-arm" d="M340 177 L410 117" stroke="#F3C36C" stroke-width="9" stroke-linecap="round"/><text x="384" y="97" font-size="15" text-anchor="middle" font-weight="700" fill="#E6F5F6">스위치</text></g>
+<g id="result-arrows" hidden><circle cx="390" cy="305" r="18" fill="#087C6D"/><path d="M382 305 H397 M390 299 L397 305 390 311" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><text x="390" y="337" text-anchor="middle" fill="#BEF5E8" font-weight="700" font-size="12">흐름 관찰</text></g>
+<text x="390" y="392" text-anchor="middle" font-size="12" fill="#B4D7E0">이상적인 직류 회로 · 간략화된 교육용 도식</text>
+</svg>
+</div>
+<div class="lab-bottom">
+<div id="experiment-dock" class="dock" hidden>
+<div class="dock-copy"><span class="dock-title">실험 조작 · 회로 스위치</span><span class="dock-sub">열림과 닫힘을 직접 비교해 보세요</span></div>
+<div class="seg" role="group" aria-label="실험 조작 회로 스위치"><button id="open-switch" type="button" aria-pressed="true">열림</button><button id="close-switch" type="button" aria-pressed="false">닫힘</button></div>
+</div>
+<div id="readouts" class="readouts" hidden aria-live="polite"><span>전원 전압 <b>5 V</b></span><span>전류 <b id="amp">0 mA</b></span><span id="switch-readout">스위치 열림</span></div>
+</div>
+</section>
+<aside class="sheet" aria-label="학습 질문과 피드백">
+<div class="mobile-grip" aria-hidden="true"></div>
+<div class="sheet-scroll">
+<div class="kicker" id="phase">01 · 예상해 보기</div>
+<h2 id="question">5V 배터리의 스위치를 열면 전류와 전압은 어떻게 될까요?</h2>
+<p class="body" id="intro">전류가 흐르는 길을 끊으면 무슨 일이 생길지 먼저 생각해 보세요.</p>
+<div id="choices">
+<label class="choice"><input type="radio" name="predict" value="voltage" /><span>배터리의 전압은 남지만 전류는 멈출 것 같아요.</span></label>
+<label class="choice"><input type="radio" name="predict" value="both" /><span>전압과 전류가 모두 없어질 것 같아요.</span></label>
+<label class="choice"><input type="radio" name="predict" value="flow" /><span>회로가 열려도 전류가 계속 흐를 것 같아요.</span></label>
+</div>
+<div id="feedback" class="reveal-note" hidden></div>
+<div class="tutor"><span class="avatar">◉</span><span><strong>내 곁의 엔지니어</strong><small id="tutor-copy">예상한 뒤 함께 실험해 봐요.</small></span><button id="voice" type="button" aria-label="현재 안내 읽기">▶</button></div>
+<div class="status-line" id="status" aria-live="polite"></div>
+</div>
+<div class="actionbar"><button class="secondary" id="retry" type="button" hidden>처음부터</button><button class="primary" id="primary" type="button">예측 제출하고 실험하기 →</button></div>
+</aside>
+</main></div>
+<script>
+(() => {
+let phase='predict',visited=new Set(),closed=false;
+const $=s=>document.querySelector(s);
+const choices=$('#choices'),dock=$('#experiment-dock'),readouts=$('#readouts'),primary=$('#primary'),feedback=$('#feedback'),retry=$('#retry');
+const optionList=[
+['voltage','배터리의 전압은 남지만 전류는 멈출 것 같아요.'],
+['both','전압과 전류가 모두 없어질 것 같아요.'],
+['flow','회로가 열려도 전류가 계속 흐를 것 같아요.']];
+const explanation=[
+['path','스위치가 열린 채로도 전류가 흐르는 통로가 있어요.'],
+['correct','전압은 전하를 밀어주는 차이이고, 전류는 실제 흐름이에요.'],
+['same','전압과 전류는 언제나 똑같은 값이에요.']];
+function radio(items,name){choices.innerHTML=items.map((x,i)=>'<label class="choice"><input type="radio" name="'+name+'" value="'+x[0]+'"/><span>'+x[1]+'</span></label>').join('');}
+function selected(){return document.querySelector('input:checked')?.value;}
+function render(){let p=phase;
+$('#phase').textContent=p==='predict'?'01 · 예상해 보기':p==='experiment'?'02 · 직접 실험하기':p==='explain'?'03 · 설명해 보기':p==='done'?'04 · 핵심 발견':'03 · 다시 생각해 보기';
+dock.hidden=p==='predict'||p==='done';readouts.hidden=p==='predict';$('#result-arrows').hidden=p==='predict'||!closed;
+$('#switch-arm').setAttribute('d',closed?'M340 177 H427':'M340 177 L410 117');
+$('#open-switch').setAttribute('aria-pressed',String(!closed));$('#close-switch').setAttribute('aria-pressed',String(closed));
+$('#amp').textContent=closed?'5 mA':'0 mA';$('#switch-readout').textContent=closed?'스위치 닫힘':'스위치 열림';
+retry.hidden=p==='predict'||p==='experiment';
+if(p==='predict'){radio(optionList,'predict');$('#question').textContent='5V 배터리의 스위치를 열면 전류와 전압은 어떻게 될까요?';$('#intro').textContent='전류가 흐르는 길을 끊으면 무슨 일이 생길지 먼저 생각해 보세요.';primary.textContent='예측 제출하고 실험하기 →';primary.disabled=true;$('#tutor-copy').textContent='예상한 뒤 함께 실험해 봐요.';}
+if(p==='experiment'){$('#question').textContent='스위치를 열고 닫으며 비교해 보세요.';$('#intro').textContent='왼쪽 2.5D 장면 바로 아래의 실험 조작 도크에서 스위치를 눌러 보세요.';choices.innerHTML='';primary.textContent='관찰 마치고 설명하기 →';primary.disabled=!(visited.has('open')&&visited.has('closed'));$('#tutor-copy').textContent='열림과 닫힘을 모두 확인해 보세요.';}
+if(p==='explain'||p==='incorrect'){radio(explanation,'explain');$('#question').textContent='왜 회로가 열릴 때 전류만 멈출까요?';$('#intro').textContent='방금 직접 관찰한 전압과 전류 변화를 떠올려 보세요.';primary.textContent='내 설명 확인하기 →';primary.disabled=true;$('#tutor-copy').textContent='관찰한 차이를 나만의 말로 설명해 봐요.';}
+if(p==='done'){$('#question').textContent='길을 끊으면 흐름이 멈춰요.';$('#intro').textContent='스위치가 열리면 전류는 0mA예요. 하지만 배터리 양단 5V 전압은 유지됩니다.';choices.innerHTML='';feedback.hidden=false;feedback.textContent='핵심 발견 · 전압은 전하를 움직이게 하는 차이이고, 전류는 그 결과로 일어나는 흐름입니다.';primary.textContent='다음 실험으로 넘어가기 →';primary.disabled=false;$('#tutor-copy').textContent='실험을 잘 끝냈어요!';}
+if(p!=='done'&&p!=='incorrect')feedback.hidden=true;
+$('#status').textContent=p==='experiment'?'관찰: '+visited.size+'/2 상태 확인':p==='done'?'관찰·설명 완료':'';
+}
+choices.addEventListener('change',()=>{primary.disabled=!selected()});
+$('#open-switch').onclick=()=>{closed=false;visited.add('open');render()};
+$('#close-switch').onclick=()=>{closed=true;visited.add('closed');render()};
+primary.onclick=()=>{
+if(phase==='predict'){if(!selected())return;phase='experiment';visited.clear();closed=false;render();}
+else if(phase==='experiment'){if(!visited.has('open')||!visited.has('closed'))return;phase='explain';render();}
+else if(phase==='explain'||phase==='incorrect'){const answer=selected();if(!answer)return;if(answer!=='correct'){phase='incorrect';feedback.hidden=false;feedback.textContent='다시 생각해 볼까요? 스위치를 열면 전류의 통로가 끊기지만 배터리 양단 전압까지 사라지는 것은 아니에요.';primary.disabled=true;radio(explanation,'explain');}else{phase='done';render();}}
+else if(phase==='done')alert('A03 디자인 레퍼런스입니다. 실제 다음 실험 이동은 A02가 연결해야 합니다.');
+};
+retry.onclick=()=>{phase='predict';visited.clear();closed=false;render()};
+$('#voice').onclick=()=>{const msg=phase==='predict'?'먼저 스위치가 열렸을 때의 변화를 예상해 보세요.':phase==='experiment'?'스위치를 열고 닫으며 계측값을 비교해 보세요.':'전압은 전하를 밀어 주는 차이이고, 전류는 흐름입니다.';if(!('speechSynthesis' in window)){alert('음성이 지원되지 않는 환경입니다. 화면의 안내를 읽어주세요.');return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(msg);u.lang='ko-KR';speechSynthesis.speak(u)};
+render();
+window.__a03l12={get:()=>({phase,visited:[...visited],closed}),reset:()=>{phase='predict';visited.clear();closed=false;render()}};
+})();
+</script>
+</body>
+</html>
