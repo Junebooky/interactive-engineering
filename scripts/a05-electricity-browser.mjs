@@ -56,9 +56,13 @@ try{
   if(await slider.inputValue()!=='10')throw Error('keyboard slider failed');
   if(!((await p.locator('.a05-readouts').innerText()).includes('3.16 V')))throw Error('charge tau 3.16 missing');
   await p.screenshot({path:out+'/05-rc-charge-10ms.png',fullPage:true});
-  await p.getByRole('button',{name:'방전',exact:true}).click();
-  if(!((await p.locator('.a05-readouts').innerText()).includes('1.84 V')))throw Error('discharge tau 1.84 missing');
-  await p.screenshot({path:out+'/06-rc-discharge-10ms.png',fullPage:true});
+  await p.getByRole('button',{name:'현재 전압에서 방전'}).click();
+  if(!((await p.locator('.a05-readouts').innerText()).includes('3.16 V')))throw Error('mid-charge discharge must retain instant voltage');
+  await p.screenshot({path:out+'/06-rc-midpoint-continuity.png',fullPage:true});
+  await p.getByRole('button',{name:'5V 완충 후 새 방전 실험'}).click();
+  await slider.fill('10');
+  if(!((await p.locator('.a05-readouts').innerText()).includes('1.84 V')))throw Error('from 5V discharge tau 1.84 missing');
+  await p.screenshot({path:out+'/06b-rc-full-charge-discharge-10ms.png',fullPage:true});
   await p.getByRole('button',{name:'R=2kΩ'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('20 ms')))throw Error('tau 20 missing');
   await answer(p,'τ=RC이며 충전');
