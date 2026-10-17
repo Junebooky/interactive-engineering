@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {dc10Order,freshDc10,dc10Roofline,dc10KvCache,dc10Facility,dc10Recovery,dc10Probe,dc10RequiredEvidence,gradeDc10} from '../a05/dc10/dc10Model';
+import {dc10Order,freshDc10,dc10Roofline,dc10KvCache,dc10Facility,dc10Recovery,dc10DiagramLinks,dc10Probe,dc10RequiredEvidence,gradeDc10} from '../a05/dc10/dc10Model';
 import type {Dc10SceneId,Dc10Evidence} from '../a05/dc10/dc10Model';
 describe('A05 Lesson10 independent science toy, route chronology and evidence gates',()=>{
  it('has exactly four independently typed scenes',()=>{expect(dc10Order).toHaveLength(4);expect(new Set(dc10Order).size).toBe(4);});
@@ -45,6 +45,27 @@ describe('A05 Lesson10 independent science toy, route chronology and evidence ga
   expect(dc10Recovery({...replica,storageReplicaHealthy:false}).code).toBe('REPLICA_UNAVAILABLE');
   expect(dc10Recovery({...replica,jobType:'train'}).code).toBe('CHECKPOINT_REQUIRED');
   expect(dc10Recovery({...replica,jobType:'train',checkpointAvailable:true}).code).toBe('RECOVERY_POSSIBLE');
+ });
+ it('R28-02 independent live recovery / visual topology parity for disconnected A, missing B, unconfigured B and successful session',()=>{
+  const s=freshDc10();
+  expect(dc10DiagramLinks({...s,routeAConnected:false})).toMatchObject({primary:'open',primaryCablePresent:false,backup:'open'});
+  expect(dc10Recovery({...s,routeAConnected:false}).code).toBe('NO_ROUTE');
+  const absent={...s,switch1Healthy:false,routeBConnected:true};
+  expect(dc10Recovery(absent).code).toBe('NO_ROUTE');
+  expect(dc10DiagramLinks(absent)).toMatchObject({primary:'fault',backup:'open',backupCablePresent:false});
+  const unconfigured={...absent,switch2Installed:true};
+  expect(dc10Recovery(unconfigured).code).toBe('ROUTE_NOT_CONFIGURED');
+  expect(dc10DiagramLinks(unconfigured)).toMatchObject({backup:'unconfigured',backupCablePresent:true});
+  const policy={...unconfigured,routeBConfigured:true,failoverPolicy:'automatic' as const};
+  expect(dc10Recovery(policy).code).toBe('STATE_NOT_RECOVERABLE');
+  expect(dc10DiagramLinks(policy).backup).toBe('standby');
+  const working={...policy,sessionState:'replicated' as const};
+  expect(dc10Recovery(working).code).toBe('RECOVERY_POSSIBLE');
+  expect(dc10DiagramLinks(working)).toMatchObject({backup:'active',backupCablePresent:true});
+  expect(dc10DiagramLinks({...working,sharedPowerHealthy:false})).toMatchObject({primary:'fault',backup:'fault'});
+  expect(dc10DiagramLinks({...working,switch2Healthy:false}).backup).toBe('fault');
+  expect(dc10DiagramLinks({...working,backupHealthy:false}).backup).toBe('fault');
+  expect(dc10DiagramLinks({...working,servers:1}).backup).toBe('open');
  });
  it('failed LPDDR probe does not create any success observation even if byte arithmetic is computed',()=>{
   const s={...freshDc10(),offload:'LPDDR' as const,offloadPathSupported:false};
