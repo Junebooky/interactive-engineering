@@ -1,0 +1,31 @@
+name: A05 N04 NAND to AI Real Chromium QA
+on:
+  push:
+    branches:
+      - feat/a05-04-nand-nvme-scenes
+  workflow_dispatch:
+jobs:
+  browser-n04:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run N04 5 scene 15 wrong-route Chromium QA
+        run: node scripts/a05-nand04-browser.mjs
+      - name: Preserve browser screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a05-n04-nand-browser-screenshots
+          path: browser-evidence/nand04/
+          if-no-files-found: warn
+          retention-days: 14
