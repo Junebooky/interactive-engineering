@@ -11,8 +11,10 @@ import { Circuit2DScene } from '../../simulations/ohmsLaw/Circuit2DScene';
 import { Gear2DScene } from '../../simulations/gears/Gear2DScene';
 import { A05SceneVisual } from '../../a05/A05SceneVisual';
 import { DramSceneVisual, type DramVisualState } from '../../a05/dram/DramSceneVisual';
+import { SramSceneVisual, type SramVisualState } from '../../a05/sram/SramSceneVisual';
 import type { A05Values } from '../../a05/scenePhysics';
 import '../../a05/dram/dramScenes.css';
+import '../../a05/sram/sramScenes.css';
 import '../../a05/a05Scenes.css';
 import { BookOpen, Sparkles } from 'lucide-react';
 
@@ -105,6 +107,36 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
           <DramSceneVisual
             sceneId={currentStep.simulatorType}
             state={dramState}
+            revealed={showObservation}
+          />
+        );
+      }
+
+      case 'sram-cross-coupled-inverters':
+      case 'sram-6t-access':
+      case 'cpu-cache-vs-dram':
+      case 'cpu-to-gpu-data-locality': {
+        const sramState: SramVisualState = {
+          q: (currentParams.q ?? 1) as 0 | 1,
+          feedback: Boolean(currentParams.feedback ?? true),
+          supply: Boolean(currentParams.supply ?? true),
+          wl: (currentParams.wl ?? 0) as 0 | 1,
+          bl: (currentParams.bl ?? 1) as 0 | 1,
+          mode: (currentParams.mode ?? 'write') as any,
+          cacheLines: (currentParams.cacheLines ?? 1) as 1 | 2,
+          cacheRan: Boolean(currentParams.cacheRan ?? false),
+          resident: Boolean(currentParams.resident ?? false),
+          inputCount: Number(currentParams.inputCount ?? 1),
+        };
+        const hasPredictionCtrl = currentStep.controls?.some((c) => c.id === 'prediction');
+        const showObservation =
+          !hasPredictionCtrl ||
+          (currentParams.prediction !== undefined && currentParams.prediction !== null);
+
+        return (
+          <SramSceneVisual
+            sceneId={currentStep.simulatorType}
+            state={sramState}
             revealed={showObservation}
           />
         );

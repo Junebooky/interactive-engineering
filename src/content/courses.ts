@@ -1,6 +1,7 @@
 import type { Course } from '../types';
 import { mosfetLesson } from './semiconductor/mosfetLesson';
 import { dramLesson } from './semiconductor/dramLesson';
+import { sramLesson } from './semiconductor/sramLesson';
 import { ohmsLawLesson } from './circuits/ohmsLawLesson';
 import { gearsLesson } from './mechanics/gearsLesson';
 
@@ -12,9 +13,9 @@ export const courses: Course[] = [
     category: 'semiconductor',
     categoryLabel: '반도체 공학',
     badge: '⚡ 반도체 핵심',
-    summary: 'MOSFET 전도 채널 형성에서부터 1T1C DRAM 메모리 비트 셀과 센스앰프 복원까지 탐구하는 시그니처 코스',
-    estimatedMinutes: 25,
-    lessons: [mosfetLesson, dramLesson],
+    summary: 'MOSFET 전도 채널 형성에서부터 1T1C DRAM 메모리 셀과 6T SRAM 캐시 및 GPU 데이터 지역성까지 탐구하는 시그니처 코스',
+    estimatedMinutes: 35,
+    lessons: [mosfetLesson, dramLesson, sramLesson],
   },
   {
     id: 'course-circuits',

@@ -24,7 +24,11 @@ export type SimulatorType =
   | 'dram-write'
   | 'dram-sense-restore'
   | 'dram-leak-refresh'
-  | 'dram-row-bank';
+  | 'dram-row-bank'
+  | 'sram-cross-coupled-inverters'
+  | 'sram-6t-access'
+  | 'cpu-cache-vs-dram'
+  | 'cpu-to-gpu-data-locality';
 
 export interface ScaffoldingHint {
   level: 1 | 2 | 3;
