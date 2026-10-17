@@ -106,7 +106,7 @@ try{
   if(!r.includes('상승DFFQ1')||!r.includes('YES'))throw Error('t8 actual edge not captured '+r);
   await p.getByRole('button',{name:'시작 시 CLK=1만 표시 (직전 CLK 미상)'}).click();
   r=(await p.locator('.a05-readouts').innerText()).replace(/\s+/g,'');
-  if(!r.includes('보증 불가')||!r.includes('검증 안됨'))throw Error('initial clk HIGH incorrectly treated as positive event');
+  if(!r.includes('보증불가')||!r.includes('검증안됨'))throw Error('initial clk HIGH incorrectly treated as positive event');
   await keyedWrongAndComplete(p,'07-clock-edge');await p.getByRole('button',{name:'다음 질문으로'}).click();
  });
  await qa('S04 T8 no buffer setup+0.5 hold−0.3; buffered T8 setup−0.1 hold+0.1; T9 both positive, hazard unknown; wrong paths',async()=>{
