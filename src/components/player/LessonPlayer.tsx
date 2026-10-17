@@ -16,11 +16,14 @@ import { GpuSceneVisual, type GpuVisualState } from '../../a05/gpu/GpuSceneVisua
 import type { GpuSceneId } from '../../a05/gpu/gpuModel';
 import { ElectricitySceneVisual, type ElectricityVisualState } from '../../a05/electricity/ElectricitySceneVisual';
 import type { ElecSceneId } from '../../a05/electricity/electricityModel';
+import { PnSceneVisual, type PnVisualState } from '../../a05/pn/PnSceneVisual';
+import type { BandMaterial, BiasV, DiodeBiasV, Dopant, GateComparison, JunctionPhase, PnSceneId } from '../../a05/pn/pnModel';
 import type { A05Values } from '../../a05/scenePhysics';
 import '../../a05/dram/dramScenes.css';
 import '../../a05/sram/sramScenes.css';
 import '../../a05/gpu/gpuScenes.css';
 import '../../a05/electricity/electricityScenes.css';
+import '../../a05/pn/pnScenes.css';
 import '../../a05/a05Scenes.css';
 import { BookOpen, Sparkles } from 'lucide-react';
 
@@ -222,6 +225,47 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
           <ElectricitySceneVisual
             sceneId={sceneId}
             state={elecState}
+            revealed={showObservation}
+          />
+        );
+      }
+
+      case 'pn-band-gap':
+      case 'pn-doping':
+      case 'pn-equilibrium':
+      case 'pn-depletion-bias':
+      case 'pn-diode-to-mos': {
+        const pnState: PnVisualState = {
+          material: (currentParams.material ?? 'silicon') as BandMaterial,
+          light: Boolean(currentParams.light ?? false),
+          warm: Boolean(currentParams.warm ?? false),
+          dopant: (currentParams.dopant ?? 'intrinsic') as Dopant,
+          phase: (currentParams.phase ?? 'separate') as JunctionPhase,
+          bias: (currentParams.bias !== undefined ? Number(currentParams.bias) : 0) as BiasV,
+          na: Number(currentParams.na) || 1e16,
+          nd: Number(currentParams.nd) || 1e16,
+          diodeBias: (currentParams.diodeBias !== undefined ? Number(currentParams.diodeBias) : 0) as DiodeBiasV,
+          gate: (currentParams.gate ?? 'pn') as GateComparison,
+        };
+        const hasPredictionCtrl = currentStep.controls?.some((c) => c.id === 'prediction');
+        const showObservation =
+          !hasPredictionCtrl ||
+          (currentParams.prediction !== undefined && currentParams.prediction !== null);
+
+        const sceneIdMap: Record<string, PnSceneId> = {
+          'pn-band-gap': 'semiconductor-band-gap',
+          'pn-doping': 'silicon-donor-acceptor-doping',
+          'pn-equilibrium': 'pn-diffusion-drift-equilibrium',
+          'pn-depletion-bias': 'pn-bias-depletion-calculator',
+          'pn-diode-to-mos': 'pn-diode-current-to-mos',
+        };
+
+        const sceneId = sceneIdMap[currentStep.simulatorType] ?? 'semiconductor-band-gap';
+
+        return (
+          <PnSceneVisual
+            sceneId={sceneId}
+            state={pnState}
             revealed={showObservation}
           />
         );
