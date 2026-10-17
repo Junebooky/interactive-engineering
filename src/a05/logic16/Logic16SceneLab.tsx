@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {Logic16SceneVisual} from './Logic16SceneVisual';
-import {evaluateNetwork,gradeLogic16,initialClockHighNoEdge,latchCase,latchStep,logic16Fresh,nestedNand} from './logic16Model';
+import {evaluateNetwork,gradeLogic16,initialClockHighNoEdge,latchCase,latchStep,logic16Fresh,logic16Order,nestedNand} from './logic16Model';
 import type {Bit,GateType,Logic16Event,Logic16SceneId,Logic16State,Network} from './logic16Model';
 import '../a05Scenes.css';import './logic16.css';
 type Option={id:string;text:string;whyWrong?:string};
