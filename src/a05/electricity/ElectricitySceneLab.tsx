@@ -13,7 +13,7 @@ type Story={
 };
 const STORIES:Record<ElecSceneId,Story>={
  'charge-voltage-current-arrows':{
-  title:'배터리가 5V인데 전자 하나도 안 흐를 수 있다고?',
+  title:'배터리 5V를 연결했는데 계기는 무엇을 보여줄까요?',
   hook:'전압이 있다는 것과 전류가 흐른다는 것은 같은 일이 아니에요.',
   question:'스위치가 열린 5V·1kΩ 회로에서 전류가 5A일까요, 0A일까요?',
   prediction:'전원 단자에 5V가 걸려 있지만 회로가 열려 있다면?',
@@ -70,7 +70,7 @@ const STORIES:Record<ElecSceneId,Story>={
   assumption:'1차 RC 이상화·초기 충전0V/방전5V·누설/ESR/DRAM 센스앰프 미포함. 10ms는 toy RC, DRAM retention 아님'
  },
  'power-energy-joules-heat':{
-  title:'와트는 속도, 줄은 쓴 양이에요',
+  title:'와트와 줄은 같은 뜻일까요?',
   hook:'똑같은 전압에서도 회로마다 전력·에너지가 달라질까요?',
   question:'5V×10mA×10초와 10µF 커패시터 5V의 에너지는 같을까요?',
   prediction:'50mW로 10초 작동하면 쓴 에너지는?',
