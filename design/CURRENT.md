@@ -1,8 +1,14 @@
 # A03 디자인 최신본 (Single Source of Truth)
 
-> **현재 A02 구현 기준: MOSFET Discovery Lab V2** · 마지막 동기화: 2026-10-18 KST
+> **현재 시각 기준: MOSFET Discovery Lab V2**, 전기회로 Lesson12는 [P0 UX 보정 사양](UI-AUTHORITY-LESSON12-P0.md)을 추가 적용 · 마지막 동기화: 2026-10-18 KST
 >
 > **구분:** A03 디자인 레퍼런스 · 공식 A02 React 앱 구현/릴리스 아님. 최종 제품 승인과 main 병합/배포는 별도.
+
+## 모든 레슨에 우선 적용되는 A03 UI 설계 책임/중요 수정
+
+> **P0 현재 문제:** Lesson12 '회로 스위치'가 Problem 안에 있음, 전기회로에 MOSFET 전용 문구가 혼입됨, A05 scene 팔레트가 A03 공통 토큰에서 이탈. **[A03 전체 UI 지침 및 정확한 수정 계약](UI-AUTHORITY-LESSON12-P0.md)** · **[A02/A05 공동 차단 이슈 #65](https://github.com/Junebooky/interactive-engineering/issues/65)**.
+>
+> A03는 모든 학습 화면의 최종 UI/UX 디자인 기준·디자인 QA를 소유합니다. A02는 앱 구현, A05는 물리 장면 구현을 소유하고 시각/행동/컴포넌트 기준은 A03 최신본을 따릅니다. 과학·교육 정확성은 A05/A06/A07과 협의하며 오너 승인 전 main 병합/배포 금지입니다.
 
 ## 지금 A02가 구현할 유일한 디자인 기준
 
