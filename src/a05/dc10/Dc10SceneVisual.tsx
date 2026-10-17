@@ -1,5 +1,5 @@
 import {useId} from 'react';
-import {dc10Facility,dc10KvCache,dc10Recovery,dc10Roofline} from './dc10Model';
+import {dc10DiagramLinks,dc10Facility,dc10KvCache,dc10Recovery,dc10Roofline} from './dc10Model';
 import type {Dc10SceneId,Dc10State} from './dc10Model';
 const C={ink:'#e7fbff',mint:'#83f0d5',blue:'#87cfee',amber:'#ffdda4',red:'#ffb1ae'};
 function Label({x,y,children,sub=false,color=C.ink}:{x:number;y:number;children:React.ReactNode;sub?:boolean;color?:string}){
@@ -18,6 +18,7 @@ export function Dc10SceneVisual({sceneId,state,revealed,hasProbe}:{sceneId:Dc10S
  const kv=dc10KvCache(state.contextTokens,state.batch,{offload:state.offload,offloadPathSupported:state.offloadPathSupported,modelResident:state.modelResident});
  const energy=dc10Facility(state.pue,state.throughput);
  const recovery=dc10Recovery(state);
+ const links=dc10DiagramLinks(state);
  return <div className="a05-visual a05-dc10-visual" data-testid="dc10-visual">
  <svg viewBox="0 0 690 425" role="img" aria-label={
  sceneId==='ai-roofline-bottleneck'?'관찰한 가상 연산집약도와 메모리 대역폭의 roofline 두 상한':
@@ -70,9 +71,29 @@ export function Dc10SceneVisual({sceneId,state,revealed,hasProbe}:{sceneId:Dc10S
   <Slab x={226} y={245} w={161} title="Switch B" sub={state.switch2Installed?(state.switch2Healthy?'installed':'FAILED'):'not installed'} accent={state.switch2Installed?C.amber:C.red}/>
   <Slab x={462} y={105} w={158} title="Server A" sub="shared primary" accent={C.blue}/>
   <Slab x={462} y={245} w={158} title="Server B" sub={state.servers===2?'backup target':'absent'} accent={C.amber}/>
-  <path d="M179 175L225 144M389 141L461 141" stroke={state.switch1Healthy?C.mint:C.red} strokeWidth="4"/>
-  <path d="M179 176L225 280M389 279L461 279" stroke={state.routeBConnected?C.amber:'#6c8290'} strokeDasharray={state.routeBConnected?'none':'7 6'} strokeWidth="4"/>
-  <Label x={398} y={327} sub color={state.routeBConfigured?C.mint:C.red}>{state.routeBConfigured?'B configured':'B not configured'}</Label>
+  {/* R28-02: a missing physical cable MUST be an actual open gap (not a continuous dashed ghost).
+      A connected but failed cable is red/dashed; installed but unconfigured B is amber/dashed;
+      only an actually recoverable backup path is solid mint. */}
+  <g data-testid="dc10-link-primary" data-route-state={links.primary} data-physical-cable={String(links.primaryCablePresent)}>
+   <title>{'주 회선: '+(links.primary==='open'?'케이블 없음':links.primary==='fault'?'장비/전원 장애':'실제 정상 연결')}</title>
+   {links.primary==='open'?<>
+    <path d="M179 175L188 169 M216 149L225 144 M389 141H410 M439 141H461" fill="none" stroke="#7e93a1" strokeWidth="4"/>
+    <path d="M197 154l13 13m0-13l-13 13M416 133l15 16m0-16l-15 16" stroke={C.red} strokeWidth="3"/>
+   </>:<path d="M179 175L225 144M389 141L461 141" fill="none" stroke={links.primary==='active'?C.mint:C.red} strokeDasharray={links.primary==='active'?undefined:'7 6'} strokeWidth="4"/>}
+  </g>
+  <g data-testid="dc10-link-backup" data-route-state={links.backup} data-physical-cable={String(links.backupCablePresent)}>
+   <title>{'백업 회선: '+(links.backup==='open'?'스위치/서버/케이블 미연결':links.backup==='fault'?'장비/전원 장애':links.backup==='unconfigured'?'물리 연결됨, 경로 미구성':links.backup==='standby'?'구성되었지만 전환/세션 미완료':'복구 가능한 활성 회선')}</title>
+   {links.backup==='open'?<>
+    <path d="M179 176L191 204 M213 255L225 280 M389 279H410 M439 279H461" fill="none" stroke="#7e93a1" strokeWidth="4"/>
+    <path d="M188 221l13 13m0-13l-13 13M416 271l15 16m0-16l-15 16" stroke={C.red} strokeWidth="3"/>
+   </>:<path d="M179 176L225 280M389 279L461 279" fill="none"
+     stroke={links.backup==='active'?C.mint:links.backup==='fault'?C.red:C.amber}
+     strokeDasharray={links.backup==='active'?undefined:'8 6'} strokeWidth="4"/>}
+  </g>
+  <Label x={57} y={319} sub color={links.primary==='active'?C.mint:C.red}>{'A: '+(links.primary==='open'?'OPEN CABLE':links.primary==='fault'?'FAULT':'CONNECTED / LIVE')}</Label>
+  <Label x={398} y={327} sub color={links.backup==='active'?C.mint:links.backup==='open'||links.backup==='fault'?C.red:C.amber}>
+   {'B: '+(links.backup==='open'?'OPEN CABLE':links.backup==='fault'?'FAULT':links.backup==='unconfigured'?'NOT CONFIGURED':links.backup==='standby'?'WIRED / NOT ACTIVE':'RECOVERY POSSIBLE')}
+  </Label>
   <Label x={57} y={344} sub>{recovery.code} · {state.sessionState} · {state.failoverPolicy}</Label>
   <Label x={57} y={371} sub>장비 수만으로 가용성·무손실·복구시간(RTO)을 보증하지 않음</Label>
  </>}
