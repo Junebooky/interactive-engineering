@@ -16,7 +16,7 @@ async function first(p,id){
  if(await p.getByRole('button',{name:'현재 조건 관찰'}).count())throw Error('controls before prediction');
  await p.getByRole('button',{name:'한국어 질문 듣기'}).click();
  const speech=await p.getByTestId('dc10-voice-text').innerText();
- if(['8192','40 FLOP/B','1.4MW','1.2MW','STATE_NOT_RECOVERABLE'].some(k=>speech.includes(k)))throw Error('pre-predict voice leaked teacher result '+speech);
+ if(['16384','40 FLOP/B','1.4MW','1.2MW','STATE_NOT_RECOVERABLE'].some(k=>speech.includes(k)))throw Error('pre-predict voice leaked teacher result '+speech);
  await p.locator('.a05-box').first().locator('.a05-choice-set button').first().click();
  if(await p.locator('.a05-readouts').count())throw Error('results before probe');
  if(await p.getByRole('button',{name:'관찰·물리 WHY 평가'}).count())throw Error('answer without physical probe');
@@ -63,13 +63,13 @@ try{
   await wrongCorrect(p,'02-roofline');
   await p.getByRole('button',{name:'다음 장면으로'}).click();
  });
- await qa('10-S02 Q/KV head distinction, resident model, 512/2048/8192 B, unsupported then supported offload',async()=>{
+ await qa('10-S02 Q/KV head distinction, resident model, 1024/4096/16384 B, unsupported then supported offload',async()=>{
   await first(p,'llm-prefill-decode-kv');
-  if(!(await probe(p)).includes('512 B'))throw Error('KV4/1 512 B');
+  if(!(await probe(p)).includes('1024 B'))throw Error('KV4/1 512 B');
   await p.getByRole('button',{name:'Context 16'}).click();
-  if(!(await probe(p)).includes('2048 B'))throw Error('KV16/1 2048 B');
+  if(!(await probe(p)).includes('4096 B'))throw Error('KV16/1 2048 B');
   await p.getByRole('button',{name:'Batch 4'}).click();
-  if(!(await probe(p)).includes('8192 B'))throw Error('KV16/4 8192 B');
+  if(!(await probe(p)).includes('16384 B'))throw Error('KV16/4 8192 B');
   const e1=await p.getByTestId('dc10-evidence').innerText();
   if(e1.includes('kv-offload'))throw Error('offload evidence without supported action');
   await p.getByRole('button',{name:'KV LPDDR offload'}).click();
