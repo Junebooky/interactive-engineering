@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {Ssd09SceneVisual} from './Ssd09SceneVisual';
-import {fresh09,gradeSsd09,latencyModel,latencyPick,plpAdvance,plpEnergy,ssd09Order,ssdEndurance} from './ssd09Model';
-import type {BitsPerCell,LatencySet,OpPercent,PlpAction,Relocated,Ssd09Event,Ssd09Grade,Ssd09Id,Ssd09State} from './ssd09Model';
+import {fresh09,gradeSsd09,latencyModel,latencyPick,plpAdvance,plpConfigure,plpEnergy,ssd09Order,ssdEndurance} from './ssd09Model';
+import type {BitsPerCell,LatencySet,OpPercent,PlpAction,PlpAckMode,PlpTrial,Relocated,Ssd09Event,Ssd09Grade,Ssd09Id,Ssd09State} from './ssd09Model';
 import '../a05Scenes.css';
 import './ssd09.css';
 type Choice={id:string;text:string;feedback?:string};
@@ -101,11 +101,19 @@ export function Ssd09SceneLab({onEvent,onSpeech}:Ssd09LabProps){
  function alterOp(op:OpPercent){change({...state,op},'op'+op);}
  function alterGc(gc:boolean,relocated:Relocated){const key=gc&&relocated===.6?'move':'base';
   change({...state,gc,relocated},key);}
- function alterPlp(plpEnabled:boolean,work:0.4|1.2){
-  setState(prev=>({...prev,plp:{...prev.plp,plpEnabled,remainingWorkJ:work}}));setFeedback(null);setAnswer(null);
-  if(plpEnabled){observe(work===.4?'plp-enough':'plp-not-enough');}
-  emit('parameter.changed',{kind:'plpOption',plpEnabled,pendingWorkJ:work,usableJ:plpEnergy(work).usableJ});
+ function configureTrial(change:Partial<Pick<PlpTrial,'volatileCache'|'ackMode'|'plpEnabled'|'remainingWorkJ'>>){
+  const result=plpConfigure(state.plp,change);
+  setTransaction(result.code+': '+result.message+' / 현재 episode '+state.plp.episode);
+  emit('parameter.changed',{kind:'plpConfiguration',accepted:result.accepted,code:result.code,
+   episode:state.plp.episode,change,priorOutage:state.plp.powerLossVerdict});
+  if(!result.accepted)return;
+  setState(prev=>({...prev,plp:result.trial}));setFeedback(null);setAnswer(null);setWhy(false);
  }
+ function alterPlp(plpEnabled:boolean,work:0.4|1.2){
+  configureTrial({plpEnabled,remainingWorkJ:work});
+ }
+ function alterCache(volatileCache:boolean){configureTrial({volatileCache});}
+ function alterAck(ackMode:PlpAckMode){configureTrial({ackMode});}
  function transact(action:PlpAction){
   const result=plpAdvance(state.plp,action);
   setTransaction(result.code+': '+result.message+' / 근거 '+result.evidence);
@@ -117,6 +125,12 @@ export function Ssd09SceneLab({onEvent,onSpeech}:Ssd09LabProps){
   if(action==='flush-complete')observe('flush-completed');
   if(action==='power-loss'&&result.evidence==='at-risk'&&result.trial.ack)observe('risk');
   if(action==='power-loss'&&result.evidence==='durable-under-declared-policy')observe('commit');
+  // PLP capacity observation only counts when accepted WRITE→ACK→actual outage occurs in its episode,
+  // not when learner merely visits an enabled PLP hardware option.
+  if(action==='power-loss'&&result.trial.ack&&result.trial.plpEnabled){
+   if(result.evidence==='energetically-possible-unverified')observe('plp-enough');
+   if(result.evidence==='energy-insufficient')observe('plp-not-enough');
+  }
  }
  function latencyChoose(which:LatencySet){setState(prev=>({...prev,latency:which,sorted:false,selectedRank:null}));setFeedback(null);setAnswer(null);setRankMessage('새 분포를 선택했습니다. 이전 분포의 정렬·순위는 이어받지 않아요.');emit('parameter.changed',{kind:'distribution',which});}
  function sortCards(){setState(prev=>({...prev,sorted:true,selectedRank:null}));setFeedback(null);setAnswer(null);
@@ -163,7 +177,12 @@ export function Ssd09SceneLab({onEvent,onSpeech}:Ssd09LabProps){
       {ctl('OP 20%',()=>alterOp(20),state.op===20)}</div>
     </>}
     {sceneId==='ssd-plp-power-loss'&&<>
-     <strong>PLP 유무와 NAND 남은 에너지 비용 (현실적 제품 보증 아님)</strong><div className="a05-control-buttons">
+     <strong>쓰기 전 캐시 물리속성과 ACK 완료 계약 (WRITE 시작 후 변경 잠금)</strong><div className="a05-control-buttons">
+      {ctl('휘발 캐시 ON',()=>alterCache(true),state.plp.volatileCache)}
+      {ctl('휘발 캐시 OFF',()=>alterCache(false),!state.plp.volatileCache)}
+      {ctl('ACK: volatileCache',()=>alterAck('volatileCache'),state.plp.ackMode==='volatileCache')}
+      {ctl('ACK: afterMediaCommit',()=>alterAck('afterMediaCommit'),state.plp.ackMode==='afterMediaCommit')}</div>
+     <strong>PLP 유무와 NAND 남은 에너지 비용 (실제 제품 보증 아님 · WRITE 전만 설정)</strong><div className="a05-control-buttons">
       {ctl('PLP OFF',()=>alterPlp(false,state.plp.remainingWorkJ),!state.plp.plpEnabled)}
       {ctl('PLP ON · 0.4J',()=>alterPlp(true,.4),state.plp.plpEnabled&&state.plp.remainingWorkJ===.4)}
       {ctl('PLP ON · 1.2J',()=>alterPlp(true,1.2),state.plp.plpEnabled&&state.plp.remainingWorkJ===1.2)}</div>
