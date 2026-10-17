@@ -7,7 +7,7 @@
 ## 29-S01 · `serdes-lanes-and-signal-eyes` · 빠른 한 줄 vs 여러 줄: lane이 뭘까요?
 ### ① Beginner · 질문부터
 - **sceneId:** `serdes-lanes-and-signal-eyes`
-- **learningGoal:** 빠른 한 줄 vs 여러 줄: lane이 뭘까요?의 물리/시스템 원리를 이해하고 설명
+- **learningGoal:** TX/RX full-duplex, x1/x4 lane, PAM4 4 levels=2 bits/symbol을 독립 선택 두 상태 이상으로 확인하고 앱 처리량×4 오해를 설명
 - **priorKnowledge:** 12 전하/전압·비트, 13 단위 용어 카드
 - **storyHook:** GPU와 CPU를 잇는 전선이 한 줄이라면 전송이 언제나 느릴까요?
 - **question:** TX/RX 방향과 x1/x4 폭을 바꾸면 무엇이 달라질까요?
@@ -35,7 +35,7 @@
 ## 29-S02 · `pcie-generations-lanes-bandwidth` · 512GB/s, 두 방향을 합친 숫자일까요?
 ### ① Beginner · 질문부터
 - **sceneId:** `pcie-generations-lanes-bandwidth`
-- **learningGoal:** 512GB/s, 두 방향을 합친 숫자일까요?의 물리/시스템 원리를 이해하고 설명
+- **learningGoal:** PCIe6/7 x16 bidirectional published maximum vs one-way/x4 illustrative ceiling을 각각 계산하고 GT/s/GB/s를 구분
 - **priorKnowledge:** 29-S01, 1byte=8bits 기초카드, GT/s≠GB/s
 - **storyHook:** 같은 512GB/s라는 숫자도 읽는 방향이 틀리면 결론이 달라져요.
 - **question:** PCIe 7.0 x16의 512GB/s가 한 방향일까요, 양방향 합계일까요?
@@ -63,7 +63,7 @@
 ## 29-S03 · `pcie-flit-fec-payload` · FLIT 256B, 실제 파일도 256B일까요?
 ### ① Beginner · 질문부터
 - **sceneId:** `pcie-flit-fec-payload`
-- **learningGoal:** FLIT 256B, 실제 파일도 256B일까요?의 물리/시스템 원리를 이해하고 설명
+- **learningGoal:** PCIe6 256B FLIT의 236B TLP-carrying region=92.1875%를 구하고 실제 file payload와 별도임을 설명, Gen7 byte-layout extrapolation 거부
 - **priorKnowledge:** 29-S02, 바이트/프레임 단위, 01 논리 bit
 - **storyHook:** 패킷은 주소와 오류 검사표도 챙겨야 하겠죠?
 - **question:** 256B FLIT 한 개에 응용프로그램 데이터 256B가 그대로 꽉 찰까요?
@@ -91,19 +91,19 @@
 ## 29-S04 · `dma-iommu-nvme-p2p-route` · SSD의 바이트는 CPU 코어를 거쳐야 할까요?
 ### ① Beginner · 질문부터
 - **sceneId:** `dma-iommu-nvme-p2p-route`
-- **learningGoal:** SSD의 바이트는 CPU 코어를 거쳐야 할까요?의 물리/시스템 원리를 이해하고 설명
+- **learningGoal:** host NVMe command and DMA payload + x/y/z address 세 역할을 그린 후 same-switch provider=false/crossRoot unsupported P2P negative paths 원인을 설명
 - **priorKnowledge:** 04 SSD/NVMe read/write, 29-S02 PCIe link
 - **storyHook:** CPU가 SSD에게 ‘읽어 줘’라고 요청했습니다. 파일 바이트는 어떤 길로 올까요?
 - **question:** NVMe 명령 경로와 read payload 경로는 같은가요? DMA 주소는 CPU 주소와 같은가요?
 - **predictionPrompt (learner):** 명령과 읽기 데이터가 각각 누가 움직이는지, DMA가 CPU virtual address를 직접 쓸 수 있는지, SSD→GPU 경로 보편성을 예측
-- **learnerAction:** host CPU/DDR/IOMMU/PCIe/SSD controller/GPU를 배치한 뒤 READ command와 SSD→host DDR DMA_FROM_DEVICE payload 화살표를 별개 선택; 세 주소 X/Y/Z 임의 매핑과 P2P same-switch/other-root support 선택
-- **modelInputs:** CPU virtual X=0x1000, CPU physical Y=0xA000, device DMA Z=0x5000 (pure toy with IOMMU); topology same switch or other root; transfer NVMe READ
+- **learnerAction:** (1) Host CPU/NVMe command vs SSD DMA_FROM_DEVICE payload arrows independently assemble; CPU virtual X/physical Y/device DMA Z map. (2) For *optional* SSD↔GPU peer path choose `topology=sameSwitch|crossRoot`, and independently toggle **`p2pProviderPublished`**, **`consumerDmaSupported`**, **`acsRoutingPermitsLocal`**, **`mappingValid`**. Test both same-switch provider=false and unsupported cross-root even when other booleans true; visually block or allow the toy P2P route with reason code. Do not assume host staging has same restrictions as P2P.
+- **modelInputs:** toy CPU virtual X=0x1000, CPU physical Y=0xA000, device-visible DMA Z=0x5000 (only under one fictional mapping/IOMMU configuration); command NVMe_READ, data direction DMA_FROM_DEVICE, `topology=sameSwitch|crossRoot`, `p2pProviderPublished=true|false`, `consumerDmaSupported=true|false`, `acsRoutingPermitsLocal=true|false`, `mappingValid=true|false`, platformDefaultPeerCrossRoot=false. **Toy P2P acceptance** = sameSwitch AND providerPublished AND consumerSupported AND acsLocal AND mappingValid. No real universal PCIe route performance or guaranteed GPUDirect.
 - **displayTextBeforePrediction:** “CPU가 SSD에게 ‘읽어 줘’라고 요청했습니다. 파일 바이트는 어떤 길로 올까요?”
 - **speechTextBeforePrediction:** “NVMe 명령 경로와 read payload 경로는 같은가요? DMA 주소는 CPU 주소와 같은가요? 먼저 예상한 다음 직접 바꿔볼까요?”
 ### ② Intermediate · 수치/관찰과 교정
-- **expectedObservation (teacher only until reveal):** CPU/driver sets command and DMA buffer, SSD controller DMA_FROM_DEVICE to mapped host DDR, completion notified. CPU virtual/physical/device DMA addresses can differ; across PCIe hierarchy peer-to-peer routing not universal, depends switch/host/IOMMU/driver. Separate GPU copy unless supported P2P.
-- **teacherExpectedAnswer (gated):** READ request vs data arrow, DMA_FROM_DEVICE direction, X/Y/Z mapping distinction, P2P topology negative-case 설명
-- **correctIncorrectCriteria:** READ request vs data arrow, DMA_FROM_DEVICE direction, X/Y/Z mapping distinction, P2P topology negative-case 설명
+- **expectedObservation (teacher only until reveal):** Standard NVMe READ uses host command/doorbell→SSD controller, SSD NAND→controller→PCIe DMA_FROM_DEVICE→mapped host DDR buffer and host completion (simplified). Device bus address need not equal host virtual or CPU physical. For **optional P2P** in this Linux-inspired toy, same-switch with all four gates true ⇒ toy SUPPORT_OK; **same-switch + providerPublished=false ⇒ NO_PROVIDER**; consumerDmaSupported=false ⇒ NO_CONSUMER; ACS local route not permitted ⇒ ROUTE_BLOCKED; mapping invalid ⇒ MAP_DENIED; cross-root default unsupported ⇒ TOPOLOGY_UNSUPPORTED even with other flags true. These are *conditional example requirements*, not a promise all same-switch devices work; supported provider doesn't mean authorized consumer automatically.
+- **teacherExpectedAnswer (gated):** Host READ data SSD→DDR via mapped DMA_FROM_DEVICE works in the toy independently of optional P2P. P2P does NOT follow only from topology: require sameSwitch + provider published P2P pages + consumer DMA setup + ACS route permission + mappingValid. Negative proofs: sameSwitch + provider=false⇒NO_PROVIDER, sameSwitch + consumer=false⇒NO_CONSUMER, sameSwitch+acs=false⇒ROUTE_BLOCKED, sameSwitch+mapping=false⇒MAP_DENIED, crossRoot regardless flags⇒TOPOLOGY_UNSUPPORTED in this restricted toy. Linux runtime P2P and IOMMU effects need real driver/platform measurement.
+- **correctIncorrectCriteria:** Correctly draw three distinct arrows/addresses and name DMA_FROM_DEVICE for NVMe READ; independently toggle at least **two negative P2P gates**, including **sameSwitch/provider=false** and **crossRoot unsupported**, then explain why proximity alone cannot guarantee SSD→GPU peer data movement. Do not require student to choose a wrong answer if prediction was correct.
 - **misconceptions:** [m1] CPU가 READ를 요청했으니 CPU ALU가 SSD 바이트를 전부 복사해야 한다 / [m2] DMA device bus address는 모든 경우 CPU virtual address와 같다 / [m3] SSD와 GPU가 같은 서버에 있으면 언제나 직접 P2P 전송 가능하다
 - **hints:** [L1] 명령을 쓰는 역할과 실제 이동 엔진을 나눠보세요. / [L2] Linux DMA API가 장치 주소를 왜 반환할까요? / [L3] PCI root bridge와 ACS/드라이버 조건을 확인해봐요.
 - **feedback/incorrect keyed:** [m1] “CPU가 큐/명령을 관리하더라도 컨트롤러가 DMA로 바이트를 이동할 수 있어요.” / [m2] “IOMMU나 host bridge mapping 때문에 device-visible DMA 주소가 달라질 수 있어요.” / [m3] “P2P는 topology·드라이버 허용 조건이 맞아야 해요.”
@@ -111,20 +111,22 @@
 - **displayTextAfterObservation:** “CPU 요청과 SSD 읽기 데이터의 DMA는 다른 역할이에요.”
 - **speechTextAfterObservation:** “CPU는 읽기 명령을 준비하고, 실제 데이터 이동은 SSD 컨트롤러가 DMA로 처리할 수 있어요. GPU로 바로 보내는 경로는 지원 조건을 따져야 하죠.”
 ### ③ Senior · 무엇을 믿지 말아야 할까요?
-- **physicsAssumptions:** Three address values toy; IOMMU not necessarily installed; real memory barrier, DMA map lifetime/permission/ACS routing and cache coherence platform-dependent; NOT proof of GPUDirect implementation.
+- **physicsAssumptions:** Linux official DMA API and PCI P2PDMA publicly documented: provider must publish P2P memory, consumer mapping/driver support needed, PCI root/switch route and ACS/IOMMU/software restrictions apply; real peer path may fail even same switch for other reasons not represented. Three hexadecimal addresses are fake educational labels; cross-root unsupported is **toy default**, some platforms may support other routes or host bounce. Conventional NVMe SSD may NOT publish P2PDMA pages; do not assume GPUDirect, CXL or GPU BAR peer support by marketing name.
 - **sourceRefs:** [IO-E][IO-F]
 - **teachBack:** Beginner=오늘의 왜? 한 문장 / Intermediate=서로 다른 두 state/수치·단위 / Senior=실효성능을 확인할 계측·보안/토폴로지 실패와 대안 하나씩.
 - **nextHook:** PCIe 링크를 통해 SSD 대신 메모리를 붙이면 무엇이 달라질까요?
 
+
+- **negativePathTest:** topology=sameSwitch and providerPublished=false (all other gates=true) ⇒ `NO_PROVIDER`; sameSwitch and consumerDmaSupported=false ⇒ `NO_CONSUMER`; sameSwitch+acsRoutingPermitsLocal=false ⇒ `ROUTE_BLOCKED`; sameSwitch+mappingValid=false ⇒ `MAP_DENIED`; topology=crossRoot (all booleans true) ⇒ `TOPOLOGY_UNSUPPORTED` under toy policy; sameSwitch+all booleans true⇒`TOY_PEER_ROUTE_OK` **not product guarantee**. UI shows provider, consumer, ACS, mapping as four separate student toggles, no shortcut 'same switch == pass'.
 ## 29-S05 · `cxl-io-cache-mem-tiering` · 멀리 붙은 메모리도 DDR처럼 쓰면 언제나 이득일까요?
 ### ① Beginner · 질문부터
 - **sceneId:** `cxl-io-cache-mem-tiering`
-- **learningGoal:** 멀리 붙은 메모리도 DDR처럼 쓰면 언제나 이득일까요?의 물리/시스템 원리를 이해하고 설명
+- **learningGoal:** CXL.io/.cache/.mem 역할 세 개를 독립 매칭하고 NVMe I/O vs memory address semantics 및 toy access cost300/280을 검증
 - **priorKnowledge:** 29-S04 DMA, 07 DDR/CXL, 05 SRAM cache basics
 - **storyHook:** AI 서버의 로컬 DDR이 부족해요. 멀리 있는 메모리를 하나 더 붙여볼까요?
 - **question:** CXL.io/cache/mem 역할과 NVMe 파일 명령, 데이터가 멀리 있을 때 비용은 어떻게 다를까요?
 - **predictionPrompt (learner):** CXL.mem vs NVMe READ queue를 분류하고 hot 10개만 local로 둔 경우 vs 모두 remote 비용이 작을지 예상
-- **learnerAction:** CXL.io=CXL 구성/레지스터, .cache=device coherent host data, .mem=host device-attached memory role을 사전 매칭; hot/cold 10/90 requests toy를 local/remote에 배치하고 비용 점검
+- **learnerAction:** Show three movable anonymous protocol-role cards for register/config-control, coherent device-side host-cache access, and CPU memory load/store to device-attached RAM; learner matches cards to `CXL.io / CXL.cache / CXL.mem` **before** labels/role answers appear. Separately place toy 10 hot/90 cold accesses on local/remote targets; readout after prediction.
 - **modelInputs:** toy 10 hot+90 cold accesses; localCost1, remoteCost3 arbitrary normalized units; CXL4 public announcement 128GT/s (not user GB/s or remote latency)
 - **displayTextBeforePrediction:** “AI 서버의 로컬 DDR이 부족해요. 멀리 있는 메모리를 하나 더 붙여볼까요?”
 - **speechTextBeforePrediction:** “CXL.io/cache/mem 역할과 NVMe 파일 명령, 데이터가 멀리 있을 때 비용은 어떻게 다를까요? 먼저 예상한 다음 직접 바꿔볼까요?”
@@ -162,3 +164,6 @@
 [IO-G] https://computeexpresslink.org/blog/the-benefits-of-serial-attached-memory-with-compute-express-link-2349/
 [IO-H] https://computeexpresslink.org/wp-content/uploads/2025/11/CXL_4.0-Specification-Release_FINAL_Website-Copy.pdf (public press release, not restricted eval spec)
 [IO-I] https://computeexpresslink.org/blog/questions-from-the-compute-express-link-exploring-coherent-memory-and-innovative-use-cases-webinar-2341/
+
+## A07 Round08 P2P driver-provider MAJOR correction · 2026-10-17
+- [A07 audit](https://github.com/Junebooky/interactive-engineering/blob/docs/a07-edu-qa-round-01/education/round-08-lesson16-retest-29-pcie-gpu-recheck.md) original `4b4619b8` passed numerical/units/physical link facts but found 29-S04 P2P false-green: same switch alone was sufficient in model. New source adds four individually controlled boolean gates provider-published, consumer-supported, ACS route and valid mapping, plus cross-root unsupported toy policy; same-switch/provider=false fails. 29-S05 pre-action CXL role labels neutralized to protect prediction. Actual Linux P2PDMA partner topology/driver still needs code/hardware tests, no universal SSD→GPU direct semantics.
