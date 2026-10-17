@@ -28,3 +28,11 @@
 **Scientific edge cases:** Voltage may exist without DC open-current, conventional vs electron drift opposite in metal. τ10ms is **toy RC**, never DRAM retention. Voltage/current inputs in energy scene independent rather than fixed R, cap energy is **stored field energy** not all energy required from charger. Native physical phone, Safari, screen reader, actual Korean TTS audible quality, A06 source science re-review and A02 full app E2E **not performed**. No main merge or deploy.
 
 **Status:** `A05_BROWSER_QA_PASS / A02_HANDOFF_READY`; science review A06 pending before final `SCENE_READY` per A06 backlog strict definition.
+
+
+## [2026-10-17] A06/A07 Round02 corrective source QA and real Chromium rerun (supersedes earlier SHA for current code)
+- **Corrective scope:** A06 revised lesson12 blob e11f51ad: pre-prediction speech/title neutral, 40-second charge/current primer; RC state carries observed capacitor V(t0) through mid-charge→discharge (no 5V snap), with explicit full-charge discharge reset & regression.
+- **Verified source SHA:** `fa10c498cdec47f0fd40c178ec971fd5785a4a62`. Previous screen captures and CI runs remain historical, **not the current corrected source**.
+- **Actual Chromium browser rerun [#39026997018 — SUCCESS](https://github.com/Junebooky/interactive-engineering/actions/runs/39026997018)**: 7 PASS/0 FAIL, [12 PNG screenshots artifact #12099111266](https://github.com/Junebooky/interactive-engineering/actions/runs/39026997018/artifacts/12099111266). Corrected code-based screenshot evidence.
+- **CI [run #39027001245 — SUCCESS](https://github.com/Junebooky/interactive-engineering/actions/runs/39027001245)**, lint/unit test/TypeScript + Vite build. Science model and browser runner modified as described; current QA at exact SHA.
+- **Status:** A05 preview Chromium QA PASS, A06/A07 EDU_QA recheck pending; A02 integrated app E2E + physical device/Safari/audible voice/screen-reader QA not done. main merge/deploy forbidden.
