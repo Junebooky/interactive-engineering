@@ -33,9 +33,9 @@ try{
   await p.screenshot({path:out+'/01-prediction-hidden.png',fullPage:true});await verifyNeutralBeforePredict(p);await predict(p);
  });
  await qa('S01 5V open0 and closed5mA; electron direction; misconception and hints',async()=>{
-  await p.getByRole('button',{name:'OPEN · OFF'}).click();
+  await p.getByRole('button',{name:'열림 (OPEN)'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('0.00 mA')))throw Error('OPEN should be 0');
-  await p.getByRole('button',{name:'CLOSED · ON'}).click();
+  await p.getByRole('button',{name:'닫힘 (CLOSED)'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('5.00 mA')))throw Error('CLOSED should be 5mA');
   await p.getByRole('button',{name:'전자 이동'}).click();
   await p.getByRole('button',{name:'관습전류',exact:true}).click();
@@ -99,6 +99,55 @@ try{
   await noOverflow(p);
   await p.screenshot({path:out+'/09-capacitor-energy.png',fullPage:true});
  });
+ await qa('A03 P0 design 1440/390/320: one question, scene-docked switch, true OPEN/CLOSED SVG & palette',async()=>{
+  const n=await ctx.newPage();n.setDefaultTimeout(8000);n.on('pageerror',e=>failed.push({name:'A03 P0 desktop JS',error:String(e)}));
+  await n.goto(url);
+  const count=async(sel)=>n.locator(sel).count();
+  if(await count('[data-testid="electricity-experiment-dock"]'))throw Error('experiment controls leaked before prediction');
+  if(await count('.a05-readouts'))throw Error('physical readouts leaked before prediction');
+  if(await count('.a05-copy .a05-box')!==1)throw Error('prediction must be only current learner question');
+  const beforeText=await n.locator('.a05-copy').innerText();
+  if(/MOSFET|드레인|VGS|VDS|0\\.8V/.test(beforeText))throw Error('cross-lesson MOSFET terms in A05 electricity scene');
+  await n.screenshot({path:out+'/13-a03-p0-desktop-prediction-only.png',fullPage:true});
+  await predict(n);
+  const dock=n.getByTestId('electricity-experiment-dock');
+  if(!await dock.count())throw Error('A03 scene-anchored experiment dock missing');
+  if(await n.locator('.a05-copy button').filter({hasText:'열림 (OPEN)'}).count())throw Error('physical switch lives in problem panel');
+  if(await count('.a05-copy .a05-choice-set'))throw Error('quiz visible before physical exploration');
+  const pal=await n.evaluate(()=>{
+   const sheet=getComputedStyle(document.querySelector('.a05-electricity-lab'));
+   const canvas=getComputedStyle(document.querySelector('.a05-canvas-col'));
+   return {outer:sheet.backgroundColor,lab:canvas.backgroundColor,primary:getComputedStyle(document.documentElement).getPropertyValue('--ie-primary').trim()};
+  });
+  if(pal.outer!=='rgb(245, 247, 247)'||pal.lab!=='rgb(16, 35, 51)'||pal.primary!=='#087C6D')throw Error('A03 design token mismatch '+JSON.stringify(pal));
+  const geom=n.getByTestId('electricity-switch-geometry');
+  await dock.getByRole('button',{name:'열림 (OPEN)'}).click();
+  if(await geom.getAttribute('data-switch-state')!=='open')throw Error('switch OPEN SVG missing');
+  if(!(await geom.locator('path').getAttribute('d')).includes('L313 141'))throw Error('switch OPEN conductor visually closed');
+  let rd=await n.locator('.a05-readouts').innerText();
+  if(!rd.includes('5 V')||!rd.includes('0.00 mA'))throw Error('OPEN source5V/current0 false '+rd);
+  await n.screenshot({path:out+'/14-a03-p0-open-5V-0mA.png',fullPage:true});
+  await dock.getByRole('button',{name:'닫힘 (CLOSED)'}).click();
+  if(await geom.getAttribute('data-switch-state')!=='closed')throw Error('switch CLOSED SVG missing');
+  if(!(await geom.locator('path').getAttribute('d')).includes('H328'))throw Error('switch CLOSED conductor visually open');
+  rd=await n.locator('.a05-readouts').innerText();
+  if(!rd.includes('5 V')||!rd.includes('5.00 mA'))throw Error('CLOSED source5V/current5mA false '+rd);
+  await n.screenshot({path:out+'/15-a03-p0-closed-5V-5mA.png',fullPage:true});
+  if(await count('.a05-copy .a05-choice-set'))throw Error('quiz visible before two direction observations');
+  await dock.getByRole('button',{name:'전자 이동'}).click();
+  await dock.getByRole('button',{name:'관습전류',exact:true}).click();
+  if(!await count('.a05-copy .a05-choice-set'))throw Error('physical observation evidence did not unlock WHY');
+  await n.screenshot({path:out+'/16-a03-p0-after-evidence-one-WHY.png',fullPage:true});
+  for(const width of [390,320]){
+   await n.setViewportSize({width,height:760});
+   await noOverflow(n);
+   const tooSmall=await n.locator('.a05-experiment-dock button').evaluateAll(bs=>bs.filter(b=>b.getBoundingClientRect().height<44).length);
+   if(tooSmall)throw Error('A03 dock controls touch targets <44px '+width);
+   if(!await dock.isVisible())throw Error('mobile switch dock invisible at '+width);
+   await n.screenshot({path:out+'/17-a03-p0-mobile-'+width+'.png',fullPage:true});
+  }
+  await n.close();
+ });
  await qa('voice unavailable gives Korean readable fallback',async()=>{
   const v=await ctx.newPage();v.setDefaultTimeout(8000);v.on('pageerror',e=>failed.push({name:'voice JS',error:String(e)}));
   await v.addInitScript(()=>Object.defineProperty(window,'SpeechSynthesisUtterance',{value:undefined,configurable:true}));
@@ -111,7 +160,7 @@ try{
   const m=await browser.newContext({...devices['iPhone 13'],viewport:{width:375,height:812},reducedMotion:'reduce'});
   const phone=await m.newPage();phone.setDefaultTimeout(8000);phone.on('pageerror',e=>failed.push({name:'mobile JS',error:String(e)}));
   await phone.goto(url);await predict(phone);
-  await phone.getByRole('button',{name:'CLOSED · ON'}).tap();
+  await phone.getByRole('button',{name:'닫힘 (CLOSED)'}).tap();
   await noOverflow(phone);
   await phone.screenshot({path:out+'/11-mobile-375.png',fullPage:true});
   await phone.setViewportSize({width:320,height:710});await noOverflow(phone);
