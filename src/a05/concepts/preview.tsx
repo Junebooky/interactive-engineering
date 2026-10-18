@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import {useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {A05ConceptStructureVisual,A05_CONCEPT_META,A05_CONCEPT_VISUAL_IDS,type A05ConceptVisualId} from './A05ConceptStructureVisual';
 import './preview.css';
