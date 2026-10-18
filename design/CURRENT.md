@@ -12,6 +12,13 @@
 
 원본 디자인 PNG는 [GitHub Actions #39127237173](https://github.com/Junebooky/interactive-engineering/actions/runs/39127237173) Chromium 렌더 성공 후 위 디자인 브랜치에 **실제 5개 바이너리 파일로 커밋**되었습니다. HTML과 PNG는 **A03 콘셉트 프로토타입**이며 공식 A02 React 앱 스크린샷과 혼동하지 마세요.
 
+## 2.5D 화면 크기 정규화 — Smart Scene Fit (2026-10-18)
+
+- **[P0 Issue #80 — 장면별 시각적 확대율 불일치 수정](https://github.com/Junebooky/interactive-engineering/issues/80)** · **[A03 2.5D Camera/Scale 디자인 계약](A03-V3-scene-camera-scale-contract.md)**
+- V3의 **모든 기존 디자인 자산은 유효**하며 이번 변경은 카메라 기본 맞춤과 장면별 시각적 크기를 통일하는 **추가 계약**입니다. 새로운 페이지 시안이 아니라 기존 장면 구성의 보완이므로 V3 HTML/PNG를 잘못된 최신본으로 표시하지 않습니다.
+- 원칙: 실제 공학 물체+필수 라벨 범위에 맞춰 기본 화면 설정(최대한 크고 안전하게), 서로 다른 SVG viewBox/여백에 따라 작게 나오는 현상 해소. 같은 장면을 조작할 때 카메라 크기 유지; 새 스텝에서 재설정; 확대/축소는 Fit 대비 상대값.
+- **NEXT A02** shared SceneCamera/step reset/browser E2E, **A05** scene/CONCEPT stable bounds+science, **A08** 1440/390/320 cross-scene Chromium 비교, **A03** 최종 디자인 리뷰. **현행 A02 PR#73에는 아직 적용/검증되지 않았습니다.**
+
 ## 아직 열려 있는 3대 품질 게이트
 
 - **P0 학습 누설**: A02 PR#73 개념 도입에서 미리 `04 · 핵심 발견 완료`, `VGS≥Vth 채널 형성`, 전기회로 `5V 유지/전류0mA` 등 이후 예측 과제의 결론이 나오는 문제. A02 수정 후 A06/A07 교육 검수 필수.
