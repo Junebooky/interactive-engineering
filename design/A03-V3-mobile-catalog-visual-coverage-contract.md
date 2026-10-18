@@ -1,0 +1,59 @@
+# A03 V3 P0 — Mobile Lab, Course Library, Every Step Has a Visual
+**2026-10-18 KST · DESIGN CONCEPT (A03), NOT the production React app.** Owner request: A03 owns visual UX, A02 implements/validates official app, A05 implements scientifically valid 2.5D. No main merge/deploy.
+
+## 0. Evidence / references
+- User provided **actual app screenshots** (mobile MOSFET 390-ish and desktop full-screen dark Course Catalog) in A03 ChatGPT discussion of 2026-10-18 ~19:15 KST. Current browser tab `localhost:5173` read-only verified selected SRAM concept, catalog content and duplicated actions. **Actual local app SHA cannot be read via browser**, do not ascribe it to PR#63 without testing.
+- Current referenced product source: A02 [PR #63](https://github.com/Junebooky/interactive-engineering/pull/63) HEAD `f02148dc534b5e584603e9a3be11bedf4dd7a705`, files `src/components/player/lessonA03.css`, `LessonPlayer.tsx`, `A03SingleTaskPanel.tsx`, `src/components/catalog/CourseCatalogModal.tsx` (the latter also verified on A02 Lesson12 branch). Browser content and source may differ: get actual tested app HEAD.
+- Competitive inspiration: [Brilliant courses](https://brilliant.org/courses/) read through browser 2026-10-18: topic selectors, visual course artwork, compact learning path cards, progressive discovery. **Do not clone Brilliant graphics/branding/layout; independent Interactive Engineering art direction.**
+- **A03 V3 new illustrated HTML/CSS/SVG mockups rendered with Chromium** in owner-facing A03 ChatGPT: catalog 1440×1000 + 390×844, MOSFET 1440×900 + 390×844 + 320×640. **These are locally created A03 art prototypes (not app captures); binary PNG/HTML files are attached in the ChatGPT conversation but are NOT yet committed to GitHub.** Current implementation contract is contained here; A02 should not claim pixel parity until the assets are available from the same branch or owner share. Do not replace old reference blindly until current V3 tested in app.
+
+## 1. P0-MOBILE-CLIP-01: MOSFET 2.5D mobile overflow and collision
+**Observed screenshot:** lab name + scene result signal + component arrows overlap; VGS/VDS/readout tiles consume lab height; reset/zoom/info controls overlay readout tiles at lower-left; the bottom sheet starts before these are safely contained, obscuring values; CTA and key explanation require extra scrolling.
+
+**Code diagnosis at PR#63:** in `lessonA03.css` mobile `.a03-lab{height:49dvh}` (around line 714), `.a03-lab-bottom{position:absolute;bottom:20px}` (base line 220), 4×44px `.a03-tool` controls line ~744; `.a03-sheet{margin-top:-8px;z-index:4}` (lines 771–777); `.a03-lab-canvas-wrapper{height:100%;flex:1}` (206–217) plus overlay lab names/status. `@media (max-width:355px)` reduces targets to 38/42px (lines 936–948): fails 44px target principle. **Fix geometry, not only font size.**
+
+**A02 required layout change:**
+1. `Header` 52–56px; mobile viewport total 100dvh; `lab` and `sheet` are **sibling non-overlapping flex tracks**, no negative overlap `margin-top`, and no absolute camera toolbar crossing track boundaries.
+2. `lab` internal 3 rows: *compact scene title + 1–2 tools at upper right*, *flexible SVG/WebGL stage (object-fit contain with reserved padding)*, *max 2 compact scientific readout chips*. Everything inside a clip-safe viewport; no free floating controls on measurements. Default overlay should be hidden if duplicate to science labels.
+3. `sheet` internal: compact phase title, **one context-specific question or one experiment control**, short hint and optional Voice text, one sticky primary CTA in sheet action footer. `sheet-content{overflow-y:auto;min-height:0}`, `sheet-actions{flex:0 0 auto;padding-bottom:env(safe-area-inset-bottom)}`. Background/stage never scrolls as the user reads a long explanation.
+4. Proposed 390×844: lab about 43–46dvh **excluding 54px header**, leaving >380px for sheet. 320×640 / short devices: lab 37–40dvh, compact readout labels; no horizontal overflow, no 2.5D object clipping, no controls under the sheet. Choose flexible values based on *actual content and dynamic browser viewport*, not a rigid 49dvh.
+5. Camera tools: only `ⓘ` and `＋` always visible at top-right; move `− / reset` into accessible expansion/toolbar or in a single context menu. Each interactive element >=44×44px even at 320. Touch/keyboard zoom alternative to pinch.
+6. One primary action by phase. For MOSFET, do not show scientific Vth result, channel electrons or numeric readout **before prediction**; prototype demo may depict observation state and must be re-gated by A02 FSM + A05 physics. VDS=0 means net ID=0 in lesson's toy assumption.
+7. Implement visual regression bounding-box assertions: `sheet.top >= lab.bottom - 1`, canvas geometry and toolbar bounded by lab, readouts visible at 320/390; primary CTA always intersects visible bottom sheet viewport. Screenshot 320×640, 390×844, 1440×900 **all actual app states predict/observe/explain/done**. Test keyboard, native range, Voice, reduced motion and safe-area.
+
+## 2. P0-CATALOG-02: Replace 3 giant dark columns with intentional discovery interface
+**Observed:** screenshot with full-screen dark `CourseCatalogModal` / `catalog-courses-grid`: semiconductor column holds eight stacked lesson chip buttons while other columns contain mostly blank heights; tiny descriptions, long sentence titles, redundant end-row links. Visually discouraging.
+
+**A02 UI target**: dedicated responsive course-library surface/full-viewport overlay that visually reads like a page (not a narrow modal), preserving access to current lesson via Back/Close. Clean offwhite `#F6F8F7` shell, full white cards, V3 brand teal `#087C6D` as one action; font readable. Left small navigation on wide desktop, 1440px center content; header title "오늘은 무엇을 발견해 볼까요?" + plain helper line. Featured "이어서 배우기" strip only when real resume state is available. Course category chips with keyboard accessible selection; separate card grid 4 columns at >=1280, 3 at tablet, 2 at 390 where text remains >=12–14px, 1 at 320 if necessary.
+**Each course card**: unique A03-designed engineering visual thumbnail/scene preview, SHORT learner-friendly title, one sentence outcome, factual step count bound to real metadata, small clear exploration affordance. Clicking category filters must not implicitly enter a lesson; clicking course/lesson must preserve explicit navigation and current progress. Never invent duration/progress/level from mock art; reference demo estimated durations must be replaced by real metadata or omitted.
+**Recommended course families** (A01/A06 must approve reclassification): 전기회로·옴/RC, 반도체/MOS, 메모리/DRAM SRAM NAND, AI 시스템/GPU HBM, 기계/기어. Preserve original real lesson IDs and actual catalog `courses` data. Do not duplicate hardcoded lists.
+**Source**: `src/components/catalog/CourseCatalogModal.tsx` maps `courses` into only 3 tall cards; `course.lessons.map` embeds many chips inside the first course. Replace CSS `catalog-courses-grid` and course-card structure with grouped, flat discoverable tiles; semantic button/link, Escape, focus restoration, screen reader headings, category keyboard nav.
+
+## 3. P0-VISUAL-03: No blank lesson scene — every lesson step gets meaningful illustration
+**Direct code cause**: A02 PR#63 `LessonPlayer.tsx` calls `renderSimulator()` for all steps, but the switch default returns `null` (line 387), and `stepType==='CONCEPT'` commonly carries no `simulatorType`. `A03SingleTaskPanel.tsx` has a concept-specific text flow, so selected conceptual steps appear as **question-only** or empty lab.
+
+Implement a **visual coverage contract** instead of faking physics:
+```ts
+type VisualSpec =
+ | { mode: 'interactive'; simulatorType: string; sceneId: string }
+ | { mode: 'concept'; visualId: string; caption: string; spoilerSafe: boolean };
+```
+- Every `lesson.steps` must resolve to exactly one `VisualSpec`. Add `resolveStepVisual(lessonId, step)` to an explicit typed registry. `CONCEPT` steps use **educational schematic / 2.5D introductory visual** supplied by A05; NOT a fake live simulation. Illustrations still show spatial structure/motion cues, but no claimed measurement or unearned success.
+- Visual sketches by domain: basic circuit = battery/closed path, PN junction = doped bands, MOS = gate/oxide/substrate structural cutaway, SRAM = two cross-coupled inverters with labels only, DRAM = capacitor + access transistor, NAND = stacked cells, GPU/HBM = data-route blocks, gear = meshed wheels. Content/story science validated by A06/A07.
+- Fail closed in development: `renderSimulator()===null` => explicit annotated placeholder **only in nonproduction QA** and CI must fail `missingVisualStepCount > 0` for released lessons. Never expose teacher answer via fallback SVG/ARIA/Voice before prediction.
+- Scene identity and UI text must derive from `currentStep` and `lesson`; **no unconditional MOSFET headline/sceneSignal/threshold in shared LessonPlayer**. At PR#63 `LessonPlayer.tsx` around lines 402–409 hardcodes MOSFET `currentParams.vgs`/vds logic for all lessons; lines 420–423 hardcode '전압이 만드는 실리콘의 변화'; around 447–449 hardcode `드레인 전압 차는 0V`. Remove or make strictly type-scoped. This explains recent cross-lesson scientific copy leaks.
+- Fix **duplicate primary CTA** on CONCEPT done case: `A03SingleTaskPanel.tsx` line ~469 renders concept next button while line ~516 renders an independent `currentPhase==='done'` next button. Render mutually exclusive semantic phases. `a03-lab` aria-label currently says MOSFET across subjects; derive meaningful lesson label.
+
+## 4. A05 → A02 handoff and A03 acceptance gate
+A05: create/polish concept scene pack for every conceptual intro, using A03 dark navy lab `#102333`, consistent components and science state; document coverage and source/story SHA. Reuse validated typed physics for interactive steps, no arbitrary physics/animations. Provide labeled SVG/component map and exact head+browser proof.
+A02: integrate responsive shell, course-library component, visual registry and all official engine states without replacing validators. Provide new Draft PR + actual app 1440/390/320 captures, context-aware controls, coverage audit, canvas bounding tests, mobile devices, Accessibility Voice/progress QA.
+A03: compare new app vs V3 concept reference, sign off visual hierarchy, touch, text legibility, no hidden scenes, catalog layout and course navigation. **NOT ACCEPTED until layout regression fixed + concept scenes covered + A05/A07 science QA + owner final release approval.**
+
+## 5. Measurable acceptance (all required, not estimated)
+- [ ] **Mobile 390/320**: zero lab/sheet collision, 2.5D visible with correct label, readouts/tool buttons never covered, CTA always visible, zero horizontal scroll, accessible focus and targets.
+- [ ] **All published step entries** have intentional visual from typed registry; concept not blank, scene not misclassified as scientific measurement. Automate count + E2E routes.
+- [ ] **Catalog**: no giant empty column, at least 2 logical cards visible at mobile scroll, unique thumbnail per topic, filter/navigation works, all IDs and step counts from real data.
+- [ ] **Cross lesson**: no MOSFET strings in SRAM/RC concept unless science source explicitly requires comparisons; phase/action buttons mutually exclusive.
+- [ ] **Proof**: actual React app screenshots and test log SHA, A05 visual/physical QA, A07 content review, A03 UI acceptance, owner merge/release HOLD.
+
+Related: [team board #21](https://github.com/Junebooky/interactive-engineering/issues/21), [owner board #16](https://github.com/Junebooky/interactive-engineering/issues/16), [A03 design #54](https://github.com/Junebooky/interactive-engineering/issues/54), [P0 Lesson12 #65](https://github.com/Junebooky/interactive-engineering/issues/65), [A02 existing V2 implementation #58](https://github.com/Junebooky/interactive-engineering/issues/58).
