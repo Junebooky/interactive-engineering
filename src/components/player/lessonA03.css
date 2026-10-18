@@ -543,8 +543,9 @@
 .a03-parameter input[type="range"] {
   width: 100%;
   accent-color: var(--a03-teal);
-  height: 36px;
-  margin: 14px 0;
+  height: 44px;
+  min-height: 44px;
+  margin: 10px 0;
   cursor: pointer;
 }
 

@@ -65,6 +65,7 @@ async function runQA() {
       const catalogBtn = page.locator('.a03-back, button:has-text("나가기")').first();
       await catalogBtn.click();
       await page.waitForSelector('.a03-catalog-shell', { timeout: 8000 });
+      await page.waitForTimeout(350);
 
       // Check header and brand
       const title = await page.locator('#a03-catalog-heading').innerText();
@@ -132,6 +133,7 @@ async function runQA() {
       const catalogBtn = page.locator('.a03-back, button:has-text("나가기")').first();
       await catalogBtn.click();
       await page.waitForSelector('.a03-catalog-shell', { timeout: 8000 });
+      await page.waitForTimeout(350);
 
       // Assert zero horizontal overflow
       const hasHOverflow = await page.evaluate(() => {
@@ -319,6 +321,176 @@ async function runQA() {
         await page.screenshot({ path: path.join(outDir, item.imgName) });
       }
 
+      await context.close();
+    }
+
+    // ========================================================================
+    // Part 4: Actual React App MOSFET Single-Task Flow (1440, 390, 320)
+    // ========================================================================
+    console.log('\n--- Part 4: MOSFET Lesson 01 Live App QA (1440, 390, 320) ---');
+
+    for (const [vpName, w, h] of [['1440x900', 1440, 900], ['390x844', 390, 844], ['320x640', 320, 640]]) {
+      const context = await browser.newContext({ viewport: { width: w, height: h } });
+      const page = await context.newPage();
+
+      // Seed MOSFET Lesson Step 1 (predict phase)
+      await page.addInitScript(() => {
+        localStorage.clear();
+        localStorage.setItem('ie_last_active_lesson', JSON.stringify({
+          courseId: 'course-semiconductor',
+          lessonId: 'semiconductor-mosfet-fundamentals',
+        }));
+        localStorage.setItem('ie_progress_course-semiconductor_semiconductor-mosfet-fundamentals', JSON.stringify({
+          courseId: 'course-semiconductor',
+          lessonId: 'semiconductor-mosfet-fundamentals',
+          currentStepIndex: 1,
+          completedStepIds: ['step-mosfet-s0-concept'],
+          simulatorInputs: {
+            'step-mosfet-s1-channel': { vgs: 0.0, vds: 0.0, visited: [0], prediction: null, answer: null }
+          },
+          lastUpdated: Date.now()
+        }));
+      });
+
+      await page.goto(`${baseUrl}/?lesson=semiconductor-mosfet-fundamentals&step=1`, { waitUntil: 'networkidle' });
+      await page.waitForSelector('.a03-phase-predict', { timeout: 10000 });
+      await page.waitForTimeout(400);
+
+      // Check collision on mobile viewports
+      if (w <= 550) {
+        const labBox = await page.locator('.a03-lab').boundingBox();
+        const sheetBox = await page.locator('.a03-sheet').boundingBox();
+        const overlap = (labBox.y + labBox.height) - sheetBox.y;
+        console.log(`[MOSFET ${vpName}] Overlap: ${overlap}px`);
+        if (overlap > 1) {
+          throw new Error(`[FAIL] MOSFET Collision on ${vpName}: ${overlap}px > 1px tolerance!`);
+        }
+        console.log(`✅ [PASS] Zero geometric collision on MOSFET ${vpName}`);
+      }
+
+      // Assert touch targets
+      const choiceBox = await page.locator('.a03-choice').first().boundingBox();
+      if (choiceBox.height < 43.5) {
+        throw new Error(`[FAIL] MOSFET Choice target too small on ${vpName}: ${choiceBox.height}px`);
+      }
+
+      // Save Predict screenshot
+      await page.screenshot({ path: path.join(outDir, `mosfet_app_${vpName}_predict.png`) });
+
+      // Select '1.2 V' and advance to OBSERVE
+      await page.locator('.a03-choice:has-text("1.2 V")').click();
+      await page.waitForTimeout(200);
+      await page.locator('.a03-main-action').click();
+      await page.waitForSelector('.a03-phase-observe', { timeout: 8000 });
+      await page.waitForTimeout(400);
+
+      // Verify slider touch target >= 44px
+      const sliderBox = await page.locator('.a03-parameter input[type="range"]').first().boundingBox();
+      console.log(`[MOSFET ${vpName}] Slider height: ${sliderBox.height}px`);
+      if (sliderBox.height < 43.5) {
+        throw new Error(`[FAIL] Slider touch target < 44px on ${vpName}: ${sliderBox.height}px`);
+      }
+
+      // Save Observe screenshot
+      await page.screenshot({ path: path.join(outDir, `mosfet_app_${vpName}_observe.png`) });
+
+      // Move slider to 0.8V to trigger channel observation
+      const slider = page.locator('.a03-parameter input[type="range"]').first();
+      await slider.fill('0.8');
+      await page.waitForTimeout(300);
+
+      // Advance to CHECK phase
+      await page.locator('.a03-main-action').click();
+      await page.waitForSelector('.a03-phase-check', { timeout: 8000 });
+      console.log(`✅ [MOSFET ${vpName}] Advanced to CHECK phase`);
+
+      // Save Check screenshot on desktop/mobile
+      if (w === 1440 || w === 390) {
+        await page.screenshot({ path: path.join(outDir, `mosfet_app_${vpName}_check.png`) });
+      }
+
+      // Select correct answer and complete
+      await page.locator('.a03-choice:has-text("게이트 아래 실리콘 표면에")').click();
+      await page.waitForTimeout(200);
+      await page.locator('.a03-main-action').click();
+      await page.waitForSelector('.a03-phase-done', { timeout: 8000 });
+      console.log(`✅ [MOSFET ${vpName}] Single-task flow successfully completed!`);
+
+      await context.close();
+    }
+
+    // ========================================================================
+    // Part 5: Standalone A08/A05 Modified Scene QA (/a05-preview.html)
+    // ========================================================================
+    console.log('\n--- Part 5: Standalone A08 Scene QA (a05-preview.html) ---');
+
+    for (const [vpName, w, h] of [['1440x900', 1440, 900], ['390x844', 390, 844], ['320x640', 320, 640]]) {
+      const context = await browser.newContext({ viewport: { width: w, height: h } });
+      const page = await context.newPage();
+      await page.goto(`${baseUrl}/a05-preview.html`, { waitUntil: 'networkidle' });
+      await page.waitForTimeout(400);
+
+      // 1. Prediction must be visible, experiment dock must NOT be visible before prediction
+      const dockBefore = await page.getByTestId('a08-mosfet-experiment-dock').count();
+      if (dockBefore > 0) {
+        throw new Error(`[FAIL] A08 Experiment dock leaked before prediction on ${vpName}`);
+      }
+
+      // 2. Select prediction '1.2 V'
+      await page.locator('.a05-copy .a05-choice-set button:has-text("1.2 V")').click();
+      await page.waitForTimeout(300);
+
+      // 3. Verify experiment dock is now visible attached to scene
+      const dock = page.getByTestId('a08-mosfet-experiment-dock');
+      if (!await dock.isVisible()) {
+        throw new Error(`[FAIL] A08 Scene-attached experiment dock missing after prediction on ${vpName}`);
+      }
+      console.log(`✅ [A08 ${vpName}] Scene-attached experiment dock visible after prediction`);
+
+      // 4. Verify concept quiz is NOT leaked before physical observation
+      const quizBeforeObs = await page.locator('.a05-copy').getByText('관찰한 원리 확인하기').count();
+      if (quizBeforeObs > 0) {
+        throw new Error(`[FAIL] Concept quiz leaked before voltage observation on ${vpName}`);
+      }
+      console.log(`✅ [A08 ${vpName}] Concept quiz correctly gated behind observation`);
+
+      // 5. Perform low/high observation: observe 0V, then change to 0.8V
+      await dock.locator('.a05-mosfet-observe-current').click();
+      await page.waitForTimeout(200);
+      const slider = dock.locator('#a05-voltage');
+      await slider.fill('0.8');
+      await page.waitForTimeout(300);
+
+      // 6. Now concept quiz must be unlocked!
+      const quizAfterObs = await page.locator('.a05-copy').getByText('관찰한 원리 확인하기').count();
+      if (quizAfterObs === 0) {
+        throw new Error(`[FAIL] Concept quiz failed to unlock after observation on ${vpName}`);
+      }
+      console.log(`✅ [A08 ${vpName}] Concept quiz unlocked after physical low/high observation`);
+
+      // 7. Test false WHY negative on wrong choice
+      await page.locator('.a05-copy .a05-choice-set button:has-text("전자들이 산화막을 뚫고")').click();
+      await page.getByRole('button', { name: '관찰 결과 확인하기' }).click();
+      await page.waitForTimeout(200);
+
+      const whyCountWrong = await page.getByRole('button', { name: '왜 그럴까요? 원리 보기' }).count();
+      if (whyCountWrong > 0) {
+        throw new Error(`[FAIL] Full WHY button exposed on wrong answer on ${vpName}`);
+      }
+      console.log(`✅ [A08 ${vpName}] Zero teacher full-WHY leak on wrong answer`);
+
+      // 8. Select correct answer and verify completion
+      await page.locator('.a05-copy .a05-choice-set button:has-text("게이트 아래 실리콘 표면에")').click();
+      await page.getByRole('button', { name: '관찰 결과 확인하기' }).click();
+      await page.waitForTimeout(200);
+
+      const whyCountRight = await page.getByRole('button', { name: '왜 그럴까요? 원리 보기' }).count();
+      if (whyCountRight === 0) {
+        throw new Error(`[FAIL] Full WHY button missing on correct answer on ${vpName}`);
+      }
+      console.log(`✅ [A08 ${vpName}] Complete flow verified on correct answer`);
+
+      await page.screenshot({ path: path.join(outDir, `a08_standalone_${vpName}_dock.png`) });
       await context.close();
     }
 
