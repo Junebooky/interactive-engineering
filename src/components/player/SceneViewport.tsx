@@ -73,6 +73,8 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
     const measure = () => {
       const slotRect = el.getBoundingClientRect();
       const subjectEl =
+        el.querySelector<SVGGraphicsElement>('g[data-scene-subject][data-scene-id]') ||
+        el.querySelector<SVGGraphicsElement>('g[data-scene-subject]') ||
         el.querySelector<SVGGraphicsElement>('[data-scene-subject="true"] svg') ||
         el.querySelector<HTMLElement>('[data-scene-subject="true"]');
       if (slotRect.width > 0 && slotRect.height > 0 && subjectEl) {

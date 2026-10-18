@@ -7,6 +7,13 @@
  * (70-85% fitting axis fill) and predictable user-zoom behavior.
  */
 
+import {
+  A05_INTERACTIVE_WORLD_BOUNDS,
+  getA05InteractiveWorldBounds,
+} from '../a05/geometry/a05InteractiveBounds';
+import { A05_CONCEPT_WORLD_BOUNDS } from '../a05/concepts/a05ConceptBounds';
+import { isA05ConceptVisualId } from '../a05/concepts/a05ConceptContract';
+
 export interface BoundingBox {
   x: number;
   y: number;
@@ -434,6 +441,41 @@ export const SCENE_FRAMING_REGISTRY: Record<string, SceneFraming> = {
  * Falls back to canonical concept framing if an unregistered concept is loaded.
  */
 export function getSceneFraming(sceneId: string): SceneFraming {
+  // 1. Check A05 Concept World Bounds (PR #78)
+  if (isA05ConceptVisualId(sceneId)) {
+    const c = A05_CONCEPT_WORLD_BOUNDS[sceneId];
+    return {
+      sceneId: c.sceneId,
+      familyId: c.familyId,
+      stableBounds: { ...c.stableBounds },
+      subjectBounds: { ...c.subjectBounds },
+      essentialLabelBounds: { ...c.essentialLabelBounds },
+      policy: 'fit-subject',
+      defaultViewBox: c.defaultViewBox,
+    };
+  }
+
+  // 2. Check A05 Interactive World Bounds (PR #83)
+  const a05Interactive = getA05InteractiveWorldBounds(sceneId);
+  if (a05Interactive) {
+    let stableBounds = { ...a05Interactive.stableBounds };
+    if (a05Interactive.familyId === 'mosfet') {
+      const mosCurrent = A05_INTERACTIVE_WORLD_BOUNDS['mosfet-current'];
+      if (mosCurrent) {
+        stableBounds = { ...mosCurrent.stableBounds };
+      }
+    }
+    return {
+      sceneId: a05Interactive.sceneId,
+      familyId: a05Interactive.familyId,
+      stableBounds,
+      subjectBounds: { ...a05Interactive.subjectBounds },
+      essentialLabelBounds: { ...a05Interactive.essentialLabelBounds },
+      policy: 'fit-subject',
+      defaultViewBox: a05Interactive.defaultViewBox,
+    };
+  }
+
   const direct = SCENE_FRAMING_REGISTRY[sceneId];
   if (direct) return direct;
 
