@@ -190,3 +190,10 @@
  .a05-electricity-lab .a05-experiment-dock .a05-control-buttons button{padding:6px 2px;font-size:.73rem}
  .a05-electricity-lab .a05-mobile-extra summary{font-size:.7rem}
 }
+
+/* Keep all tappable disclosure rows at A03 minimum even in the 320px scene. */
+@media(max-width:600px){
+ .a05-electricity-lab .a05-mobile-extra summary{min-height:44px}
+ .a05-electricity-lab .a05-canvas-col summary{min-height:44px}
+ .a05-electricity-lab .a05-canvas-col button{overflow-wrap:anywhere}
+}
