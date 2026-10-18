@@ -19,6 +19,15 @@
 - 원칙: 실제 공학 물체+필수 라벨 범위에 맞춰 기본 화면 설정(최대한 크고 안전하게), 서로 다른 SVG viewBox/여백에 따라 작게 나오는 현상 해소. 같은 장면을 조작할 때 카메라 크기 유지; 새 스텝에서 재설정; 확대/축소는 Fit 대비 상대값.
 - **NEXT A02** shared SceneCamera/step reset/browser E2E, **A05** scene/CONCEPT stable bounds+science, **A08** 1440/390/320 cross-scene Chromium 비교, **A03** 최종 디자인 리뷰. **현행 A02 PR#73에는 아직 적용/검증되지 않았습니다.**
 
+## 최신 A02 PR #73 검수 — Commit 6694e47be8 (2026-10-18)
+
+- **[A03 실제 Chromium 11장/소스 재검수 보고서](A03-PR73-6694e47-camera-visual-re-review.md)** · [A02 검증 CI #39130621477](https://github.com/Junebooky/interactive-engineering/actions/runs/39130621477) 성공 · [Browser #39130621470](https://github.com/Junebooky/interactive-engineering/actions/runs/39130621470) 성공 · PR #73은 Draft.
+- [x] A02 개선 인정: CONCEPT 도입 `00` 표시, 모바일 320/390 CTA 표시, 카탈로그 타이포/그리드, 공통 SceneViewport 및 zoom reset 동작의 일부 브라우저 검증.
+- [ ] **P0 CAMERA SCALE STILL FAIL**: 실제 390/320 MOSFET·회로 그림이 장면 중앙에서 매우 작게 보임; `SceneViewport`가 실제 SVG subject가 아니라 임의 DIV와 A05 readouts를 함께 CSS scaling. `data-dominant-fill-ratio=0.79`는 metadata 계산값으로 실제 물체의 화면 점유율을 증명하지 못함. A02 실제 SVG framing+readouts 독립 배치, A05 tight bounds, A08 동일 stage 크기 cross-scene contact sheet 필요.
+- [ ] **P0 CONCEPT ANSWER LEAK**: 전기회로 Step0 설명에 '회로가 열려 있으면 전압은 존재하지만 전류는 0' 등 이후 예측 질문의 결과가 그대로 보임. A02 문구/ARIA/Voice 순서 수정, A06/A07 교육 검수 필요.
+- [ ] 320px 상단 제목·카메라 툴·상태 라벨 충돌 해소 및 실제 SVG/라벨 bounding QA. **A03 UI_DESIGN_PASS=NO**, 오너 main 병합/배포 HOLD.
+- 오너 인계 전체 SHA `6694e471d871e847c22956fe0425785002ba50fe`는 GitHub에서 조회되지 않음. **실제 PR HEAD는 `6694e47be8165db71e59a8a4c8c556292a572562`이며 CI 두 개 모두 이 SHA를 가리킴.**
+
 ## 아직 열려 있는 3대 품질 게이트
 
 - **P0 학습 누설**: A02 PR#73 개념 도입에서 미리 `04 · 핵심 발견 완료`, `VGS≥Vth 채널 형성`, 전기회로 `5V 유지/전류0mA` 등 이후 예측 과제의 결론이 나오는 문제. A02 수정 후 A06/A07 교육 검수 필수.
