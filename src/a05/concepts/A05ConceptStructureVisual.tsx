@@ -1,4 +1,4 @@
-import React, {useId} from 'react';
+import React, {useId, useState} from 'react';
 import './a05Concepts.css';
 
 /** A05 science-owned CONCEPT structure pack. NO experiment values, equations, currents,
@@ -66,10 +66,15 @@ function Gear({cx,cy,n=12,angle=0,r=54,tint='#58bdd2'}:{cx:number;cy:number;n?:n
 
 export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
  const uid=useId().replace(/:/g,'');
+ const [zoomed,setZoomed]=useState(false);
  const meta=A05_CONCEPT_META[visualId];
  // Fail visibly rather than misidentifying an unknown domain as a basic battery circuit.
  if(!meta)return <div role="status" className="a05-concept-unsupported">구조 시각화 매핑이 없습니다. 담당자 검수가 필요합니다.</div>;
- return <figure className="a05-concept-stage" data-testid="a05-concept-stage" data-visual-id={visualId}>
+ return <figure className="a05-concept-stage" data-testid="a05-concept-stage" data-visual-id={visualId} data-zoomed={zoomed}>
+  <div className="a05-concept-toolbar"><span>구조 모형 · 측정값 없음</span>
+   <button type="button" aria-pressed={zoomed} onClick={()=>setZoomed(v=>!v)} aria-label={zoomed?'구조 원래 크기':'구조 확대'}>{zoomed?'원래 크기':'구조 확대'}</button>
+  </div>
+  <div className={zoomed?'a05-concept-scroll is-zoomed':'a05-concept-scroll'} data-testid="a05-concept-scroll">
   <svg viewBox="0 0 640 360" role="img" tabIndex={0} aria-label={meta.title+'. '+meta.detail+'. '+meta.limitation} className="a05-concept-svg">
    <title id={uid+'-title'}>{meta.title}</title>
    <desc id={uid+'-desc'}>{meta.detail}. {meta.limitation}.</desc>
@@ -94,9 +99,9 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Wire d="M112 136V91H213"/><Wire d="M274 91H501V150"/><Wire d="M501 214V283H112V232"/>
     <Plate x={213} y={67} w={61} h={48} label="A" accent="#75c9e0"/>
     <Plate x={455} y={150} w={92} h={64} label="저항" />
-    <Wire d="M455 173H398V143H352"/><Wire d="M455 194H398V235H352"/>
-    <Plate x={291} y={165} w={61} h={48} label="V" accent="#75c9e0"/>
-    <Wire d="M352 188H380V143H398"/><Wire d="M352 190H380V235H398"/>
+    <Wire d="M501 150V130H320V165"/>
+    <Wire d="M501 214V257H320V213"/>
+    <Plate x={290} y={165} w={61} h={48} label="V" accent="#75c9e0"/>
     <Note x={256} y={131}>전류계 직렬</Note><Note x={321} y={243}>전압계 병렬</Note>
     <Note x={308} y={301}>측정 단자의 상대적 위치만 설명</Note>
    </g>}
@@ -155,7 +160,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Wire d="M285 146H316V99H348V146H369" kind="select"/>
     <Wire d="M493 177H537V236H118V177H161" kind="select"/>
     <Note x={325} y={91} color="#f1c577">교차 피드백</Note>
-    <Note x={311} y={265}>전원 공급 시 래치 유지 가능</Note>
+    <Note x={311} y={265}>Q · Q̅ 노드는 서로의 입력에 되돌아감</Note>
     <Plate x={63} y={126} w={70} h={65} label="접근 T" small/>
     <Plate x={522} y={126} w={75} h={65} label="접근 T" small/>
     <Wire d="M133 157H161"/><Wire d="M493 157H522"/>
@@ -199,6 +204,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Note x={311} y={311}>움직임·속도·토크 크기는 실험에서 관찰</Note>
    </g>}
   </svg>
+  </div>
   <figcaption className="a05-concept-caption"><strong>{meta.detail}</strong><span>{meta.limitation}</span></figcaption>
  </figure>;
 }
