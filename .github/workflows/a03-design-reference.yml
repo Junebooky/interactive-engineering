@@ -1,0 +1,58 @@
+name: A03 Design Reference Screenshots
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "design/prototypes/**"
+      - ".github/workflows/a03-design-reference.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  render-design-reference:
+    name: Render A03 HTML reference (not app E2E)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: design/a03-mosfet-discovery-v1
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install only Playwright for reference rendering
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Render CURRENT V3 design references (5 PNG)
+        run: node design/prototypes/capture-v3-reference.mjs
+      - name: Render Lesson12 circuit design reference at desktop and mobile sizes
+        run: node design/prototypes/capture-lesson12-reference.mjs
+      - name: Attach Lesson12 9 reference PNGs (DESIGN CONCEPT ONLY)
+        uses: actions/upload-artifact@v4
+        with:
+          name: a03-lesson12-design-reference-png
+          path: design/reference-captures/a03-lesson12/*.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Attach 5 V3 reference PNGs (DESIGN CONCEPT ONLY)
+        uses: actions/upload-artifact@v4
+        with:
+          name: a03-v3-design-reference-png
+          path: design/reference-captures/a03-v3/*.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Archive screenshot assets on A03 design branch only (never main)
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'design/a03-mosfet-discovery-v1'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add design/reference-captures/a03-v3/*.png design/reference-captures/a03-lesson12/*.png
+          if ! git diff --cached --quiet; then
+            git commit -m "docs(a03): store permanent V3 design reference PNGs [skip ci]"
+            git push origin HEAD:refs/heads/design/a03-mosfet-discovery-v1
+          fi
