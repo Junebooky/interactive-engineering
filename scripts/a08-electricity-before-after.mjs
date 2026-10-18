@@ -44,6 +44,7 @@ async function scan(phase,cwd,port){
       const width=await page.evaluate(()=>({viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
       if(width.scroll>width.viewport+2)throw Error(phase+' horizontal overflow '+size.label+' '+JSON.stringify(width));
       const small=await page.locator('.a05-experiment-dock button').evaluateAll(buttons=>buttons.filter(b=>{
+        if(!b.getClientRects().length || getComputedStyle(b).visibility==='hidden')return false;
         const rect=b.getBoundingClientRect();
         return rect.height<44 || rect.width<44;
       }).length);
