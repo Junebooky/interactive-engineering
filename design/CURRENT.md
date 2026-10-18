@@ -1,6 +1,16 @@
 # A03 — Interactive Engineering 최신 디자인 정본
 
-**최신 디자인: V3 / 2026-10-18 KST** · **Design-only Draft PR #55** · **공식 A02 React 앱 최종 승인은 아직 보류**.
+**실제 구현 검수 기준: V3 · 다음 제품 디자인 목표: V4 (#79)** · **Design-only Draft PR #55** · **공식 A02 React 앱 UI_DESIGN_PASS=NO / 제품 출시 승인 보류**.
+
+## 최신 실제 앱 V3 검수 (2026-10-19 · A02 PR #73 HEAD 9a11f0b)
+
+**[A03 제품 실화면 재검수 상세 보고](A03-PR73-9a11f0b-actual-product-review.md)** · [A02 최신 Draft PR #73](https://github.com/Junebooky/interactive-engineering/pull/73) · [CI #39141327025](https://github.com/Junebooky/interactive-engineering/actions/runs/39141327025) SUCCESS · [Chromium #39141327036](https://github.com/Junebooky/interactive-engineering/actions/runs/39141327036) SUCCESS · [A08 실제 통합 제품 네이티브 SVG 검증 #85](https://github.com/Junebooky/interactive-engineering/pull/85).
+
+- [x] A02 자기 개발 브랜치에 A05 PR #83(34개 Physics scene native SVG stableBounds) + #78(10개 CONCEPT 구조)를 실제로 **반영함**. 원본 A05 PR과 main은 여전히 Draft/미병합. MOSFET 모바일 2측정값 별도 Dock, CTA 표시, Lesson12 일부 중립 수치 처리 개선. 이전 80a1323 시점의 'A05 자료 미통합' 표기는 **역사적 상태로 만료**.
+- [ ] **P0 BLOCKER #1** A05 CONCEPT 구조의 player 내 실제 렌더링 실패 — 실제 전기회로/SRAM 앱 PNG에서 과도하게 작은 물체, 세로로 쪼개진 '구조 모형·측정값 없음', 이중 확대 버튼, 긴 교과서형 우측 패널. A02+A05가 SVG-only embedded API, 단일 툴바, 레슨 과학 라벨, 간결한 질문 작성 후 1440/390/320 재검수.
+- [ ] **P0 BLOCKER #2** A08 #85 실제 통합앱 54 Chromium 캡처 및 native g 측정: 390px 기하 최소축 기준 Circuit 약25.1%, NAND 약9.8%, DRAM 약27.9%, MOSFET 46.3% (종횡비에 민감한 경고 수치); 320 헤더/툴바 충돌 및 9px 미만 과학 텍스트. A02 camera는 g를 **측정**하지만 SVG 콘텐츠를 그 g에 맞게 직접 다시 프레이밍하지 않으며 PN/MOS14/DRAM/SRAM/NAND/GPU HTML 측정값은 여전히 외부 별도 Dock 이전이 필요. A08은 최신 수정 HEAD 앱으로 독립 contact sheet 재측정.
+- [ ] **P0 EDU** CHECK 단계 voice.explanation이 채점 전 교사 답 선노출, MOSFET visited:[0] 유령 LOW, 전기회로 OBSERVE에서 스위치 미조작 시 상단 sceneSignal이 OPEN0mA/전원5V 결과 선노출(아래 측정값 '관찰 전'과 모순), 힌트 L1-L3 동시 노출. A02 수정 + A06/A07 독립 새 SHA 검수 필요.
+- [ ] **A03_UI_DESIGN_PASS=NO**. 실제 제품의 후속 새 디자인 목표는 [A03 V4 Home-first/Scene-first/Microlearning #79](https://github.com/Junebooky/interactive-engineering/issues/79); 현재 V3 캡처나 디자인 시안이 V4 앱 구현 완료를 뜻하지 않음. A01 제품판 #16/팀 #21 업데이트, 오너 명시 승인 없는 main/배포 HOLD.
 
 ## 지금 개발팀이 열어야 하는 5개 링크
 
