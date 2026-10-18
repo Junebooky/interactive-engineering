@@ -63,19 +63,11 @@ try{
    await page.getByRole('button',{name:'현재 가족 매칭 피드백 듣기'}).click();
    const g6voice=await page.getByTestId('gpu-voice-text').innerText();
    if(!g6voice.includes('GDDR6')||g6voice.includes('GDDR7'))throw Error('GDDR6 voice improperly leaked other independent GDDR7 answer');
-   // A07 R24-01: wrong-first GDDR6 + correct general concept cannot open full WHY for unattempted GDDR7.
-   await answer(page,'셋 모두 DRAM');
-   await page.getByRole('button',{name:'조건별로 확인하기'}).click();
-   if(!await page.getByText('원리와 관찰을 더 연결해 보세요',{exact:false}).count() && await page.getByText('원리와 관찰을 연결했어요!').count())
-     throw Error('R24: wrong single pairing magically passed the four-pair assessment');
-   await page.getByRole('button',{name:'왜? 원리 보기'}).click();
-   const partialWhy=await page.getByTestId('g03-why-panel').innerText();
-   if(/GDDR6\/7.*GPU 보드|GDDR7.*GPU 보드|HBM.*GPU 패키지|DDR.*CPU/.test(partialWhy))throw Error('R24: incomplete WHY leaked unattempted GDDR7/HBM/DDR placement map: '+partialWhy);
-   await page.getByRole('button',{name:'피드백 듣기',exact:true}).click();
-   const partialVoice=await page.getByTestId('gpu-voice-text').innerText();
-   if(/GDDR7.*GPU 보드|GDDR6\/7.*GPU 보드|HBM.*GPU 패키지/.test(partialVoice))
-     throw Error('R24: incomplete concept feedback Voice leaked other family map');
-   await page.screenshot({path:out+'/04e-g03-s02-failed-why-masks-unattempted.png',fullPage:true});
+   // A08 stronger R24-01: no concept answer/WHY/Voice before every family is independently graded.
+   if(await page.locator('.a05-copy .a05-choice-set').count())throw Error('R24: unearned final concept question leaked after GDDR6-only wrong match');
+   if(await page.getByRole('button',{name:'조건별로 확인하기'}).count())throw Error('R24: concept evaluation available before four verified matches');
+   if(await page.getByTestId('g03-why-panel').count())throw Error('R24: teacher WHY exposed before independent family observations');
+   await page.screenshot({path:out+'/04e-g03-s02-before-why-protected.png',fullPage:true});
    await page.screenshot({path:out+'/04c-wrong-gddr6-only-no-gddr7.png',fullPage:true});
    await page.getByRole('button',{name:'GDDR7',exact:true}).click();
    if(await page.getByTestId('gpu-family-match-feedback').count())throw Error('switch to GDDR7 did not clear old-family grade');
@@ -121,15 +113,16 @@ try{
    if((await page.locator('.a05-canvas-header').innerText()).includes('관찰'))throw Error('UI claims observed answer before numeric quiz');
    await page.getByRole('button',{name:'24 Gb/s/pin'}).click();
    if(await page.locator('.a05-readouts').count())throw Error('numeric answers revealed before quiz');
-   const quiz24=page.locator('.a05-gpu-controls .a05-control-buttons').nth(2);
-   const quiz32=page.locator('.a05-gpu-controls .a05-control-buttons').nth(3);
+   const quiz24=page.getByTestId('gpu-quiz24');
+   const quiz32=page.getByTestId('gpu-quiz32');
+   if(await quiz32.count())throw Error('A08: second calculation exposed before first completed');
    // A07 negative: no numeric result in SVG, readouts, explanatory copy, Voice/ARIA, even after wrong attempts.
    async function assertVeiled(stage){
      if(await page.locator('.a05-readouts').count())throw Error(stage+': numeric readouts leaked');
      if(!await page.locator('.a05-veiled').count())throw Error(stage+': numeric canvas not veiled');
-     const canvas=await page.locator('.a05-canvas-col').innerText();
-     if(['384 GB/s','512 GB/s'].some(v=>canvas.includes(v)))throw Error(stage+': results leaked in canvas');
-     const aria=await page.locator('.a05-canvas-col').locator('[aria-label]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')).join(' '));
+     const canvas=await page.locator('.a05-gpu-visual,.a05-canvas-header').allInnerTexts();
+     if(canvas.some(x=>['384 GB/s','512 GB/s'].some(v=>x.includes(v))))throw Error(stage+': results leaked in rendered stage');
+     const aria=await page.locator('.a05-gpu-visual,.a05-canvas-header').locator('[aria-label]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')).join(' '));
      if(['384 GB/s','512 GB/s'].some(v=>aria.includes(v)))throw Error(stage+': results leaked in ARIA');
      const body=await page.locator('.a05-result,.a05-model-limit,.a05-why').allInnerTexts();
      if(body.some(x=>['384 GB/s','512 GB/s'].some(v=>x.includes(v))))throw Error(stage+': numeric answer exposed in answer feedback/model assumption');
@@ -138,20 +131,18 @@ try{
    await quiz24.getByRole('button',{name:'192 GB/s'}).click();
    await assertVeiled('wrong-24-only');
    await quiz24.getByRole('button',{name:'384 GB/s'}).click();
+   if(await quiz24.count()||!await quiz32.count())throw Error('A08: second calculation not shown after first is correct');
    await assertVeiled('correct-24-only');
    await page.getByRole('button',{name:'32 Gb/s/pin'}).click();
    await assertVeiled('before-32-answer');
    await quiz32.getByRole('button',{name:'384 GB/s'}).click();
    await assertVeiled('wrong-32-with-24-correct');
-   await answer(page,'이론 GB/s=bit폭');
-   await page.getByRole('button',{name:'조건별로 확인하기'}).click();
-   if(!await page.getByText('빠진 조건이 있는지').count())throw Error('wrong 32Gb/s selection wrongly passed');
-   await assertVeiled('wrong-32-after-feedback');
-   await page.getByRole('button',{name:'피드백 듣기',exact:true}).click();
-   const voice=await page.locator('[data-testid="gpu-voice-text"]').allInnerTexts();
-   if(voice.some(x=>['384 GB/s','512 GB/s'].some(v=>x.includes(v))))throw Error('spoken feedback leaked correct numeric values');
+   if(await page.locator('.a05-copy .a05-choice-set').count())throw Error('A08: final concept question leaked before both correct numerical observations');
+   if(await page.getByRole('button',{name:'조건별로 확인하기'}).count())throw Error('A08: grading permitted before 32 Gb/s correct answer');
+   await assertVeiled('wrong-32-after-attempt');
    await page.screenshot({path:out+'/05a-wrong-32Gbps-quiz.png',fullPage:true});
    await quiz32.getByRole('button',{name:'512 GB/s'}).click();
+   if(!await page.locator('.a05-copy .a05-choice-set').count())throw Error('A08: concept explanation not unlocked after two right numeric observations');
    await page.getByRole('button',{name:'PAM3 3레벨'}).click();
    const show=await page.locator('.a05-readouts').innerText();
    if(!show.includes('512 GB/s')||!show.includes('3 levels'))throw Error('32GBps/pam3 missing '+show);
@@ -159,6 +150,7 @@ try{
    if(!((await page.locator('.a05-readouts').innerText()).includes('384 GB/s')))throw Error('24 GBps missing');
    await page.screenshot({path:out+'/05-gddr-384.png',fullPage:true});
    await page.getByRole('button',{name:'32 Gb/s/pin'}).click();
+   await answer(page,'이론 GB/s=bit폭');
    await page.getByRole('button',{name:'조건별로 확인하기'}).click();
    if(!await page.getByText('원리와 관찰을 연결했어요!').count())throw Error('G03-S03 failed');
    await page.screenshot({path:out+'/06-gddr-512-pam3.png',fullPage:true});
