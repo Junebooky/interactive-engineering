@@ -32,7 +32,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
   const mint='var(--ie-accent-teal)',cyan='var(--ie-accent-cyan)',gold='var(--ie-accent-amber)';
   const now=state.direction==='electron';
   return <div className="a05-visual a05-electricity-visual">
-    <svg viewBox="0 0 650 410" role="img" aria-label={
+    <div className="a05-scene-slot" data-testid="a08-electricity-scene-slot"><svg viewBox="0 0 650 410" role="img" aria-label={
       sceneId==='charge-voltage-current-arrows'?'이상적인 전원 '+state.volts+'V, 스위치 '+(state.closed?'닫힘':'열림')+', 전류 '+basic.currentMilliAmps.toFixed(2)+'밀리암페어. '+(basic.currentMilliAmps>0?'금속 전자 방향은 관습전류와 반대입니다.':'전류가 흐르지 않으므로 방향 화살표는 표시하지 않습니다.'):
       sceneId==='resistors-series-parallel-kcl'?'직렬 또는 병렬 두 저항의 전류 보존 2.5D 회로':
       sceneId==='capacitor-rc-charge-discharge'?'RC 저항-커패시터와 충전/방전 곡선 및 시간상수':
@@ -100,7 +100,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
         <Caption x={84} y={310} color="var(--ie-scene-muted)" size={11}>소모 전력 전부가 즉시 같은 위치에서 열이 되는 모형은 아님</Caption>
       </>}
       <Caption x={76} y={377} color="var(--ie-scene-muted)" size={12}>순수 교육용 toy 2.5D · 안전한 화면 시뮬레이터, 실측/실기기 회로 지침 아님</Caption>
-    </svg>
+    </svg></div>
     <div className="a05-readouts" aria-live="polite">
       {sceneId==='charge-voltage-current-arrows'?<>
         <span>전원 양단 전압<b>{basic.terminalVoltageV} V</b></span><span>직류 전류<b>{basic.currentMilliAmps.toFixed(2)} mA</b></span>
@@ -116,5 +116,18 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
         <span>커패시터 저장<b>{energy.capacitorMicroJoules.toFixed(0)} µJ</b></span><span>시간<b>{state.seconds} s</b></span>
       </>}
     </div>
+    <details className="a05-mobile-extra" data-testid="a08-electricity-more"><summary>추가 측정값 · 과학 정보</summary>
+     <div className="a05-extra-grid">
+      {sceneId==='charge-voltage-current-arrows'?<>
+       <span>스위치 <b>{state.closed?'닫힘':'열림'}</b></span><span>화살표 기준 <b>{now?'전자':'관습전류'}</b></span>
+      </>:sceneId==='resistors-series-parallel-kcl'?<>
+       <span>전체 전류 <b>{network.totalMilliAmps.toFixed(2)} mA</b></span><span>소자별 전압 <b>{network.eachResistorVoltageV.toFixed(2)} V</b></span>
+      </>:sceneId==='capacitor-rc-charge-discharge'?<>
+       <span>가상 시간 <b>{state.timeMs} ms</b></span><span>저항 전류 <b>{rc.currentMilliAmps.toFixed(2)} mA</b></span>
+      </>:<>
+       <span>커패시터 저장 <b>{energy.capacitorMicroJoules.toFixed(0)} µJ</b></span><span>시간 <b>{state.seconds} s</b></span>
+      </>}
+     </div>
+    </details>
   </div>;
 }
