@@ -52,6 +52,16 @@ describe('A05 #70 P0 engineering concept architecture / science-safe reveal',()=
   const sr=renderToStaticMarkup(<A05ConceptStructureVisual visualId="sram-intro"/>);
   expect(sr).toContain('교차 피드백');
   expect(sr).toContain('4T 래치 + 2T 접근');
+  // A07 Round32 P1: rendered bitline traces MUST actually terminate on the
+  // outer source/drain contact of each access FET. Merely printing BL labels
+  // is insufficient; WL is an independent gate/control path.
+  expect(sr).toContain('d="M38 159H63"');
+  expect(sr).toContain('d="M597 159H620"');
+  expect(sr).toContain('d="M38 106V159"');
+  expect(sr).toContain('d="M620 106V159"');
+  expect(sr).toContain('d="M98 126V92H557V126"');
+  expect(sr).toContain('data-scene-subject="sram-intro"');
+
   expect(sr).not.toContain('Q=1');
   const na=renderToStaticMarkup(<A05ConceptStructureVisual visualId="nand-intro"/>);
   expect(na).toContain('상단 선택');
