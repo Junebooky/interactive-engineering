@@ -11,6 +11,12 @@
 
 ---
 
+## A08 독립 2.5D 장면 검수 · 2026-10-18
+
+- [**A03 검수 보고서 — PR #71/#72 V3 대비 실제 Chromium 화면 비교**](A03-A08-PR71-PR72-V3-visual-review.md). A08가 고친 switch 0V/화살표·MOSFET 한 가지 학습 행동/WHY 가림은 좁은 범위 기능 개선으로 인정. **A03 V3 UI_DESIGN_PASS는 아직 보류**.
+- 390px 모바일 A08 **독립 장면** 캡처의 fullPage 높이: MOSFET 1323px, 전기회로 1702px (320px 1477/1903px). A03 V3는 390×844 및 320×640의 실험+하단 질문/조작 구성이 목표. 독립장면 화면과 공식 A02 앱을 혼동하지 말 것.
+- **NEXT A08/A05:** embed 가능한 간결한 장면/조작 Dock/주요 측정 2개, scene slot 검증. **NEXT A02:** 실제 앱 Stage+Sheet/강좌 카탈로그/CONCEPT 시각화 #70. **NEXT A03:** V3 HTML/PNG GitHub 원본 동기화 및 실제 A02 React 화면 별도 시각 검수.
+
 ## 이전 인계 이력 (V2 및 Lesson12)
 
 > **현재 시각 기준: MOSFET Discovery Lab V2**, 전기회로 Lesson12는 [P0 UX 보정 사양](UI-AUTHORITY-LESSON12-P0.md)을 추가 적용 · 마지막 동기화: 2026-10-18 KST
