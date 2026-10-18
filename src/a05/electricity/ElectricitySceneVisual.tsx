@@ -33,7 +33,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
   const now=state.direction==='electron';
   return <div className="a05-visual a05-electricity-visual">
     <svg viewBox="0 0 650 410" role="img" aria-label={
-      sceneId==='charge-voltage-current-arrows'?'이상적인 전원 '+state.volts+'V, 스위치 '+(state.closed?'닫힘':'열림')+', 전류 '+basic.currentMilliAmps.toFixed(2)+'밀리암페어. 관습전류와 금속 전자 방향은 반대입니다.':
+      sceneId==='charge-voltage-current-arrows'?'이상적인 전원 '+state.volts+'V, 스위치 '+(state.closed?'닫힘':'열림')+', 전류 '+basic.currentMilliAmps.toFixed(2)+'밀리암페어. '+(basic.currentMilliAmps>0?'금속 전자 방향은 관습전류와 반대입니다.':'전류가 흐르지 않으므로 방향 화살표는 표시하지 않습니다.'):
       sceneId==='resistors-series-parallel-kcl'?'직렬 또는 병렬 두 저항의 전류 보존 2.5D 회로':
       sceneId==='capacitor-rc-charge-discharge'?'RC 저항-커패시터와 충전/방전 곡선 및 시간상수':
       '부하 전력과 소모 에너지, 커패시터 저장 에너지를 구분하는 2.5D 도식'
@@ -53,12 +53,12 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
             <path d="M265 169 L313 141" stroke={gold} strokeLinecap="round" strokeWidth="5"/>}
         </g>
         <Caption x={253} y={126} color={state.closed?mint:gold}>스위치 {state.closed?'닫힘':'열림'}</Caption>
-        {state.closed&&<>
+        {basic.currentMilliAmps>0&&<g data-testid="electricity-current-flow-arrows" aria-hidden="true">
           <path d={now?'M358 191 L340 183 L358 175':'M338 175 L356 183 L338 191'} fill={now?gold:mint}/>
           <path d={now?'M239 236 L258 244 L239 252':'M259 236 L240 244 L259 252'} fill={now?gold:mint}/>
-        </>}
+        </g>}
         <Caption x={108} y={283} color={now?gold:mint} size={15}>
-          {now?'전자 이동 (음전하) ← 관습전류와 반대':'양전하 기준 관습전류 → 전자와 반대'}
+          {basic.currentMilliAmps===0?'전류 0mA · 방향 화살표 없음':now?'전자 이동 (음전하) ← 관습전류와 반대':'양전하 기준 관습전류 → 전자와 반대'}
         </Caption>
         <Caption x={82} y={306} color="var(--ie-scene-muted)" size={12}>{!state.closed?'스위치 열림: 전원 '+state.volts+'V, I=0':state.volts===5?'스위치 닫힘: 5V / 1kΩ = 5mA':'스위치 닫힘·전원 0V: I=0'}</Caption>
       </>}
