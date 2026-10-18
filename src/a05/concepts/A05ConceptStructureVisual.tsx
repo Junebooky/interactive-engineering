@@ -71,7 +71,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
   ? A05_CONCEPT_META[visualId as A05ConceptVisualId] : undefined;
  // Fail visibly rather than misidentifying an unknown domain as a basic battery circuit.
  if(!meta)return <div role="status" className="a05-concept-unsupported">구조 시각화 매핑이 없습니다. 담당자 검수가 필요합니다.</div>;
- return <figure className="a05-concept-stage" data-testid="a05-concept-stage" data-visual-id={visualId} data-zoomed={zoomed}>
+ return <figure className="a05-concept-stage a03-concept-visual" data-testid="a05-concept-stage" data-visual-id={visualId} data-zoomed={zoomed}>
   <div className="a05-concept-toolbar"><span>구조 모형 · 측정값 없음</span>
    <button type="button" aria-pressed={zoomed} onClick={()=>setZoomed(v=>!v)} aria-label={zoomed?'구조 원래 크기':'구조 확대'}>{zoomed?'원래 크기':'구조 확대'}</button>
   </div>
