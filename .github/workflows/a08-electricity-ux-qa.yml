@@ -1,0 +1,44 @@
+name: A08 Electricity Visual and Interaction Regression
+on:
+  push:
+    branches:
+      - fix/a08-electricity-zero-voltage-ux
+  workflow_dispatch:
+jobs:
+  a08-electricity-ux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Lint, Vitest, TypeScript and production build
+        run: |
+          npm run lint
+          npm test
+          npm run build
+      - name: Prepare exact A05 before-fix checkout
+        run: |
+          git worktree add --detach /tmp/a08-scene-before e26d0e5d677ac72db8b949581a5daf57857909af
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/a08-scene-before/node_modules
+      - name: Actual Chromium before-after negative states at 1440/390/320
+        run: node scripts/a08-electricity-before-after.mjs /tmp/a08-scene-before
+      - name: Re-run original A05 eight browser scenarios
+        run: node scripts/a05-electricity-browser.mjs
+      - name: Archive A08 real screenshots, even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a08-electricity-ux-before-after-png
+          path: browser-evidence/electricity12/
+          retention-days: 14
+          if-no-files-found: warn

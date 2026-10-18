@@ -108,7 +108,7 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
   setIndex(i);setState(initial());setPrediction(null);setSeen([]);setAnswer(null);setFeedback(null);setHint(0);setWhy(false);
   onEvent?.({sceneId:electricitySceneOrder[i],type:'scene.enter'});
  }
- function circuit(closed:boolean){change({...state,volts:5,closed},'switch '+closed);seenOnce(closed?'closed':'open');}
+ function circuit(closed:boolean){change({...state,closed},'switch '+closed);seenOnce(closed?'closed':'open');}
  function direction(value:Direction){change({...state,direction:value},'direction '+value);seenOnce(value);}
  function topology(value:CircuitTopology){change({...state,topology:value},'topology '+value);seenOnce(value);}
  function rcObservation(next:ElectricityVisualState){
