@@ -37,6 +37,7 @@ try{
   if(!((await p.locator('.a05-readouts').innerText()).includes('0.00 mA')))throw Error('OPEN should be 0');
   await p.getByRole('button',{name:'닫힘 (CLOSED)'}).click();
   if(!((await p.locator('.a05-readouts').innerText()).includes('5.00 mA')))throw Error('CLOSED should be 5mA');
+  await p.locator('.a05-dock-options summary').click();
   await p.getByRole('button',{name:'전자 이동'}).click();
   await p.getByRole('button',{name:'관습전류',exact:true}).click();
   await answer(p,'5V면 언제나 5A'); // verify wrong answer yields feedback
@@ -134,6 +135,7 @@ try{
   if(!rd.includes('5 V')||!rd.includes('5.00 mA'))throw Error('CLOSED source5V/current5mA false '+rd);
   await n.screenshot({path:out+'/15-a03-p0-closed-5V-5mA.png',fullPage:true});
   if(await count('.a05-copy .a05-choice-set'))throw Error('quiz visible before two direction observations');
+  await dock.locator('.a05-dock-options summary').click();
   await dock.getByRole('button',{name:'전자 이동'}).click();
   await dock.getByRole('button',{name:'관습전류',exact:true}).click();
   if(!await count('.a05-copy .a05-choice-set'))throw Error('physical observation evidence did not unlock WHY');
