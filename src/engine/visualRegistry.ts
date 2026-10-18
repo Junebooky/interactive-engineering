@@ -1,18 +1,18 @@
-import type { Step } from '../types';
+import type {Step} from '../types';
+import {getA05ConceptVisualId} from '../a05/concepts/a05ConceptContract';
+import {A05_CONCEPT_META} from '../a05/concepts/A05ConceptStructureVisual';
 
-export type VisualMode = 'interactive' | 'concept';
-
+export type VisualMode='interactive'|'concept';
 export interface VisualSpec {
-  mode: VisualMode;
-  visualId: string;
-  title: string;
-  subtitle: string;
-  caption: string;
-  spoilerSafe: boolean;
-  simulatorType?: string;
-  sceneId?: string;
+ mode:VisualMode;
+ visualId:string;
+ title:string;
+ subtitle:string;
+ caption:string;
+ spoilerSafe:boolean;
+ simulatorType?:string;
+ sceneId?:string;
 }
-
 /**
  * Audited, explicit concept visual mapping for published lessons.
  * B3: Zero arbitrary fallbacks; each published step is explicitly science-audited
@@ -126,27 +126,41 @@ export const EXPLICIT_CONCEPT_REGISTRY: Record<string, Omit<VisualSpec, 'mode'>>
  * A03 V3 Visual Coverage Contract Registry
  * Guarantees that EVERY published lesson step resolves to a meaningful,
  * pedagogically verified visual representation (no blank lab scenes).
+ * Interactive steps KEEP their current A02 simulatorType.
+ * Every concept step gets its exact lesson's A05 concept geometry.
  * Throws immediately on unregistered steps to prevent unverified fallback leaks.
  */
 export function resolveStepVisual(lessonId: string, step: Step): VisualSpec {
-  // If the step specifies an interactive simulatorType, resolve to interactive mode
-  if (step.simulatorType) {
+  if (step.stepType !== 'CONCEPT' && step.simulatorType) {
     return {
       mode: 'interactive',
       visualId: step.simulatorType,
       title: step.title,
       subtitle: step.storyLead || '',
-      caption: '대화형 2.5D 시뮬레이션 실험실',
+      caption: '실험 결과는 실제 조작 후 확인하세요',
       spoilerSafe: false,
       simulatorType: step.simulatorType,
       sceneId: step.simulatorType,
     };
   }
 
-  // Explicit audited Concept Visual lookup
+  // Pre-observation concept stage must never render a live interactive simulator.
+  const conceptId = getA05ConceptVisualId(lessonId);
+  if (conceptId) {
+    const info = A05_CONCEPT_META[conceptId];
+    return {
+      mode: 'concept',
+      visualId: conceptId,
+      title: info.title,
+      subtitle: info.detail,
+      caption: info.limitation,
+      spoilerSafe: true,
+    };
+  }
+
+  // Explicit audited Concept Visual lookup fallback if any
   const registryKey = `${lessonId}:${step.id}`;
   const conceptEntry = EXPLICIT_CONCEPT_REGISTRY[registryKey];
-
   if (conceptEntry) {
     return {
       mode: 'concept',
