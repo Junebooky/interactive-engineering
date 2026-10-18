@@ -55,6 +55,16 @@ async function visit(stage,cwd,port){
       throw Error('SVG escaped scene slot '+w+' '+JSON.stringify({sv,sb}));
     if(w<=390&&sb.height>(w===390?350:255))throw Error('V3 mobile SVG slot exceeds budget '+w+' '+sb.height);
     checkRects(sb,db,'scene/dock '+w);
+    const svgTextClips=await visual.evaluate(svg=>{
+      const box=svg.viewBox.baseVal;
+      return [...svg.querySelectorAll('text')].flatMap(el=>{
+        const r=el.getBBox();
+        return r.x<box.x-2||r.y<box.y-2||r.x+r.width>box.x+box.width+2||r.y+r.height>box.y+box.height+2
+          ?[{label:(el.textContent||'').slice(0,50),x:r.x,y:r.y,width:r.width,height:r.height}]:[];
+      });
+    });
+    if(svgTextClips.length)throw Error('SVG physical labels clipped by viewBox '+w+' '+JSON.stringify(svgTextClips));
+
     const metrics=await page.locator('.a05-visual>.a05-readouts>span').evaluateAll(nodes=>
      nodes.map(x=>({txt:x.textContent,display:getComputedStyle(x).display,rect:x.getBoundingClientRect().toJSON()})));
     if(metrics.length!==4)throw Error('Scientific readout DOM unexpectedly dropped '+w);
@@ -97,11 +107,11 @@ async function visit(stage,cwd,port){
         throw Error('Additional scientific measurements missing from disclosure');
     }
     await page.screenshot({path:out+'/after-'+w+'x'+h+'-expanded-science.png'});
-    results[w]={...(results[w]||{}),after:heights,svgHeight:sb.height,dockTop:db.y,dockBottom:db.y+db.height,readoutCount:metrics.filter(x=>x.display!=='none').length};
+    results[w]={...results[w],after:heights,svgHeight:sb.height,dockTop:db.y,dockBottom:db.y+db.height,readoutCount:metrics.filter(x=>x.display!=='none').length};
    }else{
     const metrics=await page.locator('.a05-visual>.a05-readouts>span').count();
     if(metrics!==4)throw Error('Baseline scene already changed unexpectedly');
-    results[w]={...(results[w]||{}),before:heights};
+    results[w]={...results[w],before:heights};
    }
    await context.close();
   }
