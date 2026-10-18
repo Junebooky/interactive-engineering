@@ -272,3 +272,10 @@
  .a05-mosfet-v3 .a05-canvas-col{padding:4px}
  .a05-mosfet-v3 .a05-mosfet-dock .a05-control-buttons button{padding:6px 2px;font-size:.75rem}
 }
+
+/* A03 minimum 44px applies to science disclosure, experiment help and IV graph. */
+@media(max-width:600px){
+ .a05-mosfet-v3 .a05-canvas-col summary{min-height:44px}
+ .a05-mosfet-v3 .a05-canvas-col button{overflow-wrap:anywhere}
+ .a05-mosfet-v3 .a05-readouts span{overflow-wrap:anywhere}
+}
