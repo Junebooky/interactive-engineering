@@ -72,6 +72,7 @@ try {
   await assert('M01 S02 IV saturation and direction', async () => {
     await choose(page, '1 V에서는');
     await page.locator('#a05-voltage').fill('1.8');
+    await page.locator('.a05-plot-disclosure summary').click();
     if (!await page.getByText('포화 이후에도 ID는 0이 아님').count()) throw Error('missing saturation annotation');
     await page.screenshot({ path: output + '/03-current-desktop.png', fullPage: true });
     await choose(page, '전압 차가 있어야');
