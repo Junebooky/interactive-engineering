@@ -14,7 +14,7 @@ function CircuitSurface({ children }: { children: React.ReactNode }) {
       <path d="M550 34 L578 52 L578 332 L550 312 Z" fill="#172f45" stroke="#4e7186" />
       <rect x="45" y="34" width="505" height="278" rx="13" fill="#14263c" stroke="#7397ad" />
       <path d="M60 48 H535" stroke="#9eebd3" strokeOpacity=".4" strokeWidth="2" />
-      {children}
+      <g data-scene-subject="inverter-device" data-scene-id="inverter-circuit">{children}</g>
     </g>
   );
 }
@@ -58,6 +58,7 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
             <stop stopColor="#e6fff8" /><stop offset=".3" stopColor="#81eedb" /><stop offset="1" stopColor="#1a8e9f" />
           </linearGradient>
         </defs>
+        <g data-scene-subject="mosfet-device" data-scene-id="mosfet-cutaway">
         <path d="M89 133 L509 133 L540 160 L540 309 L120 309 L89 282 Z" fill={'url(#' + waferGradient + ')'} stroke="#7facbd" strokeWidth="2"/>
         <path d="M89 133 L509 133 L540 160 L120 160 Z" fill="#416f84" stroke="#91c1c6"/>
         <path d="M120 160 L540 160 L540 309 L120 309 Z" fill="#29465d" fillOpacity=".55"/>
@@ -97,6 +98,7 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
           <path d="M195 278 l13 -7 v14 Z" fill={GOLD}/>
           <SvgLabel x={201} y={311} color={GOLD} size={12}>관습 전류: DRAIN → SOURCE</SvgLabel>
         </>}
+        </g>
         <SvgLabel x={94} y={344} color="#aec4d8" size={12}>교육용 장채널 nMOS · Vth=0.7V 가정 · 비례·단면 축척 아님</SvgLabel>
       </svg>
       <div className="a05-readouts" aria-live="polite">
