@@ -1,4 +1,19 @@
-# A03 최신 UX 인덱스 · 2026-10-18
+# A03 디자인 단일 최신 기준 — V4 · 2026-10-18
+
+**현재 최상위 UX 기준: [A03 V4 홈·씬 먼저·쉬운 학습 문장](A03-V4-HOME-SCENE-FIRST-MICROLEARNING.md) · [P0 통합 이슈 #79](https://github.com/Junebooky/interactive-engineering/issues/79).**
+
+**이번에 바뀐 페이지/경험:** 카탈로그는 학습 앱의 실제 **홈/강좌 페이지**(모달 아님), 2.5D는 예측 전부터 **정적 구조 탐색이 가능한 첫 화면**, 학습 설명은 A06의 **한 행동·한 개념·짧은 문장**을 기준으로 합니다. A07 과학·선노출 별도 검수.
+
+A03 V4 독립 HTML/CSS/SVG/PNG (Home 1440/390, MOSFET inspect 390/320, hotspot→prediction 390/320) 파일은 **현재 A03 ChatGPT 대화 내 원본 파일**이고 **GitHub에 아직 올라가지 않았습니다**. GitHub에 있는 이번 V4 명세는 구현 계약이고, 이전 V3/V2 이미지가 곧 V4라는 의미가 아닙니다. **V4 자산 원본 업로드/CI 재현/기존 시안 파일 정리는 A03 OPEN**. 기존 디자인 파일은 새 자료가 원격에서 재현 가능해진 뒤, 잘못된 인계 공백 없이 삭제합니다.
+
+A02 PR #73의 유효한 V3 디자인 카드/모바일 겹침 수정/모든 스텝 시각화는 유지합니다. **그러나 해당 PR의 `CourseCatalogModal`, 장문 `a03-panel-body`, 예측 전 시각 구조 차폐는 V4 미충족**. 변경 대상만 V4로 우선하며 그 외 A05 물리 모델과 A02 FSM은 보존해야 합니다.
+
+[공동 현황판 #21](https://github.com/Junebooky/interactive-engineering/issues/21) · [A02 #1](https://github.com/Junebooky/interactive-engineering/issues/1) · [A05 #4](https://github.com/Junebooky/interactive-engineering/issues/4) · [A06 #6](https://github.com/Junebooky/interactive-engineering/issues/6) · [A08 #69](https://github.com/Junebooky/interactive-engineering/issues/69) · [A03 #54](https://github.com/Junebooky/interactive-engineering/issues/54).
+
+---
+
+## 지난 버전 결정 기록 (V3 이하 · 새로운 UX의 최종 합격 기준 아님)
+
 
 **현재 우선 구현 기준 = V3 모바일 학습 화면/강좌 카탈로그/시각화 보장.** [P0 작업 #70](https://github.com/Junebooky/interactive-engineering/issues/70) · [V3 상세 구현 계약](https://github.com/Junebooky/interactive-engineering/blob/design/a03-mosfet-discovery-v1/design/A03-V3-mobile-catalog-visual-coverage-contract.md).
 
