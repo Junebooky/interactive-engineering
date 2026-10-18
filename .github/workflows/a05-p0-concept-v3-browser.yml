@@ -1,0 +1,36 @@
+name: A05 P0 V3 Science-Safe Concept Structure and App Visual Coverage
+on:
+  push:
+    branches:
+      - feat/a05-p0-concept-visual-pack-v3
+  workflow_dispatch:
+jobs:
+  a05-concept-p0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install actual Chromium for Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Lint, full Vitest (including 10 science and all step coverage), TypeScript and build
+        run: |
+          npm run lint
+          npm test
+          npm run build
+      - name: Actual Chromium 10 structures in 1440/390/320 and A02 concept route
+        run: node scripts/a05-concept-browser.mjs
+      - name: Archive real 1440/390/320 screenshots even after failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a05-p0-concept-v3-structure-and-app-png
+          path: browser-evidence/a05-concepts-p0/
+          if-no-files-found: warn
+          retention-days: 14

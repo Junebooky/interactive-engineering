@@ -158,6 +158,15 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
     setShowWhy(false);
     emit('parameter.changed', { key, value: v });
   }
+  function observeCurrentVoltage() {
+    // A student must explicitly observe the initial 0V scene. A default field/first render
+    // never creates a physical observation/progress record.
+    const current = controlKey === 'vin' ? values.vin : controlKey === 'vgs' ? values.vgs : values.vds;
+    setVisited(prev => prev.includes(current) ? prev : [...prev, current]);
+    setResult(null);
+    setShowWhy(false);
+    emit('parameter.changed', { key: controlKey, value: current });
+  }
   function changeBit(key: 'out0' | 'out1', bit: LogicBit) {
     setValues(prev => ({ ...prev, [key]: bit }));
     setResult(null);
@@ -181,6 +190,7 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
   const controlKey = sceneId === 'mosfet-field' ? 'vgs' : sceneId === 'mosfet-current' ? 'vds' : 'vin';
   const controlValue = values[controlKey];
   const finalChoices = story.finalChoices;
+  const physicalReady = prediction !== null && evaluateA05Scene(sceneId, visited, null, values).observationPassed;
 
   return <div className="a05-lab" lang="ko">
     <header className="a05-head">
@@ -200,8 +210,8 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
         <span className="a05-eyebrow">{sceneId} · {index + 1} / 4</span>
         <h2>{story.title}</h2>
         <p className="a05-hook">{story.hook}</p>
-        <p className="a05-question">{story.question}</p>
-        <div className="a05-box">
+        <p className="a05-question">{prediction === null ? story.question : physicalReady ? '관찰한 결과를 바탕으로 원리를 설명해 보세요.' : '이제 실험 조작에 집중해 보세요.'}</p>
+        {prediction === null && <div className="a05-box">
           <h3>먼저 예상하기</h3>
           <p>{story.prediction}</p>
           <div className="a05-choice-set">
@@ -209,26 +219,9 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
               className={prediction === c.id ? 'selected' : ''} disabled={prediction !== null}
               onClick={() => { setPrediction(c.id); emit('prediction.recorded', { choice: c.id }); }}>{c.label}</button>)}
           </div>
-          {prediction !== null && <p className="a05-note">예상이 기록됐어요. 이제 실제로 시험해 볼까요? 예상이 틀려도 괜찮아요.</p>}
-        </div>
-        {prediction !== null && <>
-          <div className="a05-box">
-            <h3>직접 조작하기</h3>
-            <p>{story.displayText}</p>
-            {controlKey === 'vin' ? <div className="a05-control-buttons" role="group" aria-label="입력 전압 전환">
-              <button type="button" aria-pressed={controlValue === 0} onClick={() => changeVoltage('vin', 0)}>입력 0 V</button>
-              <button type="button" aria-pressed={controlValue === 5} onClick={() => changeVoltage('vin', 5)}>입력 5 V</button>
-            </div> : <>
-              <label className="a05-slider-label" htmlFor="a05-voltage">
-                {controlKey === 'vgs' ? '게이트 전압 VGS' : '드레인-소스 전압 VDS'} <strong>{controlValue.toFixed(1)} V</strong>
-              </label>
-              <input id="a05-voltage" type="range" value={controlValue} min={0}
-                max={controlKey === 'vgs' ? 1.2 : 2} step=".1"
-                onChange={e => changeVoltage(controlKey, Number(e.target.value))}/>
-              <p className="a05-note">키보드 방향키로도 0.1 V씩 조절할 수 있어요.</p>
-            </>}
-          </div>
-          <div className="a05-box">
+        </div>}
+        {prediction !== null && !physicalReady && <div className="a05-box a05-experiment-guidance" role="status">실험은 오른쪽 2.5D 모델 아래의 ‘실험 조작’에서 진행해요. 낮은 전압과 높은 전압을 비교하면 한 가지 원리 질문이 열립니다.</div>}
+        {physicalReady && !result?.passed && <div className="a05-box">
             <h3>관찰한 원리 확인하기</h3>
             <p>{story.finalPrompt}</p>
             {finalChoices ? <div className="a05-choice-set">
@@ -243,8 +236,7 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
               </div>)}
             </div>}
             <button className="a05-primary" type="button" onClick={check}>관찰 결과 확인하기</button>
-          </div>
-        </>}
+          </div>}
         <div className="a05-tools">
           <button type="button" onClick={() => speak(story.speechText)}>한국어 질문 듣기</button>
           {prediction !== null && <button type="button" disabled={hintCount === 3} onClick={() => {
@@ -264,9 +256,9 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
           </details>}
           {result.passed && <p>좋아요. 다음 질문으로 이어가 볼까요?</p>}
           <button type="button" onClick={() => speak(result.passed ? '직접 관찰한 결과와 원리를 잘 연결했어요. ' + story.nextHook : result.conditions.filter(c => !c.passed).map(c => c.feedback).join(' '))}>검사 결과 듣기</button>
-          <button type="button" onClick={() => setShowWhy(!showWhy)}>{showWhy ? '원리 접기' : '왜 그럴까요? 원리 보기'}</button>
+          {result.passed && <button type="button" onClick={() => setShowWhy(!showWhy)}>{showWhy ? '원리 접기' : '왜 그럴까요? 원리 보기'}</button>}
         </section>}
-        {showWhy && result && <div className="a05-why"><h3>왜 그럴까요?</h3><p>{story.why}</p>
+        {showWhy && result?.passed && <div className="a05-why"><h3>왜 그럴까요?</h3><p>{story.why}</p>
           <button type="button" className="a05-audio" onClick={() => speak(story.why)}>원리 듣기</button>
           {result.passed && <p className="a05-next">{story.nextHook}</p>}</div>}
         {result?.passed && index < a05SceneIds.length - 1 && <button type="button" className="a05-primary" onClick={() => moveTo(index + 1)}>다음 질문으로 →</button>}
@@ -275,6 +267,23 @@ export function A05MosfetSceneLab({ onEvent, onSpeech }: A05MosfetSceneLabProps)
       <div className="a05-canvas-col">
         <div className="a05-canvas-header"><span>LIVE 2.5D MODEL</span><span>{prediction === null ? '예상 먼저' : '조작 가능'}</span></div>
         <A05SceneVisual sceneId={sceneId} values={values} showObservation={prediction !== null} />
+        {prediction !== null && <div className="a05-mosfet-dock" role="region" aria-label="실험 조작" data-testid="a08-mosfet-experiment-dock">
+            <h3>직접 조작하기</h3>
+            <p>{story.displayText}</p>
+            {controlKey === 'vin' ? <div className="a05-control-buttons" role="group" aria-label="입력 전압 전환">
+              <button type="button" aria-pressed={controlValue === 0} onClick={() => changeVoltage('vin', 0)}>입력 0 V</button>
+              <button type="button" aria-pressed={controlValue === 5} onClick={() => changeVoltage('vin', 5)}>입력 5 V</button>
+            </div> : <>
+              <label className="a05-slider-label" htmlFor="a05-voltage">
+                {controlKey === 'vgs' ? '게이트 전압 VGS' : '드레인-소스 전압 VDS'} <strong>{controlValue.toFixed(1)} V</strong>
+              </label>
+              <input id="a05-voltage" type="range" value={controlValue} min={0}
+                max={controlKey === 'vgs' ? 1.2 : 2} step=".1"
+                onChange={e => changeVoltage(controlKey, Number(e.target.value))}/>
+              <button type="button" className="a05-mosfet-observe-current" onClick={observeCurrentVoltage}>현재 {controlValue.toFixed(1)} V 직접 관찰</button>
+              <p className="a05-note">현재 값을 직접 관찰하거나 키보드 방향키로 0.1 V씩 바꿔 비교하세요.</p>
+            </>}
+          </div>}
         <div className="a05-model-limit"><strong>모델 범위</strong> {story.assumptions}</div>
         <div className="a05-source">교육 스토리: A06 PR #7 · 장면 구현: A05 · 학습 엔진: A02 별도 통합</div>
       </div>

@@ -1,0 +1,16 @@
+:root{color-scheme:dark;font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif;background:#f5f7f7;color:#152431}
+body{margin:0}*{box-sizing:border-box}
+.a05-concept-preview{max-width:1060px;margin:auto;padding:20px 16px 26px}
+.a05-concept-preview .chip{display:inline-block;padding:7px 11px;background:#e4f3ef;color:#087c6d;font-size:12px;border-radius:9px;font-weight:800}
+.a05-concept-preview h1{font-size:clamp(18px,3vw,25px);margin:10px 0 4px}
+.a05-concept-preview p{font-size:14px;color:#526972;line-height:1.6;margin:7px 0 16px}
+.concept-topic-list{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.concept-topic-list button{border:1px solid #c3d3d6;border-radius:9px;background:#fff;color:#152431;font:inherit;font-weight:700;
+ cursor:pointer;padding:10px 12px;min-height:44px;font-size:13px}
+.concept-topic-list button[aria-pressed=true]{background:#087c6d;color:#fff;border-color:#087c6d}
+.concept-topic-list button:focus-visible{outline:3px solid #f1c577;outline-offset:2px}
+.concept-preview-body{max-width:850px;margin:auto}
+.a05-concept-preview footer{font-size:12px;line-height:1.5;color:#65757c;padding-top:18px}
+@media(max-width:390px){.a05-concept-preview{padding:11px 9px}.concept-topic-list{gap:5px}
+.concept-topic-list button{font-size:11px;padding:9px 8px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}

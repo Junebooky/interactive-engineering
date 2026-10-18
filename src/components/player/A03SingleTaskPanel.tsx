@@ -4,7 +4,7 @@ import { voiceEngine } from '../../lib/voice/webSpeechEngine';
 import { SwitchToggle } from '../interactive/SwitchToggle';
 import { TruthTableInput } from '../interactive/TruthTableInput';
 
-export type FlowPhase = 'predict' | 'observe' | 'check' | 'done';
+export type FlowPhase = 'concept' | 'predict' | 'observe' | 'check' | 'done';
 
 interface A03SingleTaskPanelProps {
   onPhaseChange?: (phase: FlowPhase) => void;
@@ -53,7 +53,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
     ? currentParams.visited
     : typeof currentParams.visited === 'number'
     ? [currentParams.visited]
-    : [0];
+    : [];
 
   const minHighRule = step.rules?.find((r) => r.operator === 'visitedLowHigh');
   const minHigh = typeof minHighRule?.expected === 'number' ? minHighRule.expected : 0.8;
@@ -68,10 +68,12 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
 
   // Determine current active phase
   let currentPhase: FlowPhase = 'predict';
-  if (isCorrect) {
+  if (step.stepType === 'CONCEPT') {
+    currentPhase = 'concept';
+  } else if (isCorrect) {
     currentPhase = 'done';
-  } else if (step.stepType === 'CONCEPT' || !predictionCtrl) {
-    // If step has no prediction (e.g. Concept step or direct exploration)
+  } else if (!predictionCtrl) {
+    // If step has no prediction (e.g. direct exploration)
     currentPhase = answerCtrl ? 'check' : otherControls.length > 0 ? 'observe' : 'done';
   } else if (phaseOverride) {
     currentPhase = phaseOverride;
@@ -100,10 +102,10 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
     ? '전류가 흐르는 길을 끊으면 무슨 일이 생길지 먼저 생각해 보세요.'
     : (step.storyLead || '화면의 구조를 살펴본 다음 나만의 가설을 세워보세요.');
 
-  if (step.stepType === 'CONCEPT') {
+  if (step.stepType === 'CONCEPT' || currentPhase === 'concept') {
     kicker = `00 · 개념 도입`;
     title = step.title;
-    subtitle = step.prompt;
+    subtitle = step.storyLead || '실습 시작 전 기본 배경 개념을 확인합니다.';
   } else if (currentPhase === 'observe') {
     kicker = isElecStep1 ? `02 · 직접 실험하기` : `02 · 전압을 직접 바꿔보기`;
     title = isElecStep1
@@ -128,7 +130,9 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
 
   // Voice narration text
   const speechText =
-    currentPhase === 'predict'
+    currentPhase === 'concept'
+      ? (step.voice?.intro || step.storyLead || step.prompt)
+      : currentPhase === 'predict'
       ? (step.voice?.intro || `${step.prompt} 먼저 예상해 보세요.`)
       : currentPhase === 'observe'
       ? (step.voice?.intro || '조작 슬라이더를 움직여 화면의 물리적 변화를 비교해 보세요.')
@@ -165,7 +169,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
     resetCurrentStep();
     updateParam('prediction', null);
     updateParam('answer', null);
-    updateParam('visited', [0]);
+    updateParam('visited', []);
     if (retry) retry();
     setPhaseOverride('predict');
   };
@@ -189,18 +193,12 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
       {/* Panel Body: Strict single-task-at-a-time rendering */}
       <div className="a03-panel-body" id="a03-panel-body">
         {/* CONCEPT STEP INTRODUCTION */}
-        {step.stepType === 'CONCEPT' && (
+        {(step.stepType === 'CONCEPT' || currentPhase === 'concept') && (
           <div className="a03-phase-concept">
             <div className="a03-prompt">
               <h2>{step.prompt}</h2>
-              <p className="a03-lead">{step.detailExplanation}</p>
+              {step.detailExplanation && <p className="a03-lead">{step.detailExplanation}</p>}
             </div>
-            {step.whyExplanation && (
-              <div className="a03-model-explain" style={{ marginTop: '16px' }}>
-                <strong>✦ 왜 반도체일까요?</strong>
-                {step.whyExplanation}
-              </div>
-            )}
           </div>
         )}
 
@@ -244,18 +242,6 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             <p className="a03-aside-note">
               정답을 맞히는 것보다 스스로 가설을 세우고 관찰하는 과정이 중요해요.
             </p>
-
-            {/* Accordion for supplementary physics background */}
-            {step.detailExplanation && (
-              <details className="a03-accordion">
-                <summary>{isElecStep1 ? '배경 지식 및 회로 구조 펼쳐보기' : '실리콘 구조 및 배경 지식 펼쳐보기'}</summary>
-                <div className="a03-accordion-content">
-                  {step.detailExplanation.split('\n').map((para, i) => (
-                    <p key={i}>{para}</p>
-                  ))}
-                </div>
-              </details>
-            )}
           </div>
         )}
 
@@ -346,7 +332,9 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             {/* Dynamic observation prompt text */}
             <div className="a03-observe-note" role="status" aria-live="polite">
               {isElecStep1 ? (
-                currentParams.closed ? (
+                currentParams.closed === undefined ? (
+                  '스위치 조작 버튼을 눌러 회로를 열거나 닫아보세요.'
+                ) : currentParams.closed ? (
                   '스위치가 닫혀 회로에 5mA가 흐르고 있어요.'
                 ) : (
                   '회로가 열리면 전류가 멈춰요. 하지만 배터리의 5V는 그대로 남아 있어요.'
@@ -376,15 +364,6 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
               </div>
             )}
 
-            {/* Accordion for Why Explanation */}
-            {step.whyExplanation && (
-              <details className="a03-accordion">
-                <summary>동작 원리 및 모델 가정 펼쳐보기</summary>
-                <div className="a03-accordion-content">
-                  <p>{step.whyExplanation}</p>
-                </div>
-              </details>
-            )}
           </div>
         )}
 
@@ -489,7 +468,9 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
           <div className="a03-coach-text">
             <strong>내 곁의 엔지니어</strong>
             <small id="a03-voice-caption">
-              {currentPhase === 'predict'
+              {currentPhase === 'concept'
+                ? '기본 배경 개념을 짧게 들려드려요.'
+                : currentPhase === 'predict'
                 ? '지금은 질문만 들어요.'
                 : currentPhase === 'observe'
                 ? '직접 조작한 결과를 짧게 들려드려요.'
@@ -503,12 +484,12 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             className="a03-listen"
             onClick={handleListen}
           >
-            ▷ {currentPhase === 'predict' ? '질문 듣기' : '설명 듣기'}
+            ▷ {currentPhase === 'concept' ? '개념 듣기' : currentPhase === 'predict' ? '질문 듣기' : '설명 듣기'}
           </button>
         </div>
 
         {/* Primary Action Button (Single active CTA) */}
-        {step.stepType === 'CONCEPT' && (
+        {(step.stepType === 'CONCEPT' || currentPhase === 'concept') && (
           <button
             type="button"
             className="a03-main-action"
@@ -533,7 +514,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
           </button>
         )}
 
-        {currentPhase === 'observe' && (
+        {step.stepType !== 'CONCEPT' && currentPhase === 'observe' && (
           <button
             type="button"
             className="a03-main-action"
@@ -546,7 +527,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
           </button>
         )}
 
-        {currentPhase === 'check' && (
+        {step.stepType !== 'CONCEPT' && currentPhase === 'check' && (
           <button
             type="button"
             className="a03-main-action"
@@ -557,7 +538,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
           </button>
         )}
 
-        {currentPhase === 'done' && (
+        {step.stepType !== 'CONCEPT' && currentPhase === 'done' && (
           <button
             type="button"
             className="a03-main-action"
@@ -608,7 +589,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             </>
           )}
 
-          {currentPhase === 'predict' && onExit && (
+          {(currentPhase === 'predict' || currentPhase === 'concept') && onExit && (
             <button
               type="button"
               className="a03-secondary-action"

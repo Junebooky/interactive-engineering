@@ -49,6 +49,7 @@ export function DramSceneVisual({ sceneId, state, revealed }: {
       <path d="M564 36 L595 59 L595 341 L564 317 Z" fill="#153045" stroke="#78aabb"/>
       <rect x="45" y="36" width="519" height="281" rx="14" fill="#14344a" stroke="#6aa6b7"/>
       <path d="M62 49 H549" stroke="#a1fff1" opacity=".5" strokeWidth="2"/>
+      <g data-scene-subject="dram-cell-or-bank" data-scene-id={sceneId}>
       {isBank ? <>
         <text x="76" y="83" fill="#b1ffe9" fontSize="21" fontWeight="bold">메모리 뱅크와 요청 A / B</text>
         <text x="77" y="113" fill="#dbeaf3" fontSize="14">가상 시간 슬롯 (실제 DRAM 타이밍 아님)</text>
@@ -104,6 +105,7 @@ export function DramSceneVisual({ sceneId, state, revealed }: {
           {state.wl ? 'WL 연결: BL 변화가 셀에 쓰임' : 'WL 차단: 셀은 BL 변화와 분리'}
         </text>}
       </>}
+      </g>
       <text x="76" y="374" fill="#a8c7d8" fontSize="12">
         {isBank ? '뱅크 처리 시간과 데이터 버스 병목을 분리한 학습 모형' : '정규화 전압 · 쓰기 마진/공정/전하 누설/실제 DRAM 타이밍 비정량'}
       </text>

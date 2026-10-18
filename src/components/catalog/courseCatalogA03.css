@@ -1,0 +1,459 @@
+/* ==========================================================================
+   A03 V3 Engineering Course Library & Catalog Discovery Styles
+   ========================================================================== */
+
+.a03-catalog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(8, 22, 33, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px;
+  animation: a03FadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.a03-catalog-shell {
+  width: 100%;
+  max-width: 1440px;
+  max-height: calc(100dvh - 32px);
+  background: #F6F8F7;
+  border-radius: 24px;
+  border: 1px solid #E0E9E6;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: a03SlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Header */
+.a03-catalog-header {
+  padding: 24px 36px 18px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E5EDE9;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex: 0 0 auto;
+}
+
+.a03-catalog-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.8px;
+  color: #087C6D;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.a03-catalog-title {
+  font-size: 26px;
+  font-weight: 850;
+  color: #112633;
+  letter-spacing: -0.6px;
+  line-height: 1.25;
+  margin: 0 0 6px;
+}
+
+.a03-catalog-sub {
+  font-size: 14px;
+  color: #556E7A;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.a03-catalog-close-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid #D9E4E1;
+  background: #F8FAFA;
+  color: #2D4350;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.a03-catalog-close-btn:hover {
+  background: #FFFFFF;
+  border-color: #087C6D;
+  color: #087C6D;
+  box-shadow: 0 2px 8px rgba(8, 124, 109, 0.12);
+}
+
+/* Scrollable Body */
+.a03-catalog-body {
+  padding: 24px 36px 36px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  flex: 1 1 auto;
+}
+
+/* Hero: Continue Learning Strip */
+.a03-catalog-hero {
+  background: linear-gradient(135deg, #0B2538 0%, #163B54 100%);
+  border-radius: 18px;
+  padding: 22px 28px;
+  margin-bottom: 24px;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 8px 24px rgba(11, 37, 56, 0.25);
+  border: 1px solid #2B5472;
+}
+
+.a03-hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.a03-hero-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 800;
+  color: #38E4BE;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.a03-hero-title {
+  font-size: 19px;
+  font-weight: 850;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.a03-hero-meta {
+  font-size: 13px;
+  color: #A0C5D8;
+  margin: 0;
+}
+
+.a03-hero-btn {
+  min-height: 44px;
+  padding: 0 22px;
+  background: #087C6D;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(8, 124, 109, 0.4);
+}
+
+.a03-hero-btn:hover {
+  background: #0BA592;
+  transform: translateY(-1px);
+}
+
+/* Category Filter Chips */
+.a03-catalog-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.a03-filter-chip {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 9999px;
+  border: 1px solid #D5E1DD;
+  background: #FFFFFF;
+  color: #435E6D;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.a03-filter-chip:hover {
+  border-color: #087C6D;
+  color: #087C6D;
+  background: #F3F9F7;
+}
+
+.a03-filter-chip.active {
+  background: #087C6D;
+  color: #FFFFFF;
+  border-color: #087C6D;
+  box-shadow: 0 3px 10px rgba(8, 124, 109, 0.25);
+}
+
+/* Discovery Card Grid */
+.a03-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+/* Individual Lesson Discovery Card */
+.a03-course-card {
+  background: #FFFFFF;
+  border: 1px solid #E1ECE8;
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 3px 10px rgba(11, 37, 56, 0.04);
+  position: relative;
+  outline: none;
+}
+
+.a03-course-card:hover {
+  transform: translateY(-3px);
+  border-color: #087C6D;
+  box-shadow: 0 10px 24px rgba(8, 124, 109, 0.12);
+}
+
+.a03-course-card.active-lesson {
+  border-color: #087C6D;
+  background: #FCFFFE;
+}
+
+/* Card Thumbnail */
+.a03-card-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #0F283B;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.a03-thumb-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Card Header & Badge */
+.a03-card-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.a03-card-cat-badge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #087C6D;
+  background: #E8F6F3;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.2px;
+}
+
+.a03-card-steps-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #728B99;
+}
+
+.a03-card-title {
+  font-size: 16px;
+  font-weight: 850;
+  color: #112633;
+  line-height: 1.35;
+  margin: 0 0 6px;
+  letter-spacing: -0.2px;
+}
+
+.a03-card-desc {
+  font-size: 12px;
+  color: #556E7A;
+  line-height: 1.5;
+  margin: 0 0 14px;
+  flex: 1 1 auto;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Card Footer Action */
+.a03-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid #EDF4F1;
+}
+
+.a03-card-action-text {
+  font-size: 12px;
+  font-weight: 800;
+  color: #087C6D;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.a03-course-card:hover .a03-card-action-text {
+  color: #055C51;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+/* Tablet (860px - 1279px) */
+@media (max-width: 1279px) {
+  .a03-catalog-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Mobile (<= 859px) */
+@media (max-width: 859px) {
+  .a03-catalog-overlay {
+    padding: 0;
+  }
+  .a03-catalog-shell {
+    max-height: 100dvh;
+    height: 100dvh;
+    border-radius: 0;
+    border: none;
+  }
+  .a03-catalog-header {
+    padding: 16px 20px;
+    gap: 14px;
+  }
+  .a03-catalog-title {
+    font-size: 19px;
+    letter-spacing: -0.4px;
+    word-break: keep-all;
+    line-height: 1.25;
+  }
+  .a03-catalog-sub {
+    font-size: 12px;
+  }
+  .a03-catalog-close-btn {
+    padding: 0 12px;
+    font-size: 12px;
+    min-height: 40px;
+    gap: 6px;
+  }
+  .a03-catalog-body {
+    padding: 16px 20px 24px;
+  }
+  .a03-catalog-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 20px;
+    gap: 14px;
+  }
+  .a03-hero-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .a03-catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .a03-course-card {
+    padding: 12px;
+    border-radius: 14px;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .a03-card-title {
+    font-size: 14px;
+    line-height: 1.3;
+  }
+  .a03-card-desc {
+    font-size: 12px;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Compact Mobile (<= 440px, e.g. 390px iPhone) */
+@media (max-width: 440px) {
+  .a03-catalog-header {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+  .a03-catalog-title {
+    font-size: 17px;
+    word-break: keep-all;
+  }
+  .a03-catalog-close-btn {
+    padding: 0 10px;
+    font-size: 12px;
+    min-height: 38px;
+    gap: 4px;
+  }
+  .a03-catalog-body {
+    padding: 12px 14px 20px;
+  }
+}
+
+/* Small Mobile (<= 350px) */
+@media (max-width: 350px) {
+  .a03-catalog-grid {
+    grid-template-columns: 1fr;
+  }
+  .a03-course-card {
+    min-height: auto;
+  }
+  .a03-filter-chip {
+    padding: 0 12px;
+    font-size: 12px;
+  }
+}
+
+/* Animations */
+@keyframes a03FadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes a03SlideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

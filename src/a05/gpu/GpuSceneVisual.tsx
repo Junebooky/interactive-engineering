@@ -46,6 +46,7 @@ export function GpuSceneVisual({sceneId,state,revealed}:{
       <path d="M563 44 L592 68 V333 L563 309 Z" fill="#15354b" stroke="#86aebd"/>
       <rect x="44" y="44" width="519" height="266" rx="16" stroke="#6a9bb1" fill="#132c43"/>
       <path d="M60 57 H540" stroke="#baf5ea" opacity=".4" strokeWidth="2"/>
+      <g data-scene-subject="gpu-compute-and-memory" data-scene-id={sceneId}>
       {sceneId==='compute-feeding'&&<>
         <T x={72} y={89} size={21} color="#8bf2d9">GPU 계산 용량과 데이터 공급률</T>
         <Chip x={80} y={132} name={'FEED '+state.feed} detail="toy units/s" accent="#7accf1"/>
@@ -91,6 +92,7 @@ export function GpuSceneVisual({sceneId,state,revealed}:{
         </>}
         <T x={91} y={310} color="#c9e4ee" size={12}>{state.showConstraints?pack.tradeoff:'더 넓은 I/O 이점에도 추가 제약이 있을까요?'}</T>
       </>}
+      </g>
       <T x={70} y={366} color="#a8cad5" size={12}>모형/상대 비교만 · 실제 SKU/온도/단위 최적화 보장 아님 · UI 2.5D≠패키징 2.5D</T>
     </svg>
     <div className="a05-readouts" aria-live="polite">
