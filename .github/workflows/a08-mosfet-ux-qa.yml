@@ -1,0 +1,44 @@
+name: A08 MOSFET Single-Task Scene UX Browser Regression
+on:
+  push:
+    branches:
+      - fix/a08-mosfet-single-task-dock
+  workflow_dispatch:
+jobs:
+  a08-mosfet-ux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Lint Vitest and TypeScript Vite build
+        run: |
+          npm run lint
+          npm test
+          npm run build
+      - name: Before exact A05 M01 baseline checkout
+        run: |
+          git worktree add --detach /tmp/a08-mosfet-before 374a72d246d2b3a815d5c75086db8bce4c1bb6d7
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/a08-mosfet-before/node_modules
+      - name: Actual before-after Chromium 1440 390 320 and wrong-why negative case
+        run: node scripts/a08-mosfet-before-after.mjs /tmp/a08-mosfet-before
+      - name: Original A05 M01 Chromium regression
+        run: node scripts/a05-browser-smoke.mjs
+      - name: Store actual before-after PNG
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a08-mosfet-scene-ux-screenshots
+          path: browser-evidence/m01/
+          if-no-files-found: warn
+          retention-days: 14
