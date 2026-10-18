@@ -12,3 +12,19 @@
 }
 @media(max-width:500px){.a05-sram-lab .a05-canvas-col{padding:7px}.a05-sram-lab .a05-readouts{grid-template-columns:repeat(2,minmax(0,1fr))}.a05-sram-lab .a05-control-buttons{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.a05-sram-lab *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* A08 scene-attached 6T SRAM / cache experiment controls, without changing physics. */
+.a05-sram-experiment-dock{
+  background:var(--ie-lab-bg,#102333);color:#f1fcfd;
+  border:1px solid #568faa;border-radius:13px;
+  padding:14px 16px;margin:12px 4px 6px;min-width:0
+}
+.a05-sram-experiment-dock h3{margin:0 0 8px;color:#a3fbe1;font-size:1rem}
+.a05-sram-experiment-dock p{margin:6px 0 12px;color:#cde3e9;line-height:1.55;font-size:.86rem}
+.a05-sram-experiment-dock .a05-control-buttons button,
+.a05-sram-experiment-dock .a05-primary{min-height:44px;min-width:44px}
+.a05-sram-experiment-dock button:focus-visible{outline:3px solid #ffe1aa;outline-offset:3px}
+.a05-sram-experiment-guidance{line-height:1.6}
+@media(max-width:500px){
+  .a05-sram-experiment-dock{margin:9px 2px;padding:10px 8px}
+}
