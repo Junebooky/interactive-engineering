@@ -77,7 +77,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
    <button type="button" aria-pressed={zoomed} onClick={()=>setZoomed(v=>!v)} aria-label={zoomed?'구조 원래 크기':'구조 확대'}>{zoomed?'원래 크기':'구조 확대'}</button>
   </div>
   <div className={zoomed?'a05-concept-scroll is-zoomed':'a05-concept-scroll'} data-testid="a05-concept-scroll">
-  <svg viewBox="0 0 640 360" role="img" tabIndex={0} aria-label={meta.title+'. '+meta.detail+'. '+meta.limitation} className="a05-concept-svg">
+  <svg viewBox="0 0 640 360" role="img" tabIndex={0} aria-label={meta.title+'. '+meta.detail+'. '+meta.limitation} className="a05-concept-svg a03-concept-svg">
    <title id={uid+'-title'}>{meta.title}</title>
    <desc id={uid+'-desc'}>{meta.detail}. {meta.limitation}.</desc>
    <rect x="2" y="2" width="636" height="356" rx="15" fill="#102333"/>
