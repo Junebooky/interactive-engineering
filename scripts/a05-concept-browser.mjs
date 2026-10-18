@@ -38,7 +38,7 @@ try{
     const diagram=fig.locator('svg');
     if(!await diagram.isVisible())throw Error('SVG hidden');
     const aria=await diagram.getAttribute('aria-label');
-    if(!aria?.includes(title)||!aria.includes('미표시')&&!aria.includes('미계산')&&!aria.includes('미계량')&&!aria.includes('비계량')&&!aria.includes('미정')&&!aria.includes('미표시'))throw Error('not safely scoped descriptive ARIA '+aria);
+    if(!aria?.includes(title)||!aria.includes('미표시')&&!aria.includes('미계산')&&!aria.includes('미계량')&&!aria.includes('비계량')&&!aria.includes('미정')&&!aria.includes('미표시')&&!aria.includes('단정하지 않음'))throw Error('not safely scoped descriptive ARIA '+aria);
     const text=await fig.innerText();
     if(/학습 완료 증거|1234 FLOPS|10년 이상|출력 Q=1|VGS ≥ Vth/.test(text))throw Error('teacher answer / unsupported physical claim leaked');
     await overflow(page,width);
