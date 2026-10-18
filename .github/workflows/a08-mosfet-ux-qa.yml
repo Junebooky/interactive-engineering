@@ -32,6 +32,11 @@ jobs:
           ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/a08-mosfet-before/node_modules
       - name: Actual before-after Chromium 1440 390 320 and wrong-why negative case
         run: node scripts/a08-mosfet-before-after.mjs /tmp/a08-mosfet-before
+      - name: Capture and assert A03 V3 390 and 320 scene + dock versus prior A08
+        run: |
+          git worktree add --detach /tmp/a08-mosfet-v3-before 080baec8aa88836cad49382005e077c4b90fb8c7
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/a08-mosfet-v3-before/node_modules
+          node scripts/a08-v3-mobile-scene.mjs mosfet /tmp/a08-mosfet-v3-before
       - name: Original A05 M01 Chromium regression
         run: node scripts/a05-browser-smoke.mjs
       - name: Store actual before-after PNG
