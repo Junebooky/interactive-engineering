@@ -1,4 +1,17 @@
-# A03 디자인 최신본 (Single Source of Truth)
+# A03 최신 UX 인덱스 · 2026-10-18
+
+**현재 우선 구현 기준 = V3 모바일 학습 화면/강좌 카탈로그/시각화 보장.** [P0 작업 #70](https://github.com/Junebooky/interactive-engineering/issues/70) · [V3 상세 구현 계약](https://github.com/Junebooky/interactive-engineering/blob/design/a03-mosfet-discovery-v1/design/A03-V3-mobile-catalog-visual-coverage-contract.md).
+
+- V3 A03 프로토타입 이미지는 2026-10-18 A03 ChatGPT 대화의 **catalog 1440/390, MOSFET 1440/390/320, 원본 HTML/CSS/SVG**에서 실제 Chromium으로 렌더링해 공개했습니다. **A02 정식 제품 캡처 아님**.
+- **GitHub 텍스트 명세/작업 카드가 최신 기준이며 PNG/HTML V3 바이너리는 현재 ChatGPT 패키지에만 있음.** A02에게 과거 V2 PDF/PNG를 V3로 오인하여 구현하라는 지시 금지. 디자인 자산 동기화 TODO를 OPEN으로 둡니다.
+- 기존 MOSFET V2 갤러리/실행형 HTML은 **이전 레퍼런스**(공식 새 구현 합격 기준 아님). 새 V3 시안 소스/이미지의 GitHub 업로드와 CI가 검증되기 전에는 사용 가능한 이전 파일을 삭제해 인계가 끊기지 않도록 하고, 교체본 업로드 후 오래된 파일을 A03 브랜치에서 즉시 정리합니다.
+- **A02:** `lessonA03.css` mobile 49dvh/absolute tools/negative overlap, `CourseCatalogModal.tsx` giant columns, `LessonPlayer.tsx` null scene + MOSFET hardcode, `A03SingleTaskPanel.tsx` concept/done dual CTA 모두 수정. 실제 앱 HEAD+CI+3폭 screenshots.
+- **A05:** 각 CONCEPT의 의미 있는 안전한 2.5D 도해 및 실험 scene responsive scientific props, QA evidence/HEAD 직접 인계. A03 UI 감리, A06/A07 과학 검수.
+- 진행/최종 릴리스: owner main 병합/배포 승인 전 HOLD.
+
+---
+
+## 이전 인계 이력 (V2 및 Lesson12)
 
 > **현재 시각 기준: MOSFET Discovery Lab V2**, 전기회로 Lesson12는 [P0 UX 보정 사양](UI-AUTHORITY-LESSON12-P0.md)을 추가 적용 · 마지막 동기화: 2026-10-18 KST
 >
