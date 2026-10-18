@@ -30,6 +30,7 @@ export function Nand04SceneVisual({sceneId,state,revealed}:{sceneId:Nand04SceneI
    <defs><linearGradient id={'nand'+uid}><stop stopColor="#285773"/><stop offset="1" stopColor="#0e2b40"/></linearGradient></defs>
    <path d="M30 58 H594 L645 94 V335 L80 360 L30 326 Z" fill={'url(#nand'+uid+')'} stroke="#73cfd0" strokeWidth="2"/>
    <path d="M594 58 L645 94 V335 L594 298 Z" fill="#112c43" stroke="#83adb7"/>
+   <g data-scene-subject="nand-pipeline" data-scene-id={sceneId}>
    {sceneId==='nand-threshold'&&<>
     <Txt x={62} y={96} size={20} fill="#91e6da">NAND 전하 상태와 문턱 전압</Txt>
     <Layer x={72} y={139} title="Charge state" sub={state.cell.toUpperCase()}/>
@@ -81,6 +82,7 @@ export function Nand04SceneVisual({sceneId,state,revealed}:{sceneId:Nand04SceneI
      x={xx} y={yy} w={177} h={71} title={v} sub={'stage '+(i+1)} color={i===0?'#ffe1a0':'#7cddcd'}/>})}
     <Txt x={70} y={375} size={12}>서버 {state.servers}대 · {state.servers===2?'NIC/네트워크 경유 가능':'단일 노드 예시'} · 실제 시간치 아님</Txt>
    </>}
+   </g>
    <Txt x={58} y={388} size={11} fill="#a5c5d1">정성적 원본 2.5D · 제품 기능/경로·신뢰성 수치 확정 아님</Txt>
   </svg>
   <div className="a05-readouts">
