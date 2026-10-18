@@ -1,0 +1,27 @@
+/* A05 P0 #70 concept-only structural art. A03 CURRENT V3 palette: dark lab, restrained
+   cyan/mint structure/amber selection. This does not override A02 layout/PromptCard. */
+.a05-concept-stage{
+  --a05-concept-bg:#102333;--a05-concept-ink:#f1fcfd;--a05-concept-muted:#c5dfe5;
+  width:100%;max-width:100%;box-sizing:border-box;margin:0;min-width:0;
+  overflow:hidden;border-radius:12px;background:var(--a05-concept-bg);
+  color:var(--a05-concept-ink);border:1px solid #34576b;
+}
+.a05-concept-stage *, .a05-concept-stage *::before,.a05-concept-stage *::after{box-sizing:border-box}
+.a05-concept-stage .a05-concept-svg{display:block;width:100%;height:auto;max-width:100%;max-height:min(47dvh,380px);object-fit:contain}
+.a05-concept-svg:focus-visible{outline:3px solid #f1c577;outline-offset:-4px;border-radius:12px}
+.a05-concept-caption{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;
+  padding:8px 12px 11px;line-height:1.55;font-size:clamp(11px,1.45vw,13px)}
+.a05-concept-caption strong{font-weight:700;color:var(--a05-concept-ink)}
+.a05-concept-caption span{color:var(--a05-concept-muted)}
+.a05-concept-unsupported{padding:16px;border:2px dashed #f1c577;color:#f1fcfd;background:#102333}
+@media(max-width:390px){
+  .a05-concept-stage .a05-concept-svg{max-height:min(43dvh,235px)}
+  .a05-concept-caption{padding:7px 9px;font-size:11px;line-height:1.43}
+}
+@media(max-width:350px){
+  .a05-concept-stage .a05-concept-svg{max-height:min(39dvh,195px)}
+  .a05-concept-caption{font-size:10.5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .a05-concept-stage *{animation:none!important;transition:none!important}
+}
