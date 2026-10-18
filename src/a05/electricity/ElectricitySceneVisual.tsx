@@ -63,6 +63,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
             strokeWidth="3"
           />
           <path d="M65 95 L680 95 715 126 95 126Z" fill="#3B6177" opacity=".52" />
+          <g data-scene-subject="electricity-circuit" data-scene-id="charge-voltage-current-arrows">
           <g stroke="#75B3BF" strokeWidth="10" strokeLinejoin="round" strokeLinecap="round" fill="none">
             <path d="M168 177 H300" />
             <path d="M457 177 H602 V305 H168 V255" />
@@ -110,6 +111,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
               </text>
             </g>
           )}
+          </g>
           <text x="390" y="392" textAnchor="middle" fontSize="12" fill="#B4D7E0">
             이상적인 직류 회로 · 간략화된 교육용 도식
           </text>
@@ -142,6 +144,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
         <path d="M564 39 L598 68 V344 L564 315 Z" fill="#143348" stroke="#78a2b1" />
         <rect x="42" y="39" width="522" height="276" rx="15" fill="#122e43" stroke="#6d9eae" />
         <path d="M60 52 H535" stroke="#bdfff1" opacity=".4" strokeWidth="2" />
+        <g data-scene-subject="electricity-experiment" data-scene-id={sceneId}>
         {sceneId === 'resistors-series-parallel-kcl' && <>
           <Caption x={72} y={85} size={21} color={mint}>같은 1kΩ 두 개, 연결에 따라 다른 전류</Caption>
         <Block x={69} y={123} width={124} title="SOURCE" sub="5V ideal DC" accent={gold}/>
@@ -179,6 +182,7 @@ export function ElectricitySceneVisual({sceneId,state,revealed}:{
         <Caption x={83} y={292} color="#cbebf1" size={13}>10µF 저장 에너지: {energy.capacitorMicroJoules.toFixed(0)}µJ (½CV²)</Caption>
         <Caption x={84} y={310} color="#b8dce5" size={11}>소모 전력 전부가 즉시 같은 위치에서 열이 되는 모형은 아님</Caption>
       </>}
+      </g>
       <Caption x={76} y={377} color="#b0cedb" size={12}>순수 교육용 toy 2.5D · 안전한 화면 시뮬레이터, 실측/실기기 회로 지침 아님</Caption>
     </svg>
     <div className="a05-readouts" aria-live="polite">

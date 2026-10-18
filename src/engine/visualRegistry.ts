@@ -106,7 +106,7 @@ export const EXPLICIT_CONCEPT_REGISTRY: Record<string, Omit<VisualSpec, 'mode'>>
   },
   // 9. Circuits Ohm's Law (Lesson 12 Circuits)
   'circuits-ohms-law:step-ohms-s0-concept': {
-    visualId: 'circuit-intro',
+    visualId: 'ohms-intro',
     title: '직류 회로와 옴의 법칙 기본 개념',
     subtitle: '전압(V), 전류(I), 저항(R)의 상관관계',
     caption: '직류 회로 기본 개념 도식 · 전원 전위차와 도선 연결 구조',

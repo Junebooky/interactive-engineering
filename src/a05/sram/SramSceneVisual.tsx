@@ -47,6 +47,7 @@ export function SramSceneVisual({sceneId,state,revealed}:Props){
       <path d="M559 40 L593 70 V349 L559 317 Z" fill="#153044" stroke="#80aabe"/>
       <rect x="45" y="40" width="514" height="278" rx="15" fill="#132d43" stroke="#82b7c4"/>
       <path d="M62 54 H538" stroke="#d1fff6" strokeOpacity=".28" strokeWidth="2"/>
+      <g data-scene-subject="sram-latch-or-path" data-scene-id={sceneId}>
       {sceneId==='sram-cross-coupled-inverters'&&<>
         <Label x={76} y={81} size={20} color={M}>서로 마주 보는 두 CMOS 인버터</Label>
         <path d="M135 114 H484" stroke={state.supply?G:'#63768a'} strokeWidth="3"/>
@@ -106,6 +107,7 @@ export function SramSceneVisual({sceneId,state,revealed}:Props){
         <Label x={90} y={291} size={13} color={C}>새 입력·활성값은 계속 이동: {state.inputCount}회</Label>
         <Label x={95} y={310} size={11} color="#bcd4e0">대표 분리형 GPU 예시, 통합 메모리 대안 존재</Label>
       </>}
+      </g>
       <Label x={71} y={381} size={12} color="#aecbd6">교육용 이상 논리·가상 시간·아키텍처 모형 · 물리 축척/실측 성능 아님</Label>
     </svg>
     <div className="a05-readouts" aria-live="polite">
