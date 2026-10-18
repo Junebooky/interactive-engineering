@@ -2,10 +2,25 @@
 > A06 · 2026-10-17 · 4 Step **STORY_READY** (text/content self QA); A05 visualization, browser tests, student comprehension **NOT RUN**. 초보자 40–50분 추정. 전자·전압·회로 단위를 먼저 익힌 후 [11 PN junction](11-doping-pn-foundations.md) → [14 MOS capacitor](../production-backlog.md) → [01 MOSFET](01-mosfet-to-logic.md).
 > 학습 규칙: 예측(전압·전류 가리고)→조작→단위와 관찰→오개념 별 이유→nextHook. 실물 전기 회로에 연결하는 안내가 아닌 안전한 **toy simulation**. UI/한국어 TTS 분리, 3겹 점진 공개.
 
+## 12-S00 · 공식 앱 CONCEPT Step0 (사전 개념, 별도 평가 Step으로 계산하지 않음) · A06 P0 R36 정답 누설 교정
+> **학생에게 Step0~예측 시작 전에 공개할 수 있는 유일한 학습 문구:** 단위·측정 대상·전원/저항/스위치의 물리적 역할과 예측할 질문만. **S01 OPEN 0mA, CLOSED 5mA, 개방된 전원의 5V 유지, 관습전류/전자 반대방향의 판정 결과, 시험 정답 유도 WHY는 공개하지 않음.** '5V' 전원값과 '1kΩ' 저항값은 문제에 주어진 입력/부품 라벨로 공개 허용하되 관찰 결과라고 말하거나 자동 실험 이력을 생성하지 않음. 공식 앱 #73 실제 누설 근거와 negative E2E/ARIA/TTS 계약: [A06 P0 전용 문서](../lesson12-p0-pre-prediction-copy-and-visibility-contract.md). 2026-10-18 A06 편집 SOURCE_AUTHORED; A07 독립 검수/실제 앱 A02 수정 미완료.
+
+- **sceneId:** `circuit-intro` (official Step0 typed visual mapping `step-elec-s0-intro`, expected student concept **not** physical measurement/physics PASS; 12-S00 **비평가용 준비 단계이며 이 레슨의 기존 4 Step 수를 늘리지 않음**).
+- **learningGoal:** 전압의 단위 J/C와 전류 단위 C/s, 측정하는 대상의 차이, 전원·저항·스위치 구조를 구분하고 **실제 실험 결과는 다음 S01에서 예측하고 확인**한다.
+- **storyLead/predictionBeforeNext:** “스위치가 있는 회로에서 전압과 전류는 늘 함께 변할까요?”
+- **learnerVisiblePrompt:** “전압(V)은 두 지점 사이의 전기적 위치 에너지 차이를 전하량으로 나눈 값(J/C), 전류(I)는 단면을 지나는 전하량의 시간당 변화율(C/s)입니다. 그림에서 전원·저항·스위치가 어디에 있는지 찾아보세요. 다음 실험에서 스위치를 직접 바꿔 두 물리량을 비교합니다.”
+- **learnerVisibleDetail:** “전압의 단위는 볼트(V)=J/C예요. 전류의 단위는 암페어(A)=C/s예요. 전압은 두 지점 사이를 비교하고 전류는 특정 가지의 단면을 지나가는 전하의 흐름을 나타내요. 전원, 저항, 스위치와 도선은 각각 역할이 달라요. 스위치는 경로의 연결 상태를 바꿔요.”
+- **speechTextBeforePrediction (neutral):** “전압은 두 지점 사이의 전기적 차이, 전류는 지나가는 전하의 흐름률이에요. 그림의 부품을 살펴보고 이어지는 실험에서 직접 확인해 보세요.”
+- **hint L1 optional:** “전압은 두 지점 사이의 값을, 전류는 한 단면에서의 흐름을 나타내요.”
+- **learner Action:** 구조의 부품 위치 확인, 다음 예측으로 이동. **결과가 담긴 모델/회로 미리보기 출력·도크 조작·정답 후설명 전부 없음**.
+- **teacherOnlyAfterS01Correct (not Step0 DOM/ARIA/TTS, not Step0 `whyExplanation`):** 이상적 5V DC 전원,1kΩ에서 스위치 OPEN 직류 경로 I=0mA, 전원 양단 전위차는5V (저항 양단은 저항전류0인 정상 DC 개방에서 0V), 스위치 CLOSED I=5mA; 관습전류/금속 전자 표류 방향은 반대. 학습자가 S01에서 예측→양상태 실제 관찰→WHY 정답 완료 후만 공개.
+- **A07 review acceptance [ ]:** Step0의 새로운 safe copy / S01의 `predictionPrompt` vs teacher-only `expectedObservation` 분리, 진실한 부품 설명/아닌 실측, 원본 이후 4 Steps unchanged, read-only preview & ARIA·Voice phase no spoiler.
+- **A02 app source repair [ ]:** `src/content/semiconductor/electricityLesson.ts` Step0 `prompt/detailExplanation/whyExplanation/voice`와 S01 사전 `detailExplanation` & OBSERVE `whyExplanation` 부적절한 매핑을 [P0 contract](../lesson12-p0-pre-prediction-copy-and-visibility-contract.md) 기준으로 교정; 본 교육 원고 교정만으로 앱 DOM은 고쳐지지 않음.
+
 ## 12-S01 · `charge-voltage-current-arrows`
 ### ① 1분 훅
 - **learningGoal:** 전압(전하당 에너지), 전류(전하의 이동률), 양의 관습전류와 전자의 실제 이동을 구분.
-- **priorKnowledge:** 없음. **학습 시작 40초**: 전자 음전하, 한쪽에 전하가 많거나 적을 수 있음, Q 단위 C(쿨롱), 양전하 이동 방향을 관습전류(전류계 정의), 금속 전자의 실제 이동은 반대 방향. 이 카드도 예측 문제의 OPEN=0A 정답은 알려주지 않는다.
+- **priorKnowledge (neutral before S01):** 앞선 12-S00에서 전압 단위 V=J/C, 전류 단위 A=C/s, 전원/저항/스위치/도선의 위치만 설명. 전자는 음전하를 띠고 관습전류는 양전하 이동 기준이라는 *정의*만 제시할 수 있지만, 금속 전자의 실제 흐름과 화살표 판정, 스위치 개방0mA와 닫힘5mA 및 전원 양단 유지5V라는 관찰 결과는 직접 조작 후 평가 전까지 공개하지 않는다.
 - **storyHook:** “배터리가 5볼트인데, 전자 하나도 아직 흐르지 않을 수 있나요?”
 - **question:** 회로를 끊으면 전압과 전류가 둘 다 0일까요?
 - **predictionPrompt (learner-visible only):** 이상적 전원 5V·저항 1kΩ에서 스위치 OPEN/CLOSED 각각의 전원단자 전압과 회로 전류를 예상해 보세요.
