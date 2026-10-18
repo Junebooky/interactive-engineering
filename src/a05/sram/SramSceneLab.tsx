@@ -158,6 +158,7 @@ export function SramSceneLab({onEvent,onSpeech}:SramLabProps){
   }
   function speak(text:string){event('voice.requested',{text});onSpeech?.(id,text);}
   const show=prediction!==null;
+  const physicalReady=show&&assessSram(id,seen,null).conditions.slice(0,-1).every(c=>c.passed);
   const btn=(text:string,fn:()=>void,active:boolean)=>(
     <button type="button" aria-pressed={active} className={active?'selected':''} onClick={fn}>{text}</button>
   );
@@ -173,14 +174,44 @@ export function SramSceneLab({onEvent,onSpeech}:SramLabProps){
     <main className="a05-stage">
       <section className="a05-copy" aria-label="실험 단계">
         <span className="a05-eyebrow">{id} · {step+1}/4</span>
-        <h2>{story.title}</h2><p className="a05-hook">{story.hook}</p><p className="a05-question">{story.question}</p>
-        <div className="a05-box"><h3>결과를 보기 전에 예상하기</h3><p>{story.prediction}</p>
+        <h2>{story.title}</h2><p className="a05-hook">{story.hook}</p><p className="a05-question">{!show?story.question:physicalReady?'관찰한 상태를 바탕으로 원리 하나를 설명하세요.':'이제 실험 조작과 관찰에 집중해 보세요.'}</p>
+        {!show&&<div className="a05-box"><h3>결과를 보기 전에 예상하기</h3><p>{story.prediction}</p>
           <div className="a05-choice-set">{story.predictions.map(c=><button key={c.id} type="button"
             disabled={show} className={prediction===c.id?'selected':''} aria-pressed={prediction===c.id}
             onClick={()=>{setPrediction(c.id);event('prediction.recorded',{choice:c.id});}}>{c.text}</button>)}</div>
+        </div>}
+        {show&&!physicalReady&&<div className="a05-box a05-sram-experiment-guidance" role="status">2.5D 장면 바로 아래의 실험 조작에서 상태를 비교해 보세요. 조건을 확인하면 원리 질문으로 넘어갑니다.</div>}
+        {physicalReady&&!result?.passed&&<div className="a05-box"><h3>관찰한 원리 설명하기</h3>
+            <div className="a05-choice-set">{story.answers.map(c=><button key={c.id} type="button"
+              className={answer===c.id?'selected':''} aria-pressed={answer===c.id}
+              onClick={()=>{setAnswer(c.id);setResult(null);setWhy(false);}}>{c.text}</button>)}</div>
+            <button type="button" className="a05-primary" onClick={()=>{
+              const next=assessSram(id,seen,answer);setResult(next);event('answer.checked',{passed:next.passed});
+            }}>조건별로 결과 확인</button>
+          </div>}
+        <div className="a05-tools"><button type="button" onClick={()=>speak(story.speech)}>한국어 질문 듣기</button>
+          {show&&<button type="button" disabled={hint===3} onClick={()=>{
+            setHint(Math.min(3,hint+1));event('hint.opened',{level:Math.min(3,hint+1)});
+          }}>힌트 {hint}/3</button>}
         </div>
-        {show&&<>
-          <div className="a05-box"><h3>직접 조작하기</h3><p>{story.prompt}</p>
+        {hint>0&&<div className="a05-hint">{story.hints.slice(0,hint).map((t,i)=><p key={i}>{i+1}. {t}</p>)}</div>}
+        {result&&<section className="a05-result" role="status" aria-live="polite">
+          <h3>{result.passed?'현상과 이유를 연결했어요!':'어느 조건을 놓쳤는지 살펴볼까요?'}</h3>
+          {result.conditions.map(c=><p key={c.label}><strong>{c.passed?'✓':'△'} {c.label}</strong> — {c.passed?'직접 관찰하거나 답했어요.':c.help}</p>)}
+          {!result.passed&&<p>{story.answers.find(x=>x.id===answer)?.whyWrong}</p>}
+          <button type="button" onClick={()=>speak(result.passed?story.nextHook:result.conditions.filter(c=>!c.passed).map(c=>c.help).join(' '))}>피드백 듣기</button>
+          {result.passed&&<button type="button" onClick={()=>setWhy(!why)}>{why?'원리 접기':'왜? 원리 보기'}</button>}
+        </section>}
+        {why&&result?.passed&&<div className="a05-why"><h3>왜 그럴까요?</h3><p>{story.why}</p>
+          {result.passed&&<p className="a05-next">{story.nextHook}</p>}</div>}
+        {result?.passed&&step<3&&<button type="button" className="a05-primary" onClick={()=>advance(step+1)}>다음 질문으로 →</button>}
+        {result?.passed&&step===3&&<div className="a05-why"><p className="a05-next">{story.nextHook}</p>
+          <p>샘플 실험은 A02 Lesson Engine/영구 진도와 아직 통합되지 않았습니다.</p></div>}
+      </section>
+      <section className="a05-canvas-col" aria-label="실시간 2.5D SRAM 그래픽">
+        <div className="a05-canvas-header"><span>LIVE 2.5D · SRAM/CACHE</span><span>{show?'관찰 가능':'예측 먼저'}</span></div>
+        <SramSceneVisual sceneId={id} state={state} revealed={show}/>
+        {show&&<div className="a05-sram-experiment-dock" data-testid="a08-sram-experiment-dock" role="region" aria-label="실험 조작"><h3>실험 조작 · 직접 조작하기</h3><p>{story.prompt}</p>
             {id==='sram-cross-coupled-inverters'&&<div className="a05-sram-controls">
               <strong>교차 인버터 (Q와 Q̅)</strong><div className="a05-control-buttons">
                 {btn('Q = 0',()=>q(0),state.q===0)}{btn('Q = 1',()=>q(1),state.q===1)}
@@ -215,38 +246,7 @@ export function SramSceneLab({onEvent,onSpeech}:SramLabProps){
               </div><button type="button" className="a05-primary" onClick={sendInput}>새 입력 전달하기 ({state.inputCount}회)</button>
               <p className="a05-note">모델 상주와 무관하게 사용자 입력과 중간 데이터는 이동합니다.</p>
             </div>}
-          </div>
-          <div className="a05-box"><h3>관찰한 원리 설명하기</h3>
-            <div className="a05-choice-set">{story.answers.map(c=><button key={c.id} type="button"
-              className={answer===c.id?'selected':''} aria-pressed={answer===c.id}
-              onClick={()=>{setAnswer(c.id);setResult(null);setWhy(false);}}>{c.text}</button>)}</div>
-            <button type="button" className="a05-primary" onClick={()=>{
-              const next=assessSram(id,seen,answer);setResult(next);event('answer.checked',{passed:next.passed});
-            }}>조건별로 결과 확인</button>
-          </div>
-        </>}
-        <div className="a05-tools"><button type="button" onClick={()=>speak(story.speech)}>한국어 질문 듣기</button>
-          {show&&<button type="button" disabled={hint===3} onClick={()=>{
-            setHint(Math.min(3,hint+1));event('hint.opened',{level:Math.min(3,hint+1)});
-          }}>힌트 {hint}/3</button>}
-        </div>
-        {hint>0&&<div className="a05-hint">{story.hints.slice(0,hint).map((t,i)=><p key={i}>{i+1}. {t}</p>)}</div>}
-        {result&&<section className="a05-result" role="status" aria-live="polite">
-          <h3>{result.passed?'현상과 이유를 연결했어요!':'어느 조건을 놓쳤는지 살펴볼까요?'}</h3>
-          {result.conditions.map(c=><p key={c.label}><strong>{c.passed?'✓':'△'} {c.label}</strong> — {c.passed?'직접 관찰하거나 답했어요.':c.help}</p>)}
-          {!result.passed&&<p>{story.answers.find(x=>x.id===answer)?.whyWrong}</p>}
-          <button type="button" onClick={()=>speak(result.passed?story.nextHook:result.conditions.filter(c=>!c.passed).map(c=>c.help).join(' '))}>피드백 듣기</button>
-          <button type="button" onClick={()=>setWhy(!why)}>{why?'원리 접기':'왜? 원리 보기'}</button>
-        </section>}
-        {why&&result&&<div className="a05-why"><h3>왜 그럴까요?</h3><p>{story.why}</p>
-          {result.passed&&<p className="a05-next">{story.nextHook}</p>}</div>}
-        {result?.passed&&step<3&&<button type="button" className="a05-primary" onClick={()=>advance(step+1)}>다음 질문으로 →</button>}
-        {result?.passed&&step===3&&<div className="a05-why"><p className="a05-next">{story.nextHook}</p>
-          <p>샘플 실험은 A02 Lesson Engine/영구 진도와 아직 통합되지 않았습니다.</p></div>}
-      </section>
-      <section className="a05-canvas-col" aria-label="실시간 2.5D SRAM 그래픽">
-        <div className="a05-canvas-header"><span>LIVE 2.5D · SRAM/CACHE</span><span>{show?'관찰 가능':'예측 먼저'}</span></div>
-        <SramSceneVisual sceneId={id} state={state} revealed={show}/>
+          </div>}
         <div className="a05-model-limit"><strong>모델 가정</strong> {story.assumptions}</div>
         <div className="a05-source">A06 PR #7 레슨 05 교차 참조 · A05 모델/장면 · A02 별도 인계</div>
       </section>

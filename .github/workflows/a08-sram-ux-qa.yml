@@ -1,0 +1,44 @@
+name: A08 SRAM Scene Single-Task Real Chromium QA
+on:
+  push:
+    branches:
+      - fix/a08-sram-single-task-dock
+  workflow_dispatch:
+jobs:
+  sram-scene-ux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Lint, Vitest, TypeScript and Vite build
+        run: |
+          npm run lint
+          npm test
+          npm run build
+      - name: Prepare exact A05 SRAM baseline checkout
+        run: |
+          git worktree add --detach /tmp/a08-sram-before ece6b98cbb7ab509286c11b28db8dc6dcae948d0
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/a08-sram-before/node_modules
+      - name: Real 1440 390 320 Chromium before-and-after screenshots
+        run: node scripts/a08-sram-before-after.mjs /tmp/a08-sram-before
+      - name: Original A05 seven Chromium science and negative scenarios
+        run: node scripts/a05-sram-browser.mjs
+      - name: Upload actual SRAM before-after evidence PNG
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a08-sram-scene-ux-screenshots
+          path: browser-evidence/sram05/
+          retention-days: 14
+          if-no-files-found: warn
