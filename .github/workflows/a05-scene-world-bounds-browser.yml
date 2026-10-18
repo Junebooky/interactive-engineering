@@ -1,0 +1,36 @@
+name: A05 World Coordinate SVG Subject Frames P0 Camera
+on:
+  push:
+    branches:
+      - feat/a05-p0-scene-world-bounds-v3
+  workflow_dispatch:
+jobs:
+  a05-world-bounds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium for real Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Full repo lint, Vitest and production TS build
+        run: |
+          npm run lint
+          npm test
+          npm run build
+      - name: Run 34 scenes x two states x 1440 / 390 / 320 world SVG coordinate geometry
+        run: node scripts/a05-scene-world-bounds-browser.mjs
+      - name: Save real Chromium scene screenshots on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a05-world-frames-34-scenes-3-viewports
+          path: browser-evidence/a05-world-bounds/
+          if-no-files-found: warn
+          retention-days: 14
