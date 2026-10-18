@@ -1,0 +1,164 @@
+.a05-lab {
+  --a05-bg: #091626;
+  --a05-panel: #11243b;
+  --a05-border: #315367;
+  --a05-mint: #82f4dd;
+  --a05-text: #e6f5ff;
+  --a05-muted: #b7cddd;
+  background: radial-gradient(ellipse at 83% 10%, #235768 0%, #12263d 34%, var(--a05-bg) 82%);
+  color: var(--a05-text);
+  min-height: 100vh;
+  padding: clamp(15px, 3vw, 40px);
+  font-family: system-ui, -apple-system, "Noto Sans KR", sans-serif;
+  box-sizing: border-box;
+}
+.a05-lab *, .a05-lab *::before, .a05-lab *::after { box-sizing: border-box; }
+.a05-head { max-width: 1500px; margin: 0 auto 27px; }
+.a05-eyebrow { color: var(--a05-mint); letter-spacing: .09em; font-size: .78rem; font-weight: 800; }
+.a05-head h1 { font-size: clamp(1.55rem, 3.1vw, 2.9rem); line-height: 1.25; margin: 8px 0 12px; }
+.a05-head p:not(.a05-eyebrow) { color: var(--a05-muted); margin: 0; }
+.a05-stepnav { display: flex; gap: 8px; margin-top: 22px; }
+.a05-stepnav button {
+  width: 48px; height: 44px; border-radius: 12px; border: 1px solid #497085;
+  color: #c1deea; background: #1a3047; cursor: pointer; font-size: .95rem; font-weight: 800;
+}
+.a05-stepnav button.active { background: #a1f6df; color: #0a3436; border-color: #bffff1; }
+.a05-stepnav button:disabled { cursor: not-allowed; opacity: .48; }
+.a05-stage {
+  display: grid; grid-template-columns: minmax(290px, 420px) minmax(0, 1fr);
+  align-items: start; gap: clamp(16px, 2.5vw, 40px); max-width: 1500px; margin: auto;
+}
+.a05-copy { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.a05-copy h2 { font-size: clamp(1.3rem, 1.8vw, 1.75rem); line-height: 1.38; margin: 3px 0; }
+.a05-hook { margin: 0; color: #c5f9e9; line-height: 1.6; }
+.a05-question { margin: 0; font-size: 1rem; line-height: 1.6; font-weight: 700; }
+.a05-box, .a05-hint, .a05-result, .a05-why {
+  border: 1px solid var(--a05-border); border-radius: 18px; padding: clamp(14px, 2vw, 22px);
+  background: linear-gradient(145deg, rgba(30, 58, 77, .95), rgba(17, 35, 56, .95));
+  box-shadow: inset 0 1px rgba(228,255,249,.09), 0 9px 30px #04101d55;
+}
+.a05-box h3, .a05-result h3, .a05-why h3 { font-size: .98rem; margin: 0 0 9px; }
+.a05-box p, .a05-result p, .a05-why p { font-size: .91rem; line-height: 1.65; margin: 7px 0 14px; color: #d5e8f0; }
+.a05-choice-set { display: grid; grid-template-columns: 1fr; gap: 9px; }
+.a05-choice-set button,
+.a05-control-buttons button, .a05-truth-row button, .a05-tools button,
+.a05-result button {
+  text-align: left; border: 1px solid #537489; border-radius: 11px; padding: 10px 14px;
+  min-height: 44px; background: #172e44; color: var(--a05-text);
+  cursor: pointer; font: inherit; font-size: .9rem; line-height: 1.4;
+}
+.a05-choice-set button.selected,
+.a05-control-buttons button[aria-pressed="true"],
+.a05-truth-row button.selected { background: #215a58; border-color: #8bffe4; color: #e8fff9; }
+.a05-choice-set button:disabled:not(.selected) { opacity: .55; }
+.a05-choice-set button:disabled { cursor: default; }
+.a05-note { color: #a0d9d2 !important; font-size: .82rem !important; }
+.a05-control-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.a05-control-buttons button { text-align: center; font-weight: 750; }
+.a05-slider-label { display: flex; gap: 10px; justify-content: space-between; margin: 15px 0; font-weight: 650; }
+.a05-slider-label strong { color: var(--a05-mint); font-variant-numeric: tabular-nums; }
+.a05-box input[type="range"] { width: 100%; height: 44px; margin: 0; cursor: pointer; accent-color: #72ead4; }
+.a05-truth { display: grid; gap: 10px; margin: 15px 0; }
+.a05-truth-row { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
+.a05-truth-row span { margin-right: auto; font-weight: 700; }
+.a05-truth-row button { min-width: 54px; text-align: center; }
+.a05-primary {
+  width: 100%; min-height: 48px; margin-top: 14px; padding: 12px 18px;
+  border: 0; border-radius: 12px; background: linear-gradient(100deg, #83f0ce, #69c8ed);
+  color: #0b3040; font-size: .95rem; font-weight: 800; cursor: pointer;
+}
+.a05-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.a05-tools button { flex: 1; text-align: center; }
+.a05-tools button:disabled { opacity: .55; cursor: default; }
+.a05-hint { border-color: #c9a563; }
+.a05-hint p { font-size: .86rem; line-height: 1.6; color: #ffe9b1; margin: 4px 0; }
+.a05-result { border-color: #60cabb; }
+.a05-result p { margin: 7px 0; }
+.a05-result strong { color: #95fae1; }
+.a05-result button { margin-top: 10px; }
+.a05-why { border-color: #6f9cbb; }
+.a05-next { color: #9affe1 !important; font-weight: 800; }
+.a05-canvas-col {
+  position: sticky; top: 16px; padding: 15px;
+  border: 1px solid #567b90; border-radius: 22px;
+  background: linear-gradient(145deg, rgba(41, 78, 96,.8), rgba(9, 25, 44, .94));
+  box-shadow: inset 0 1px #e3fffa22, 0 22px 75px #030f1e88;
+  min-width: 0;
+}
+.a05-canvas-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: .76rem; font-weight: 850; letter-spacing: .1em; color: var(--a05-mint); padding: 5px 7px 14px; }
+.a05-visual {
+  border-radius: 13px; border: 1px solid #527387; overflow: hidden;
+  background: radial-gradient(circle at 50% -20%, #31546e, #0c1b2d 75%); padding: 4px;
+}
+.a05-visual > svg { display: block; width: 100%; max-height: 500px; }
+.a05-readouts {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 7px;
+}
+.a05-readouts span {
+  display: grid; gap: 5px; min-width: 0; background: #102a3c;
+  border: 1px solid #315c6a; border-radius: 9px; padding: 10px 6px;
+  color: #b6d6df; text-align: center; font-size: .73rem;
+}
+.a05-readouts b { color: #a3fbe1; font-size: clamp(.71rem, 1.35vw, 1rem); overflow-wrap: anywhere; }
+.a05-plot { padding: 3px 10px; border-top: 1px solid #42647c; }
+.a05-plot svg { width: 100%; max-height: 140px; }
+.a05-model-limit { font-size: .85rem; line-height: 1.7; color: #d6e5ed; margin: 16px 8px 5px; }
+.a05-model-limit strong { color: var(--a05-mint); display: inline; }
+.a05-source { font-size: .77rem; color: #aec6d5; margin: 10px 8px 5px; }
+.a05-veiled {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 460px; padding: 35px; text-align: center; color: #d4e9ed;
+  border: 1px solid #47768b; border-radius: 13px;
+  background: radial-gradient(circle at 50% 40%, #204954 0, #0d2436 70%);
+}
+.a05-veiled p { line-height: 1.7; font-weight: 600; max-width: 360px; }
+.a05-veiled-object {
+  position: relative; width: 160px; height: 105px; margin-bottom: 24px;
+  background: linear-gradient(145deg, #58adae, #1e5b71);
+  border: 2px solid #a5f6e9; border-radius: 12px;
+  transform: skewY(-12deg); box-shadow: 18px 14px #134155, 20px 16px 0 1px #55a9af;
+}
+.a05-veiled-object span {
+  position: absolute; left: 25%; top: 32%; width: 50%; height: 30%;
+  background: linear-gradient(130deg, #bff9e6, #3dc1a7); border-radius: 5px;
+}
+.a05-current-line { animation: a05-pulse-dash 3s linear infinite; }
+@keyframes a05-pulse-dash { to { stroke-dashoffset: -120; } }
+.a05-lab button:focus-visible, .a05-lab input:focus-visible {
+  outline: 3px solid #ffe49c; outline-offset: 3px;
+}
+@media (max-width: 1020px) {
+  .a05-stage { grid-template-columns: minmax(0, 1fr); }
+  .a05-canvas-col { position: static; grid-row: 1; }
+  .a05-copy { grid-row: 2; }
+  .a05-readouts b { font-size: .88rem; }
+}
+@media (max-width: 550px) {
+  .a05-lab { padding: 12px; }
+  .a05-canvas-col { padding: 8px; }
+  .a05-readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .a05-veiled { min-height: 260px; }
+  .a05-head { margin-bottom: 15px; }
+  .a05-truth-row span { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .a05-current-line { animation: none; }
+  .a05-lab *, .a05-lab *::before, .a05-lab *::after { scroll-behavior: auto !important; transition: none !important; }
+}
+
+/* A08 isolated M01 scene-attached controls. Keep A05 physics and shared scenes intact. */
+.a05-mosfet-dock {
+  margin-top: 12px; padding: 14px 12px; border: 1px solid #568faa;
+  border-radius: 13px; background: #102333; color: #f1fcfd; min-width: 0;
+}
+.a05-mosfet-dock h3 { font-size: 1rem; margin: 0 0 8px; color: #a3fbe1; }
+.a05-mosfet-dock p { margin: 6px 0 12px; color: #d5e8f0; font-size: .88rem; line-height: 1.55; }
+.a05-mosfet-dock input[type="range"] {
+  width: 100%; min-height: 44px; accent-color: #087c6d; cursor: pointer;
+}
+.a05-mosfet-dock .a05-control-buttons button { min-height: 44px; }
+.a05-mosfet-dock .a05-mosfet-observe-current { display:block; width:100%; min-height:44px; margin:10px 0; padding:10px 12px; border-radius:9px; border:1px solid #7ce7d5; background:#1b3d4b; color:#f1fcfd; font:inherit; font-size:.87rem; cursor:pointer; }
+.a05-experiment-guidance { line-height: 1.65; color: #e6f5ff; }
+@media (max-width: 550px) {
+  .a05-mosfet-dock { padding: 12px 8px; }
+}
