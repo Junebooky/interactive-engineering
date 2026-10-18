@@ -4,7 +4,7 @@ import { voiceEngine } from '../../lib/voice/webSpeechEngine';
 import { SwitchToggle } from '../interactive/SwitchToggle';
 import { TruthTableInput } from '../interactive/TruthTableInput';
 
-export type FlowPhase = 'predict' | 'observe' | 'check' | 'done';
+export type FlowPhase = 'concept' | 'predict' | 'observe' | 'check' | 'done';
 
 interface A03SingleTaskPanelProps {
   onPhaseChange?: (phase: FlowPhase) => void;
@@ -68,10 +68,12 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
 
   // Determine current active phase
   let currentPhase: FlowPhase = 'predict';
-  if (isCorrect) {
+  if (step.stepType === 'CONCEPT') {
+    currentPhase = 'concept';
+  } else if (isCorrect) {
     currentPhase = 'done';
-  } else if (step.stepType === 'CONCEPT' || !predictionCtrl) {
-    // If step has no prediction (e.g. Concept step or direct exploration)
+  } else if (!predictionCtrl) {
+    // If step has no prediction (e.g. direct exploration)
     currentPhase = answerCtrl ? 'check' : otherControls.length > 0 ? 'observe' : 'done';
   } else if (phaseOverride) {
     currentPhase = phaseOverride;
@@ -100,10 +102,10 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
     ? '전류가 흐르는 길을 끊으면 무슨 일이 생길지 먼저 생각해 보세요.'
     : (step.storyLead || '화면의 구조를 살펴본 다음 나만의 가설을 세워보세요.');
 
-  if (step.stepType === 'CONCEPT') {
+  if (step.stepType === 'CONCEPT' || currentPhase === 'concept') {
     kicker = `00 · 개념 도입`;
     title = step.title;
-    subtitle = step.prompt;
+    subtitle = step.storyLead || '실습 시작 전 기본 배경 개념을 확인합니다.';
   } else if (currentPhase === 'observe') {
     kicker = isElecStep1 ? `02 · 직접 실험하기` : `02 · 전압을 직접 바꿔보기`;
     title = isElecStep1
@@ -189,16 +191,16 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
       {/* Panel Body: Strict single-task-at-a-time rendering */}
       <div className="a03-panel-body" id="a03-panel-body">
         {/* CONCEPT STEP INTRODUCTION */}
-        {step.stepType === 'CONCEPT' && (
+        {(step.stepType === 'CONCEPT' || currentPhase === 'concept') && (
           <div className="a03-phase-concept">
             <div className="a03-prompt">
               <h2>{step.prompt}</h2>
-              <p className="a03-lead">{step.detailExplanation}</p>
+              {step.detailExplanation && <p className="a03-lead">{step.detailExplanation}</p>}
             </div>
             {step.whyExplanation && (
               <div className="a03-model-explain" style={{ marginTop: '16px' }}>
-                <strong>✦ 왜 반도체일까요?</strong>
-                {step.whyExplanation}
+                <strong>✦ 핵심 배경</strong>
+                <p style={{ margin: 0 }}>{step.whyExplanation}</p>
               </div>
             )}
           </div>
@@ -508,7 +510,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
         </div>
 
         {/* Primary Action Button (Single active CTA) */}
-        {step.stepType === 'CONCEPT' && (
+        {(step.stepType === 'CONCEPT' || currentPhase === 'concept') && (
           <button
             type="button"
             className="a03-main-action"
@@ -608,7 +610,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             </>
           )}
 
-          {currentPhase === 'predict' && onExit && (
+          {(currentPhase === 'predict' || currentPhase === 'concept') && onExit && (
             <button
               type="button"
               className="a03-secondary-action"

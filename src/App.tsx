@@ -53,7 +53,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
+    <div className="app-container a03-app">
       <Header
         onOpenCatalog={() => setIsCatalogOpen(true)}
         onToggleQALab={() => setShowQALab(true)}

@@ -134,12 +134,39 @@
   .a05-readouts b { font-size: .88rem; }
 }
 @media (max-width: 550px) {
-  .a05-lab { padding: 12px; }
-  .a05-canvas-col { padding: 8px; }
-  .a05-readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .a05-veiled { min-height: 260px; }
-  .a05-head { margin-bottom: 15px; }
+  .a05-lab { padding: 8px; }
+  .a05-canvas-col { padding: 6px; }
+  .a05-readouts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+  }
+  .a05-readouts span {
+    padding: 6px 4px;
+    font-size: 0.68rem;
+    gap: 2px;
+  }
+  .a05-readouts b {
+    font-size: 0.8rem;
+  }
+  .a05-veiled { min-height: 240px; }
+  .a05-head { margin-bottom: 12px; }
   .a05-truth-row span { flex-basis: 100%; }
+}
+@media (max-width: 360px) {
+  .a05-readouts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3px;
+    padding: 2px;
+  }
+  .a05-readouts span {
+    padding: 4px 3px;
+    font-size: 0.62rem;
+    gap: 2px;
+  }
+  .a05-readouts b {
+    font-size: 0.72rem;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .a05-current-line { animation: none; }

@@ -43,6 +43,57 @@ async function getOrStartServer() {
   throw new Error(`Failed to start test server on ${baseUrl} within 30s`);
 }
 
+async function assertScrollYZero(page, contextName) {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(100);
+  const scrollY = await page.evaluate(() => window.scrollY || document.documentElement.scrollTop || 0);
+  if (scrollY !== 0) {
+    throw new Error(`[FAIL] ${contextName}: scrollY is ${scrollY} (expected strictly 0)`);
+  }
+}
+
+async function assertPrimaryActionInViewport(page, vpName, viewportHeight) {
+  const actionEl = page.locator('.a03-main-action').first();
+  if (!(await actionEl.isVisible())) {
+    throw new Error(`[FAIL] ${vpName}: .a03-main-action is not visible`);
+  }
+  const box = await actionEl.boundingBox();
+  if (!box) {
+    throw new Error(`[FAIL] ${vpName}: cannot get bounding box for .a03-main-action`);
+  }
+  const bottom = box.y + box.height;
+  if (bottom > viewportHeight) {
+    throw new Error(
+      `[FAIL] ${vpName}: Primary action button bottom (${bottom}px) exceeds viewport height (${viewportHeight}px) at scrollY=0!`
+    );
+  }
+  console.log(`✅ [${vpName}] Primary CTA fully inside viewport: bottom ${bottom.toFixed(1)}px <= ${viewportHeight}px`);
+}
+
+async function assertNoCameraReadoutOverlap(page, vpName) {
+  const readoutEl = page.locator('.a05-readouts, .a03-readouts').first();
+  if (!(await readoutEl.isVisible())) return;
+
+  const readoutBox = await readoutEl.boundingBox();
+  if (!readoutBox) return;
+
+  const tools = await page.locator('.a03-tool').all();
+  for (const tool of tools) {
+    const box = await tool.boundingBox();
+    if (!box) continue;
+
+    const hOverlap = Math.max(0, Math.min(box.x + box.width, readoutBox.x + readoutBox.width) - Math.max(box.x, readoutBox.x));
+    const vOverlap = Math.max(0, Math.min(box.y + box.height, readoutBox.y + readoutBox.height) - Math.max(box.y, readoutBox.y));
+
+    if (hOverlap > 0 && vOverlap > 0) {
+      throw new Error(
+        `[FAIL] ${vpName}: Camera tool button (${box.x.toFixed(0)},${box.y.toFixed(0)}) overlaps readouts (${readoutBox.x.toFixed(0)},${readoutBox.y.toFixed(0)}) by ${hOverlap.toFixed(0)}x${vOverlap.toFixed(0)}px!`
+      );
+    }
+  }
+  console.log(`✅ [${vpName}] Zero internal overlay collision between camera tools and readouts`);
+}
+
 async function runQA() {
   const baseUrl = await getOrStartServer();
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
@@ -144,9 +195,9 @@ async function runQA() {
       }
       console.log(`✅ Zero horizontal overflow on Catalog ${vpName}`);
 
-      if (w === 390) {
-        await page.screenshot({ path: path.join(outDir, 'catalog_390x844.png') });
-      }
+      // Save catalog screenshots for both 390 and 320
+      await page.screenshot({ path: path.join(outDir, `catalog_${vpName}.png`) });
+      console.log(`📸 Saved catalog screenshot: catalog_${vpName}.png`);
 
       // Close catalog via close button
       await page.locator('.a03-catalog-close-btn').click();
@@ -186,6 +237,8 @@ async function runQA() {
       await page.waitForSelector('.a03-phase-predict', { timeout: 10000 });
       await page.waitForTimeout(400);
 
+      await assertScrollYZero(page, `Circuit Predict ${vpName}`);
+
       // Geometric bounding box check: lab vs sheet
       const labBox = await page.locator('.a03-lab').boundingBox();
       const sheetBox = await page.locator('.a03-sheet').boundingBox();
@@ -198,15 +251,57 @@ async function runQA() {
       }
       console.log(`✅ [PASS] Zero geometric collision on ${vpName}`);
 
+      // Assert primary CTA is pinned inside initial viewport at scrollY=0
+      await assertPrimaryActionInViewport(page, `Circuit Predict ${vpName}`, h);
+
+      // Assert camera tools and readouts do not overlap
+      await assertNoCameraReadoutOverlap(page, `Circuit Predict ${vpName}`);
+
+      // Policy 1 & 2: Assert Smart Scene Fit camera and framing attributes
+      const slot = page.locator('[data-scene-slot="true"]');
+      await slot.waitFor({ timeout: 5000 });
+      const camera = page.locator('[data-scene-camera="true"]');
+      const fitScale = parseFloat(await camera.getAttribute('data-fit-scale'));
+      const userZoom = parseFloat(await camera.getAttribute('data-user-zoom'));
+      const fillRatio = parseFloat(await slot.getAttribute('data-dominant-fill-ratio'));
+
+      console.log(`[${vpName}] Scene Fit Scale: ${fitScale}, User Zoom: ${userZoom}, Fill Ratio: ${fillRatio}`);
+      if (isNaN(fitScale) || fitScale <= 0) {
+        throw new Error(`[FAIL] Invalid fitScale on ${vpName}: ${fitScale}`);
+      }
+      if (userZoom !== 1.0) {
+        throw new Error(`[FAIL] Expected initial userZoom 1.0 on ${vpName}, got ${userZoom}`);
+      }
+      if (fillRatio < 0.60 || fillRatio > 0.95) {
+        throw new Error(`[FAIL] Fill ratio out of bounds (0.60 - 0.95) on ${vpName}: ${fillRatio}`);
+      }
+      console.log(`✅ [${vpName}] Smart Scene Fit verified: fitScale=${fitScale}, fillRatio=${fillRatio}`);
+
+      // Policy 3: Test Manual Zoom (+15%) and Fit Reset View (↺)
+      await page.locator('#zoom-in').click();
+      await page.waitForTimeout(200);
+      const zoomedScale = parseFloat(await camera.getAttribute('data-user-zoom'));
+      console.log(`[${vpName}] Zoomed User Zoom: ${zoomedScale}`);
+      if (zoomedScale !== 1.15) {
+        throw new Error(`[FAIL] Expected userZoom 1.15 after zoom-in on ${vpName}, got ${zoomedScale}`);
+      }
+
+      await page.locator('#reset-view').click();
+      await page.waitForTimeout(200);
+      const resetScale = parseFloat(await camera.getAttribute('data-user-zoom'));
+      console.log(`[${vpName}] Reset User Zoom: ${resetScale}`);
+      if (resetScale !== 1.0) {
+        throw new Error(`[FAIL] Expected userZoom 1.0 after reset-view on ${vpName}, got ${resetScale}`);
+      }
+      console.log(`✅ [${vpName}] Camera Zoom-In (+15%) & Fit-Reset (↺) verified`);
+
       // Touch target assertions (>= 44x44px):
-      // 1. Tool buttons
       const toolBox = await page.locator('.a03-tool').first().boundingBox();
       console.log(`[${vpName}] Camera tool size: ${toolBox.width}x${toolBox.height}`);
       if (toolBox.width < 43.5 || toolBox.height < 43.5) {
         throw new Error(`[FAIL] Tool target too small on ${vpName}: ${toolBox.width}x${toolBox.height}`);
       }
 
-      // 2. Prediction choices
       const choiceBox = await page.locator('.a03-choice').first().boundingBox();
       console.log(`[${vpName}] Choice min-height: ${choiceBox.height}px`);
       if (choiceBox.height < 43.5) {
@@ -222,6 +317,10 @@ async function runQA() {
       await page.locator('.a03-main-action').click();
       await page.waitForSelector('.a03-phase-observe', { timeout: 8000 });
       await page.waitForTimeout(400);
+
+      await assertScrollYZero(page, `Circuit Observe ${vpName}`);
+      await assertPrimaryActionInViewport(page, `Circuit Observe ${vpName}`, h);
+      await assertNoCameraReadoutOverlap(page, `Circuit Observe ${vpName}`);
 
       // Check dock switch button touch targets (>= 44px)
       const segBtnBox = await page.locator('.a03-seg button').first().boundingBox();
@@ -244,23 +343,28 @@ async function runQA() {
         // Advance to CHECK phase
         await page.locator('.a03-main-action').click();
         await page.waitForSelector('.a03-phase-check', { timeout: 8000 });
-        console.log('✅ Advanced to CHECK phase');
+        await assertScrollYZero(page, 'Circuit Check 390');
+        await assertPrimaryActionInViewport(page, 'Circuit Check 390', h);
+        await page.screenshot({ path: path.join(outDir, 'mobile_390x844_check.png') });
+        console.log('✅ Advanced to CHECK phase & saved mobile_390x844_check.png');
 
         // Select explanation and advance to DONE
         await page.locator('.a03-choice').first().click();
         await page.waitForTimeout(200);
         await page.locator('.a03-main-action').click();
         await page.waitForSelector('.a03-phase-done', { timeout: 8000 });
-        console.log('✅ Advanced to DONE phase (Core discovery complete)');
+        await assertScrollYZero(page, 'Circuit Done 390');
+        await page.screenshot({ path: path.join(outDir, 'mobile_390x844_done.png') });
+        console.log('✅ Advanced to DONE phase & saved mobile_390x844_done.png');
       }
 
       await context.close();
     }
 
     // ========================================================================
-    // Part 3: Visual Coverage Contract & Cross-Lesson Isolation QA
+    // Part 3: Visual Coverage Contract & Cross-Lesson Isolation & Step 0 Spoiler-Free QA
     // ========================================================================
-    console.log('\n--- Part 3: Visual Coverage & Cross-Lesson Isolation QA ---');
+    console.log('\n--- Part 3: Visual Coverage, Step 0 Spoiler-Free, & Cross-Lesson Isolation QA ---');
     {
       const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
       const page = await context.newPage();
@@ -286,6 +390,7 @@ async function runQA() {
           checkSelector: '.a03-concept-visual',
           imgName: 'concept_mosfet_step0_1440x900.png',
           forbidText: null,
+          forbiddenInSvg: ['VGS ≥ Vth'],
         },
         {
           name: 'Electricity Step 0',
@@ -293,6 +398,7 @@ async function runQA() {
           checkSelector: '.a03-concept-visual',
           imgName: 'concept_elec_step0_1440x900.png',
           forbidText: 'MOSFET',
+          forbiddenInSvg: ['폐루프가 없으면', '전류는 0 A'],
         },
       ];
 
@@ -301,12 +407,45 @@ async function runQA() {
         await page.waitForSelector(item.checkSelector, { timeout: 8000 });
         await page.waitForTimeout(300);
 
-        // Verify exactly ONE primary action button
+        // B1 Assertion 1: Step 0 must show '00 · 개념 도입', never '04 · 핵심 발견 완료'
+        const sceneLabel = await page.locator('#scene-label').innerText();
+        if (sceneLabel.includes('04') || sceneLabel.includes('완료')) {
+          throw new Error(`[FAIL] ${item.name} has false completion scene label: "${sceneLabel}"`);
+        }
+        if (!sceneLabel.includes('00 · 개념 도입')) {
+          throw new Error(`[FAIL] ${item.name} expected '00 · 개념 도입', got "${sceneLabel}"`);
+        }
+        console.log(`✅ ${item.name}: sceneLabel verified as '${sceneLabel}'`);
+
+        // B1 Assertion 2: No spoiler sceneSignal banner rendered on Step 0
+        const signalCount = await page.locator('.a03-scene-signal').count();
+        if (signalCount > 0) {
+          const signalText = await page.locator('.a03-scene-signal').innerText();
+          throw new Error(`[FAIL] ${item.name} leaked observation sceneSignal banner on Step 0: "${signalText}"`);
+        }
+        console.log(`✅ ${item.name}: zero observation sceneSignal banners on Step 0`);
+
+        // B1 Assertion 3: Verify exactly ONE primary action button
         const mainActionCount = await page.locator('.a03-main-action').count();
         if (mainActionCount !== 1) {
           throw new Error(`[FAIL] ${item.name} has ${mainActionCount} primary CTA buttons (expected 1)`);
         }
-        console.log(`✅ ${item.name}: exactly 1 primary CTA button verified`);
+        const ctaText = await page.locator('.a03-main-action').innerText();
+        if (!ctaText.includes('개념을 이해했습니다')) {
+          throw new Error(`[FAIL] ${item.name} unexpected primary CTA text: "${ctaText}"`);
+        }
+        console.log(`✅ ${item.name}: single concept CTA verified: "${ctaText}"`);
+
+        // B1 Assertion 4: Check forbidden SVG spoiler strings
+        if (item.forbiddenInSvg) {
+          const svgContent = await page.locator('.a03-concept-svg').innerHTML();
+          for (const forbidden of item.forbiddenInSvg) {
+            if (svgContent.includes(forbidden)) {
+              throw new Error(`[FAIL] ${item.name} SVG contains answer spoiler: "${forbidden}"`);
+            }
+          }
+          console.log(`✅ ${item.name}: verified zero answer spoilers in SVG`);
+        }
 
         // Check for cross-lesson copy leakage
         if (item.forbidText) {
@@ -356,6 +495,9 @@ async function runQA() {
       await page.waitForSelector('.a03-phase-predict', { timeout: 10000 });
       await page.waitForTimeout(400);
 
+      // Verify scrollY=0 at initial predict phase
+      await assertScrollYZero(page, `MOSFET Predict ${vpName}`);
+
       // Check collision on mobile viewports
       if (w <= 550) {
         const labBox = await page.locator('.a03-lab').boundingBox();
@@ -366,6 +508,9 @@ async function runQA() {
           throw new Error(`[FAIL] MOSFET Collision on ${vpName}: ${overlap}px > 1px tolerance!`);
         }
         console.log(`✅ [PASS] Zero geometric collision on MOSFET ${vpName}`);
+
+        // Assert primary action button is visible inside viewport at scrollY=0
+        await assertPrimaryActionInViewport(page, `MOSFET Predict ${vpName}`, h);
       }
 
       // Assert touch targets
@@ -384,6 +529,14 @@ async function runQA() {
       await page.waitForSelector('.a03-phase-observe', { timeout: 8000 });
       await page.waitForTimeout(400);
 
+      // Verify scrollY=0 at observe phase
+      await assertScrollYZero(page, `MOSFET Observe ${vpName}`);
+
+      if (w <= 550) {
+        await assertPrimaryActionInViewport(page, `MOSFET Observe ${vpName}`, h);
+        await assertNoCameraReadoutOverlap(page, `MOSFET Observe ${vpName}`);
+      }
+
       // Verify slider touch target >= 44px
       const sliderBox = await page.locator('.a03-parameter input[type="range"]').first().boundingBox();
       console.log(`[MOSFET ${vpName}] Slider height: ${sliderBox.height}px`);
@@ -394,26 +547,41 @@ async function runQA() {
       // Save Observe screenshot
       await page.screenshot({ path: path.join(outDir, `mosfet_app_${vpName}_observe.png`) });
 
-      // Move slider to 0.8V to trigger channel observation
+      // Policy 1 & 2: Verify userZoom remains stable when parameter changes
+      const cameraBeforeSlider = await page.locator('[data-scene-camera="true"]').getAttribute('data-user-zoom');
       const slider = page.locator('.a03-parameter input[type="range"]').first();
       await slider.fill('0.8');
       await page.waitForTimeout(300);
+      const cameraAfterSlider = await page.locator('[data-scene-camera="true"]').getAttribute('data-user-zoom');
+      if (cameraBeforeSlider !== cameraAfterSlider) {
+        throw new Error(`[FAIL] Camera zoom jumped on slider change from ${cameraBeforeSlider} to ${cameraAfterSlider}`);
+      }
+      console.log(`✅ [MOSFET ${vpName}] Camera scale stable across parameter adjustments`);
 
       // Advance to CHECK phase
       await page.locator('.a03-main-action').click();
       await page.waitForSelector('.a03-phase-check', { timeout: 8000 });
+      await assertScrollYZero(page, `MOSFET Check ${vpName}`);
       console.log(`✅ [MOSFET ${vpName}] Advanced to CHECK phase`);
 
-      // Save Check screenshot on desktop/mobile
-      if (w === 1440 || w === 390) {
-        await page.screenshot({ path: path.join(outDir, `mosfet_app_${vpName}_check.png`) });
+      if (w <= 550) {
+        await assertPrimaryActionInViewport(page, `MOSFET Check ${vpName}`, h);
       }
 
-      // Select correct answer and complete
+      // Save Check screenshot across all 3 viewports
+      await page.screenshot({ path: path.join(outDir, `mosfet_app_${vpName}_check.png`) });
+      console.log(`📸 Saved check screenshot: mosfet_app_${vpName}_check.png`);
+
+      // Select correct answer and complete to DONE
       await page.locator('.a03-choice:has-text("게이트 아래 실리콘 표면에")').click();
       await page.waitForTimeout(200);
       await page.locator('.a03-main-action').click();
       await page.waitForSelector('.a03-phase-done', { timeout: 8000 });
+      await assertScrollYZero(page, `MOSFET Done ${vpName}`);
+
+      // Save Done screenshot across all 3 viewports
+      await page.screenshot({ path: path.join(outDir, `mosfet_app_${vpName}_done.png`) });
+      console.log(`📸 Saved done screenshot: mosfet_app_${vpName}_done.png`);
       console.log(`✅ [MOSFET ${vpName}] Single-task flow successfully completed!`);
 
       await context.close();

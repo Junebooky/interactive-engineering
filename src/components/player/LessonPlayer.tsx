@@ -31,6 +31,7 @@ import '../../a05/a05Scenes.css';
 import { A03SingleTaskPanel, type FlowPhase } from './A03SingleTaskPanel';
 import { resolveStepVisual } from '../../engine/visualRegistry';
 import { ConceptIntroSceneVisual } from './ConceptIntroSceneVisual';
+import { SceneViewport } from './SceneViewport';
 import './lessonA03.css';
 
 interface LessonPlayerProps {
@@ -47,8 +48,16 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
   } = useLearningEngine();
 
   const [activePhase, setActivePhase] = React.useState<FlowPhase>('predict');
-  const [zoomLevel, setZoomLevel] = React.useState<number>(1);
+  const [userZoom, setUserZoom] = React.useState<number>(1.0);
+  const [panOffset, setPanOffset] = React.useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [showModelBubble, setShowModelBubble] = React.useState<boolean>(false);
+
+  // Policy 2 & 3: Reset userZoom and panning to 1.0 (Fit Subject) on step/lesson/visual change
+  React.useEffect(() => {
+    setUserZoom(1.0);
+    setPanOffset({ x: 0, y: 0 });
+  }, [lesson?.id, currentStepIndex]);
+
 
   if (!lesson) {
     return (
@@ -419,18 +428,21 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
   const isElec = lesson.id.includes('electricity') || currentStep.simulatorType?.startsWith('elec-');
   const isElecStep1 = currentStep.id === 'step-elec-s1-ohms-law';
 
+  const isConceptStep = currentStep.stepType === 'CONCEPT' || activePhase === 'concept';
+
   // Status subtitle and context for 2.5D visual
-  const sceneLabel =
-    activePhase === 'predict'
-      ? (isElec ? '01 · 회로 모형 살펴보기' : '01 · 구조와 원리 살펴보기')
-      : activePhase === 'observe'
-      ? (isElec ? '02 · 스위치 조작 · 전류 관찰' : '02 · 직접 조작하며 관찰하기')
-      : activePhase === 'check'
-      ? '03 · 관찰 원리 설명하기'
-      : '04 · 핵심 발견 완료';
+  const sceneLabel = isConceptStep
+    ? '00 · 개념 도입'
+    : activePhase === 'predict'
+    ? (isElec ? '01 · 회로 모형 살펴보기' : '01 · 구조와 원리 살펴보기')
+    : activePhase === 'observe'
+    ? (isElec ? '02 · 스위치 조작 · 전류 관찰' : '02 · 직접 조작하며 관찰하기')
+    : activePhase === 'check'
+    ? '03 · 관찰 원리 설명하기'
+    : '04 · 핵심 발견 완료';
 
   let sceneSignal = '';
-  if (activePhase !== 'predict') {
+  if (!isConceptStep && activePhase !== 'predict') {
     if (isElec) {
       sceneSignal = currentParams.closed
         ? '스위치가 닫혀 1kΩ 저항에 5mA가 흘러요'
@@ -479,11 +491,11 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
   const labCaption = visualSpec.caption;
 
   const modelBubbleText = isElec
-    ? activePhase === 'predict'
+    ? activePhase === 'predict' || isConceptStep
       ? '이상적인 5V 전원과 1kΩ 저항의 교육용 모델. 측정 결과는 예측을 제출한 후에 표시합니다.'
       : '이상적인 DC 5V 전원(내부저항 0Ω), 1kΩ 저항 회로 모형입니다. 스위치가 열리면 I=0mA이며 5V 전위차는 유지됩니다.'
     : isMosfet
-    ? activePhase === 'predict'
+    ? activePhase === 'predict' || isConceptStep
       ? '이 화면은 교육을 위해 구조를 단순화한 nMOS 모형입니다. 실제 소자의 공정과 온도에 따라 값은 달라지며, 실험 결과는 예측을 제출한 다음 확인할 수 있습니다.'
       : '이 장면은 교육용 nMOS 모형입니다. 문턱 전압은 0.7V로 가정하고 누설과 실제 공정 차이는 생략했습니다. VDS=0V일 때 순 드레인 전류는 0A입니다.'
     : currentStep.physicsAssumptions
@@ -512,12 +524,16 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
             </div>
           )}
 
-          {/* Canvas Wrapper supporting zoom */}
-          <div
-            className="a03-lab-canvas-wrapper"
-            style={{ '--zoom': zoomLevel } as React.CSSProperties}
-          >
-            {renderSimulator()}
+          {/* Safe Content Stage with Smart Scene Fit */}
+          <div className="a03-lab-canvas-wrapper">
+            <SceneViewport
+              sceneId={visualSpec.sceneId || visualSpec.visualId}
+              userZoom={userZoom}
+              panOffset={panOffset}
+              onPanChange={setPanOffset}
+            >
+              {renderSimulator()}
+            </SceneViewport>
           </div>
 
           {/* Experiment Control Dock for Lesson 12: Hidden in predict phase, revealed in observe/check/done */}
@@ -593,6 +609,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
                 aria-expanded={showModelBubble}
                 aria-controls="model-bubble"
                 aria-label="모델 기준 설명"
+                title="모델 기준 설명"
                 onClick={() => setShowModelBubble((v) => !v)}
               >
                 ⓘ
@@ -602,7 +619,8 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
                 type="button"
                 id="zoom-in"
                 aria-label="확대"
-                onClick={() => setZoomLevel((z) => Math.min(1.4, z + 0.12))}
+                title="확대 (+15%)"
+                onClick={() => setUserZoom((z) => Math.min(2.5, Number((z + 0.15).toFixed(2))))}
               >
                 ＋
               </button>
@@ -611,7 +629,8 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
                 type="button"
                 id="zoom-out"
                 aria-label="축소"
-                onClick={() => setZoomLevel((z) => Math.max(0.85, z - 0.12))}
+                title="축소 (−15%)"
+                onClick={() => setUserZoom((z) => Math.max(0.75, Number((z - 0.15).toFixed(2))))}
               >
                 −
               </button>
@@ -619,8 +638,12 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
                 className="a03-tool"
                 type="button"
                 id="reset-view"
-                aria-label="카메라 초기화"
-                onClick={() => setZoomLevel(1)}
+                aria-label="화면에 맞춤 · 기본 보기"
+                title="화면에 맞춤 · 기본 보기"
+                onClick={() => {
+                  setUserZoom(1.0);
+                  setPanOffset({ x: 0, y: 0 });
+                }}
               >
                 ↺
               </button>

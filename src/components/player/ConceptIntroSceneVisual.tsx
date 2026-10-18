@@ -80,11 +80,11 @@ export const ConceptIntroSceneVisual: React.FC<ConceptIntroSceneVisualProps> = (
             <path d="M140 140 V105 H320" stroke="#5E96A8" strokeWidth="8" strokeLinecap="round" fill="none" />
             <path d="M420 105 H600 V235 H140 V260" stroke="#5E96A8" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
 
-            {/* Knife Switch (Open) */}
+            {/* Knife Switch */}
             <circle cx="320" cy="105" r="9" fill="#2CD5B3" stroke="#C4F7ED" strokeWidth="2" />
             <circle cx="420" cy="105" r="9" fill="#2CD5B3" stroke="#C4F7ED" strokeWidth="2" />
             <path d="M320 105 L395 55" stroke="#FAD375" strokeWidth="8" strokeLinecap="round" />
-            <text x="360" y="45" textAnchor="middle" fontSize="13" fontWeight="800" fill="#FFEAA8">열린 스위치 (단절)</text>
+            <text x="360" y="45" textAnchor="middle" fontSize="13" fontWeight="800" fill="#FFEAA8">조작 스위치 (경로 개폐 제어)</text>
 
             {/* Load Resistor */}
             <rect x="545" y="145" width="110" height="60" rx="10" fill={`url(#grad-metal-${uid})`} stroke="#E1EFF8" strokeWidth="2" />
@@ -93,7 +93,7 @@ export const ConceptIntroSceneVisual: React.FC<ConceptIntroSceneVisualProps> = (
             {/* Explanatory callouts */}
             <rect x="230" y="280" width="310" height="38" rx="8" fill="#0E2433" stroke="#254B60" />
             <text x="385" y="304" textAnchor="middle" fontSize="13" fontWeight="700" fill="#99D5E8">
-              폐루프가 없으면 전압은 남아도 전류는 0 A입니다
+              전위차(전압)와 닫힌 도선 경로의 관계를 탐구합니다
             </text>
           </g>
         )}
@@ -164,7 +164,7 @@ export const ConceptIntroSceneVisual: React.FC<ConceptIntroSceneVisualProps> = (
 
             {/* Channel Path Arrow */}
             <path d="M235 155 H445" stroke="#FAD375" strokeWidth="3" strokeDasharray="5 3" />
-            <text x="340" y="175" textAnchor="middle" fontSize="12" fontWeight="700" fill="#FFECA8">VGS ≥ Vth 일 때 전도 채널 형성</text>
+            <text x="340" y="175" textAnchor="middle" fontSize="12" fontWeight="700" fill="#FFECA8">소스·드레인 사이 전도 경로 (채널 영역)</text>
           </g>
         )}
 
