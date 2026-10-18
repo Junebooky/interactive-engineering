@@ -145,3 +145,20 @@
   .a05-current-line { animation: none; }
   .a05-lab *, .a05-lab *::before, .a05-lab *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+
+/* A08 isolated M01 scene-attached controls. Keep A05 physics and shared scenes intact. */
+.a05-mosfet-dock {
+  margin-top: 12px; padding: 14px 12px; border: 1px solid #568faa;
+  border-radius: 13px; background: #102333; color: #f1fcfd; min-width: 0;
+}
+.a05-mosfet-dock h3 { font-size: 1rem; margin: 0 0 8px; color: #a3fbe1; }
+.a05-mosfet-dock p { margin: 6px 0 12px; color: #d5e8f0; font-size: .88rem; line-height: 1.55; }
+.a05-mosfet-dock input[type="range"] {
+  width: 100%; min-height: 44px; accent-color: #087c6d; cursor: pointer;
+}
+.a05-mosfet-dock .a05-control-buttons button { min-height: 44px; }
+.a05-mosfet-dock .a05-mosfet-observe-current { display:block; width:100%; min-height:44px; margin:10px 0; padding:10px 12px; border-radius:9px; border:1px solid #7ce7d5; background:#1b3d4b; color:#f1fcfd; font:inherit; font-size:.87rem; cursor:pointer; }
+.a05-experiment-guidance { line-height: 1.65; color: #e6f5ff; }
+@media (max-width: 550px) {
+  .a05-mosfet-dock { padding: 12px 8px; }
+}
