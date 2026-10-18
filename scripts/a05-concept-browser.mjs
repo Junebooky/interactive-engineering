@@ -35,6 +35,18 @@ try{
     await page.getByRole('button',{name:title,exact:true}).click();
     const fig=page.getByTestId('a05-concept-stage');
     if(await fig.getAttribute('data-visual-id')!==id)throw Error('wrong domain geometry');
+    const semantic=fig.locator('svg [data-scene-subject]');
+    if(await semantic.count()!==1)throw Error('missing EXACT one SVG-world scientific subject group');
+    const authored=JSON.parse(await fig.getAttribute('data-scene-world-bounds'));
+    if(authored.sceneId!==id||authored.defaultViewBox!=='0 0 640 360')throw Error('wrong world coordinates '+JSON.stringify(authored));
+    const measured=await semantic.evaluate(el=>{const b=el.getBBox();return {x:b.x,y:b.y,width:b.width,height:b.height}});
+    if(width===1440)console.log('A05_WORLD_BBOX '+id+' '+JSON.stringify({measured,authored}));
+    const union=authored.stableBounds;
+    if(measured.x<union.x-1||measured.y<union.y-1||
+      measured.x+measured.width>union.x+union.width+1||
+      measured.y+measured.height>union.y+union.height+1)
+      throw Error('essential artwork clipped by authored world stable box '+JSON.stringify({id,measured,union}));
+    if(measured.width<100||measured.height<70)throw Error('not a real scientific subject geometry');
     const diagram=fig.locator('svg');
     if(!await diagram.isVisible())throw Error('SVG hidden');
     const aria=await diagram.getAttribute('aria-label');
