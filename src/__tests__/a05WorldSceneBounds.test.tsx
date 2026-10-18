@@ -5,7 +5,7 @@ import {A05SceneVisual} from '../a05/A05SceneVisual';
 import {courses} from '../content/courses';
 describe('A05 #80 tight authored SVG physics world bounds contract',()=>{
  it('covers every actually published A05 2.5D simulator, excluding A02-owned ohms and gear 2D',()=>{
-  const ids=[...new Set(courses.flatMap(c=>c.lessons.flatMap(l=>l.steps.map(s=>s.simulatorType).filter((x):x is string=>Boolean(x)))))];
+  const ids=[...new Set<string>(courses.flatMap(c=>c.lessons.flatMap(l=>l.steps.flatMap(s=>s.simulatorType ? [String(s.simulatorType)] : []))))];
   const a05Ids=ids.filter(id=>!['ohmsLaw','gears','mosfet','inverter'].includes(id));
   for(const id of a05Ids)expect(getA05InteractiveWorldBounds(id),id).toBeDefined();
   expect(Object.keys(A05_INTERACTIVE_WORLD_BOUNDS)).toHaveLength(34);
