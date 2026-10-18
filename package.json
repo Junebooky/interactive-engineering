@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test": "vitest run",
+    "test:browser:v3": "node scripts/test-v3-catalog-and-lab.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },
