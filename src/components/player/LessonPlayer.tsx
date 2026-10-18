@@ -6,7 +6,7 @@ import { Mosfet2DScene } from '../../simulations/mosfet/Mosfet2DScene';
 import { InverterCircuit2D } from '../../simulations/mosfet/InverterCircuit2D';
 import { Circuit2DScene } from '../../simulations/ohmsLaw/Circuit2DScene';
 import { Gear2DScene } from '../../simulations/gears/Gear2DScene';
-import { A05SceneVisual } from '../../a05/A05SceneVisual';
+import { A05SceneVisual, A05Readouts } from '../../a05/A05SceneVisual';
 import { DramSceneVisual, type DramVisualState } from '../../a05/dram/DramSceneVisual';
 import { SramSceneVisual, type SramVisualState } from '../../a05/sram/SramSceneVisual';
 import { GpuSceneVisual, type GpuVisualState } from '../../a05/gpu/GpuSceneVisual';
@@ -83,6 +83,14 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
 
   const visualSpec = resolveStepVisual(lesson.id, currentStep);
 
+  const a05Values: A05Values = {
+    vgs: Number(currentParams.vgs ?? (currentStep.simulatorType === 'mosfet-current' ? 1.5 : 0)),
+    vds: Number(currentParams.vds ?? 0),
+    vin: Number(currentParams.vin ?? 0),
+    out0: currentParams.out0 === 0 || currentParams.out0 === 1 ? currentParams.out0 : null,
+    out1: currentParams.out1 === 0 || currentParams.out1 === 1 ? currentParams.out1 : null,
+  };
+
   // Render the appropriate 2.5D simulator scene or concept illustration
   const renderSimulator = () => {
     if (visualSpec.mode === 'concept') {
@@ -101,13 +109,6 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
       case 'mosfet-current':
       case 'nmos-resistor-inverter':
       case 'cmos-not-gate': {
-        const a05Values: A05Values = {
-          vgs: Number(currentParams.vgs ?? (currentStep.simulatorType === 'mosfet-current' ? 1.5 : 0)),
-          vds: Number(currentParams.vds ?? 0),
-          vin: Number(currentParams.vin ?? 0),
-          out0: currentParams.out0 === 0 || currentParams.out0 === 1 ? currentParams.out0 : null,
-          out1: currentParams.out1 === 0 || currentParams.out1 === 1 ? currentParams.out1 : null,
-        };
         const hasPredictionCtrl = currentStep.controls?.some((c) => c.id === 'prediction');
         const showObservation =
           !hasPredictionCtrl ||
@@ -118,6 +119,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
             sceneId={currentStep.simulatorType}
             values={a05Values}
             showObservation={showObservation}
+            hideReadouts={true}
           />
         );
       }
@@ -498,6 +500,8 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
     ? activePhase === 'predict' || isConceptStep
       ? '이 화면은 교육을 위해 구조를 단순화한 nMOS 모형입니다. 실제 소자의 공정과 온도에 따라 값은 달라지며, 실험 결과는 예측을 제출한 다음 확인할 수 있습니다.'
       : '이 장면은 교육용 nMOS 모형입니다. 문턱 전압은 0.7V로 가정하고 누설과 실제 공정 차이는 생략했습니다. VDS=0V일 때 순 드레인 전류는 0A입니다.'
+    : activePhase === 'predict' || isConceptStep
+    ? (currentStep.physicsAssumptions || '교육용 공학 시뮬레이션 모델입니다. 상세 측정 결과는 예측 제출 후 확인할 수 있습니다.')
     : currentStep.physicsAssumptions
     ? `${currentStep.physicsAssumptions}\n\n${currentStep.detailExplanation || ''}`
     : (currentStep.detailExplanation || '교육용 공학 시뮬레이션 모델입니다.');
@@ -535,6 +539,13 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
               {renderSimulator()}
             </SceneViewport>
           </div>
+
+          {/* A05 Dedicated Readout Dock (Decoupled from camera zoom/scale) */}
+          {isMosfet && activePhase !== 'predict' && !isConceptStep && (
+            <div className="a03-lab-readouts-dock">
+              <A05Readouts sceneId={currentStep.simulatorType} values={a05Values} />
+            </div>
+          )}
 
           {/* Experiment Control Dock for Lesson 12: Hidden in predict phase, revealed in observe/check/done */}
           {isElecStep1 && (

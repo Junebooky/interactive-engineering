@@ -53,7 +53,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
     ? currentParams.visited
     : typeof currentParams.visited === 'number'
     ? [currentParams.visited]
-    : [0];
+    : [];
 
   const minHighRule = step.rules?.find((r) => r.operator === 'visitedLowHigh');
   const minHigh = typeof minHighRule?.expected === 'number' ? minHighRule.expected : 0.8;
@@ -130,7 +130,9 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
 
   // Voice narration text
   const speechText =
-    currentPhase === 'predict'
+    currentPhase === 'concept'
+      ? (step.voice?.intro || step.storyLead || step.prompt)
+      : currentPhase === 'predict'
       ? (step.voice?.intro || `${step.prompt} 먼저 예상해 보세요.`)
       : currentPhase === 'observe'
       ? (step.voice?.intro || '조작 슬라이더를 움직여 화면의 물리적 변화를 비교해 보세요.')
@@ -167,7 +169,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
     resetCurrentStep();
     updateParam('prediction', null);
     updateParam('answer', null);
-    updateParam('visited', [0]);
+    updateParam('visited', []);
     if (retry) retry();
     setPhaseOverride('predict');
   };
@@ -197,12 +199,6 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
               <h2>{step.prompt}</h2>
               {step.detailExplanation && <p className="a03-lead">{step.detailExplanation}</p>}
             </div>
-            {step.whyExplanation && (
-              <div className="a03-model-explain" style={{ marginTop: '16px' }}>
-                <strong>✦ 핵심 배경</strong>
-                <p style={{ margin: 0 }}>{step.whyExplanation}</p>
-              </div>
-            )}
           </div>
         )}
 
@@ -246,18 +242,6 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             <p className="a03-aside-note">
               정답을 맞히는 것보다 스스로 가설을 세우고 관찰하는 과정이 중요해요.
             </p>
-
-            {/* Accordion for supplementary physics background */}
-            {step.detailExplanation && (
-              <details className="a03-accordion">
-                <summary>{isElecStep1 ? '배경 지식 및 회로 구조 펼쳐보기' : '실리콘 구조 및 배경 지식 펼쳐보기'}</summary>
-                <div className="a03-accordion-content">
-                  {step.detailExplanation.split('\n').map((para, i) => (
-                    <p key={i}>{para}</p>
-                  ))}
-                </div>
-              </details>
-            )}
           </div>
         )}
 
@@ -378,15 +362,6 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
               </div>
             )}
 
-            {/* Accordion for Why Explanation */}
-            {step.whyExplanation && (
-              <details className="a03-accordion">
-                <summary>동작 원리 및 모델 가정 펼쳐보기</summary>
-                <div className="a03-accordion-content">
-                  <p>{step.whyExplanation}</p>
-                </div>
-              </details>
-            )}
           </div>
         )}
 
@@ -491,7 +466,9 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
           <div className="a03-coach-text">
             <strong>내 곁의 엔지니어</strong>
             <small id="a03-voice-caption">
-              {currentPhase === 'predict'
+              {currentPhase === 'concept'
+                ? '기본 배경 개념을 짧게 들려드려요.'
+                : currentPhase === 'predict'
                 ? '지금은 질문만 들어요.'
                 : currentPhase === 'observe'
                 ? '직접 조작한 결과를 짧게 들려드려요.'
@@ -505,7 +482,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             className="a03-listen"
             onClick={handleListen}
           >
-            ▷ {currentPhase === 'predict' ? '질문 듣기' : '설명 듣기'}
+            ▷ {currentPhase === 'concept' ? '개념 듣기' : currentPhase === 'predict' ? '질문 듣기' : '설명 듣기'}
           </button>
         </div>
 

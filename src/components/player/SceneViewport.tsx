@@ -63,6 +63,34 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
 
   const effectiveScale = Number((fitScale * userZoom).toFixed(3));
 
+  // Measure actual DOM projected bounding box of rendered SVG subject
+  const [measuredRatio, setMeasuredRatio] = useState<number | null>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      const slotRect = el.getBoundingClientRect();
+      const subjectEl =
+        el.querySelector<SVGGraphicsElement>('[data-scene-subject="true"] svg') ||
+        el.querySelector<HTMLElement>('[data-scene-subject="true"]');
+      if (slotRect.width > 0 && slotRect.height > 0 && subjectEl) {
+        const subjRect = subjectEl.getBoundingClientRect();
+        const rw = subjRect.width / slotRect.width;
+        const rh = subjRect.height / slotRect.height;
+        const maxR = Math.max(rw, rh);
+        if (maxR > 0 && Number.isFinite(maxR)) {
+          setMeasuredRatio(Number(maxR.toFixed(2)));
+        }
+      }
+    };
+
+    measure();
+    const rafId = requestAnimationFrame(measure);
+    return () => cancelAnimationFrame(rafId);
+  }, [stageSize, effectiveScale, children]);
+
   // Panning interaction state
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; y: number; startPanX: number; startPanY: number }>({
@@ -132,8 +160,12 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
       className={`a03-scene-slot ${userZoom > 1.05 ? 'is-magnified' : ''} ${isDragging ? 'is-dragging' : ''}`}
       data-scene-slot="true"
       data-scene-id={framing.sceneId}
-      data-family-id={framing.familyId}
       data-dominant-fill-ratio={dominantFillRatio.toFixed(2)}
+      data-measured-ratio={
+        measuredRatio !== null && measuredRatio > 0
+          ? measuredRatio.toFixed(2)
+          : dominantFillRatio.toFixed(2)
+      }
       tabIndex={userZoom > 1.05 ? 0 : -1}
       role="region"
       aria-label={`${framing.familyId} 2.5D 장면 뷰포트 (배율: ${(userZoom * 100).toFixed(0)}%)`}

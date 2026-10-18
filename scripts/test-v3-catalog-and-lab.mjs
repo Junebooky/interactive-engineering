@@ -94,6 +94,37 @@ async function assertNoCameraReadoutOverlap(page, vpName) {
   console.log(`✅ [${vpName}] Zero internal overlay collision between camera tools and readouts`);
 }
 
+async function assertNoHeaderToolbarCollision(page, vpName) {
+  const topEl = page.locator('.a03-lab-top').first();
+  const labelEl = page.locator('.a03-v2-label').first();
+  const toolsEl = page.locator('.a03-lab-tools').first();
+
+  if (!(await topEl.isVisible()) || !(await toolsEl.isVisible())) return;
+
+  const topBox = await topEl.boundingBox();
+  const toolsBox = await toolsEl.boundingBox();
+
+  if (topBox && toolsBox) {
+    const hOverlap = Math.max(0, Math.min(topBox.x + topBox.width, toolsBox.x + toolsBox.width) - Math.max(topBox.x, toolsBox.x));
+    const vOverlap = Math.max(0, Math.min(topBox.y + topBox.height, toolsBox.y + toolsBox.height) - Math.max(topBox.y, toolsBox.y));
+    if (hOverlap > 0 && vOverlap > 0) {
+      throw new Error(`[FAIL] ${vpName}: .a03-lab-top overlaps .a03-lab-tools by ${hOverlap.toFixed(0)}x${vOverlap.toFixed(0)}px!`);
+    }
+  }
+
+  if (await labelEl.isVisible()) {
+    const labelBox = await labelEl.boundingBox();
+    if (labelBox && toolsBox) {
+      const hOverlap = Math.max(0, Math.min(labelBox.x + labelBox.width, toolsBox.x + toolsBox.width) - Math.max(labelBox.x, toolsBox.x));
+      const vOverlap = Math.max(0, Math.min(labelBox.y + labelBox.height, toolsBox.y + toolsBox.height) - Math.max(labelBox.y, toolsBox.y));
+      if (hOverlap > 0 && vOverlap > 0) {
+        throw new Error(`[FAIL] ${vpName}: .a03-v2-label overlaps .a03-lab-tools by ${hOverlap.toFixed(0)}x${vOverlap.toFixed(0)}px!`);
+      }
+    }
+  }
+  console.log(`✅ [${vpName}] Zero collision between header, step label, and camera tools`);
+}
+
 async function runQA() {
   const baseUrl = await getOrStartServer();
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
@@ -227,7 +258,7 @@ async function runQA() {
           currentStepIndex: 1,
           completedStepIds: ['step-elec-s0-intro'],
           simulatorInputs: {
-            'step-elec-s1-ohms-law': { closed: false, direction: 'conventional', history: ['open'], prediction: null, answer: null }
+            'step-elec-s1-ohms-law': { closed: false, direction: 'conventional', history: [], prediction: null, answer: null }
           },
           lastUpdated: Date.now()
         }));
@@ -236,6 +267,13 @@ async function runQA() {
       await page.goto(`${baseUrl}/?lesson=electricity-rc-foundations&step=1`, { waitUntil: 'networkidle' });
       await page.waitForSelector('.a03-phase-predict', { timeout: 10000 });
       await page.waitForTimeout(400);
+
+      // S1-A: Verify no detailExplanation accordion mounted during PREDICT
+      const predictAccordionCount = await page.locator('.a03-phase-predict .a03-accordion').count();
+      if (predictAccordionCount > 0) {
+        throw new Error(`[FAIL] S01 PREDICT phase mounted ${predictAccordionCount} spoiler accordions in student DOM!`);
+      }
+      console.log(`✅ [Circuit Predict ${vpName}] Zero teacher accordions mounted in PREDICT DOM`);
 
       await assertScrollYZero(page, `Circuit Predict ${vpName}`);
 
@@ -256,6 +294,7 @@ async function runQA() {
 
       // Assert camera tools and readouts do not overlap
       await assertNoCameraReadoutOverlap(page, `Circuit Predict ${vpName}`);
+      await assertNoHeaderToolbarCollision(page, `Circuit Predict ${vpName}`);
 
       // Policy 1 & 2: Assert Smart Scene Fit camera and framing attributes
       const slot = page.locator('[data-scene-slot="true"]');
@@ -321,6 +360,14 @@ async function runQA() {
       await assertScrollYZero(page, `Circuit Observe ${vpName}`);
       await assertPrimaryActionInViewport(page, `Circuit Observe ${vpName}`, h);
       await assertNoCameraReadoutOverlap(page, `Circuit Observe ${vpName}`);
+      await assertNoHeaderToolbarCollision(page, `Circuit Observe ${vpName}`);
+
+      // Verify no whyExplanation accordion mounted during OBSERVE
+      const observeAccordionCount = await page.locator('.a03-phase-observe .a03-accordion').count();
+      if (observeAccordionCount > 0) {
+        throw new Error(`[FAIL] S01 OBSERVE phase mounted ${observeAccordionCount} teacher why accordions in student DOM!`);
+      }
+      console.log(`✅ [Circuit Observe ${vpName}] Zero teacher accordions mounted in OBSERVE DOM`);
 
       // Check dock switch button touch targets (>= 44px)
       const segBtnBox = await page.locator('.a03-seg button').first().boundingBox();
@@ -447,6 +494,39 @@ async function runQA() {
           console.log(`✅ ${item.name}: verified zero answer spoilers in SVG`);
         }
 
+        // Check forbidden prose spoilers (P0 #70: Electricity Step 0 answer leakage)
+        if (item.name === 'Electricity Step 0') {
+          const bodyText = await page.innerText('body');
+          const forbiddenProse = [
+            '회로가 열려 있으면 전압은 존재하지만 전류는 0입니다',
+            '전류는 0입니다',
+            '전류는 0',
+            '5V 유지',
+            '0mA',
+            '0 mA',
+            '5mA',
+            '5 mA',
+            '전류가 흐르지',
+            '전류가 멈춰',
+            '전압은 유지',
+            '5V 전압은 유지',
+            '전압이 그대로',
+          ];
+          for (const phrase of forbiddenProse) {
+            if (bodyText.includes(phrase)) {
+              throw new Error(`[FAIL] Electricity Step 0 leaked outcome spoiler in prose: "${phrase}"`);
+            }
+          }
+          console.log(`✅ ${item.name}: verified zero answer spoilers in visible prose/hints`);
+
+          // S0-C: Verify voice caption does not have completion or teacher text
+          const voiceCaption = await page.locator('#a03-voice-caption').innerText();
+          if (voiceCaption.includes('완료') || voiceCaption.includes('원리')) {
+            throw new Error(`[FAIL] Electricity Step 0 voice caption shows premature completion text: "${voiceCaption}"`);
+          }
+          console.log(`✅ ${item.name}: voice caption verified as neutral introduction`);
+        }
+
         // Check for cross-lesson copy leakage
         if (item.forbidText) {
           const labName = await page.locator('.a03-lab-name').innerText();
@@ -511,6 +591,7 @@ async function runQA() {
 
         // Assert primary action button is visible inside viewport at scrollY=0
         await assertPrimaryActionInViewport(page, `MOSFET Predict ${vpName}`, h);
+        await assertNoHeaderToolbarCollision(page, `MOSFET Predict ${vpName}`);
       }
 
       // Assert touch targets
@@ -535,6 +616,35 @@ async function runQA() {
       if (w <= 550) {
         await assertPrimaryActionInViewport(page, `MOSFET Observe ${vpName}`, h);
         await assertNoCameraReadoutOverlap(page, `MOSFET Observe ${vpName}`);
+        await assertNoHeaderToolbarCollision(page, `MOSFET Observe ${vpName}`);
+
+        // Verify readouts decoupled from camera
+        const cameraReadouts = await page.locator('[data-scene-camera="true"] .a05-readouts').count();
+        if (cameraReadouts > 0) {
+          throw new Error(`[FAIL] ${vpName}: readouts are still embedded inside camera transform!`);
+        }
+        const primaryReadouts = page.locator('.a03-lab-readouts-dock .a05-readout-primary');
+        const primaryCount = await primaryReadouts.count();
+        if (primaryCount === 0) {
+          throw new Error(`[FAIL] ${vpName}: primary readout cards missing in dock!`);
+        }
+        const secondaryReadouts = page.locator('.a03-lab-readouts-dock .a05-readout-secondary');
+        for (const sec of await secondaryReadouts.all()) {
+          if (await sec.isVisible()) {
+            throw new Error(`[FAIL] ${vpName}: secondary readout card is visible on mobile (expected hidden)!`);
+          }
+        }
+        console.log(`✅ [MOSFET ${vpName}] Readouts cleanly decoupled from camera; ${primaryCount} primary cards displayed outside camera`);
+
+        // Assert MOSFET device subject rendered width fills >= 70% of viewport width
+        const svgBox = await page.locator('.a03-scene-camera svg').first().boundingBox();
+        if (svgBox) {
+          const fillRatio = svgBox.width / w;
+          console.log(`[MOSFET ${vpName}] Rendered SVG width: ${svgBox.width.toFixed(1)}px / ${w}px (${(fillRatio * 100).toFixed(1)}%)`);
+          if (fillRatio < 0.68) {
+            throw new Error(`[FAIL] ${vpName}: MOSFET rendered SVG width (${svgBox.width.toFixed(1)}px) fills only ${(fillRatio * 100).toFixed(1)}% < 70%!`);
+          }
+        }
       }
 
       // Verify slider touch target >= 44px

@@ -2,7 +2,7 @@ import React, { useId } from 'react';
 import { cmosObservation, mosfetObservation, resistorInverterObservation } from './scenePhysics';
 import type { A05SceneId, A05Values, LogicBit } from './scenePhysics';
 
-type Props = { sceneId: A05SceneId; values: A05Values; showObservation: boolean };
+type Props = { sceneId: A05SceneId; values: A05Values; showObservation: boolean; hideReadouts?: boolean };
 const MINT = '#4fe0ca';
 const CYAN = '#4bc6fa';
 const GOLD = '#ffd37d';
@@ -25,7 +25,7 @@ function SvgLabel({ x, y, children, color = '#d9e9fa', size = 14 }: {
   return <text x={x} y={y} fill={color} fontSize={size} fontWeight="600">{children}</text>;
 }
 
-function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent: boolean }) {
+function MosfetCutaway({ values, showCurrent, hideReadouts }: { values: A05Values; showCurrent: boolean; hideReadouts?: boolean }) {
   const s = mosfetObservation(values.vgs, values.vds);
   const uid = useId().replace(/:/g, '');
   const gateGradient = 'a05gate' + uid;
@@ -48,8 +48,8 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
   const measuredY = 98 - Math.min(1.5, s.id) / maxY * 78;
 
   return (
-    <div className="a05-visual">
-      <svg viewBox="0 0 630 370" role="img" aria-label="nMOS의 절연막, 기판, 소스 드레인 및 표면 반전 채널을 깊이감 있는 단면으로 표현">
+    <div className={`a05-visual ${hideReadouts ? 'a05-visual-standalone' : ''}`}>
+      <svg viewBox={hideReadouts ? "65 52 500 298" : "0 0 630 370"} role="img" aria-label="nMOS의 절연막, 기판, 소스 드레인 및 표면 반전 채널을 깊이감 있는 단면으로 표현">
         <defs>
           <linearGradient id={waferGradient} x1="0" y1="0" x2="1" y2="1">
             <stop stopColor="#4b7c91" /><stop offset=".55" stopColor="#224a63" /><stop offset="1" stopColor="#102e4a" />
@@ -99,12 +99,14 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
         </>}
         <SvgLabel x={94} y={344} color="#aec4d8" size={12}>교육용 장채널 nMOS · Vth=0.7V 가정 · 비례·단면 축척 아님</SvgLabel>
       </svg>
-      <div className="a05-readouts" aria-live="polite">
-        <span>VGS <b>{values.vgs.toFixed(1)} V</b></span>
-        <span>VDS <b>{values.vds.toFixed(1)} V</b></span>
-        <span>반전 채널 <b>{s.channelThickness > 0 ? '가시화 (문턱 초과)' : values.vgs >= 0.7 ? '경계 (두께 0)' : '미가시화 (문턱 미만)'}</b></span>
-        <span>모델 ID <b>{s.id.toFixed(2)} mA</b></span>
-      </div>
+      {!hideReadouts && (
+        <div className="a05-readouts" aria-live="polite">
+          <span>VGS <b>{values.vgs.toFixed(1)} V</b></span>
+          <span>VDS <b>{values.vds.toFixed(1)} V</b></span>
+          <span>반전 채널 <b>{s.channelThickness > 0 ? '가시화 (문턱 초과)' : values.vgs >= 0.7 ? '경계 (두께 0)' : '미가시화 (문턱 미만)'}</b></span>
+          <span>모델 ID <b>{s.id.toFixed(2)} mA</b></span>
+        </div>
+      )}
       {showCurrent && <div className="a05-plot">
         <svg viewBox="0 0 590 140" role="img" aria-label="VDS 0부터 2볼트까지 드레인 전류의 증가 및 포화 경향">
           <path d="M70 15 V98 H542" stroke="#7390ad" strokeWidth="1.5" fill="none"/>
@@ -123,9 +125,9 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
   );
 }
 
-function ResistorInverter({ vin }: { vin: number }) {
+function ResistorInverter({ vin, hideReadouts }: { vin: number; hideReadouts?: boolean }) {
   const s = resistorInverterObservation(vin);
-  return <div className="a05-visual">
+  return <div className={`a05-visual ${hideReadouts ? 'a05-visual-standalone' : ''}`}>
     <svg viewBox="0 0 630 370" role="img" aria-label="5볼트 전원, 10킬로옴 풀업 저항과 nMOS 풀다운으로 이루어진 저항형 NOT 회로">
       <CircuitSurface>
         <path d="M320 75 V106 M320 163 V209 M320 209 H455 M320 209 V252 M320 291 V304"
@@ -154,18 +156,20 @@ function ResistorInverter({ vin }: { vin: number }) {
         <SvgLabel x={94} y={343} color="#b6c7d8" size={12}>ON이어도 완전 단락 아님 · 유한한 Ron/저항분배 모델</SvgLabel>
       </CircuitSurface>
     </svg>
-    <div className="a05-readouts" aria-live="polite">
-      <span>입력 <b>{s.inputLogic} ({vin.toFixed(0)}V)</b></span>
-      <span>nMOS <b>{s.isTransistorOn ? 'ON' : 'OFF'}</b></span>
-      <span>VOUT <b>{s.vout.toFixed(2)} V</b></span>
-      <span>출력 논리 <b>{s.outputLogic} ({s.outputLogic ? 'HIGH' : 'LOW'})</b></span>
-    </div>
+    {!hideReadouts && (
+      <div className="a05-readouts" aria-live="polite">
+        <span>입력 <b>{s.inputLogic} ({vin.toFixed(0)}V)</b></span>
+        <span>nMOS <b>{s.isTransistorOn ? 'ON' : 'OFF'}</b></span>
+        <span>VOUT <b>{s.vout.toFixed(2)} V</b></span>
+        <span>출력 논리 <b>{s.outputLogic} ({s.outputLogic ? 'HIGH' : 'LOW'})</b></span>
+      </div>
+    )}
   </div>;
 }
 
-function CMOSInverter({ vin }: { vin: LogicBit }) {
+function CMOSInverter({ vin, hideReadouts }: { vin: LogicBit; hideReadouts?: boolean }) {
   const s = cmosObservation(vin);
-  return <div className="a05-visual">
+  return <div className={`a05-visual ${hideReadouts ? 'a05-visual-standalone' : ''}`}>
     <svg viewBox="0 0 630 370" role="img" aria-label="상단 pMOS와 하단 nMOS가 입력 전압에 따라 상보적으로 열리는 CMOS 인버터">
       <CircuitSurface>
         <SvgLabel x={96} y={75} color="#e4f3fd" size={18}>CMOS NOT · 상보적인 두 스위치</SvgLabel>
@@ -191,16 +195,115 @@ function CMOSInverter({ vin }: { vin: LogicBit }) {
         <SvgLabel x={96} y={343} size={12} color="#bbccdb">정지 상태의 관통 경로 억제 · 실제 누설/스위칭 전력은 존재</SvgLabel>
       </CircuitSurface>
     </svg>
-    <div className="a05-readouts" aria-live="polite">
-      <span>입력 <b>{vin} ({vin ? 5 : 0} V)</b></span>
-      <span>pMOS <b>{s.pmosOn ? 'ON' : 'OFF'}</b></span>
-      <span>nMOS <b>{s.nmosOn ? 'ON' : 'OFF'}</b></span>
-      <span>출력 <b>{s.output} ({s.vout} V)</b></span>
-    </div>
+    {!hideReadouts && (
+      <div className="a05-readouts" aria-live="polite">
+        <span>입력 <b>{vin} ({vin ? 5 : 0} V)</b></span>
+        <span>pMOS <b>{s.pmosOn ? 'ON' : 'OFF'}</b></span>
+        <span>nMOS <b>{s.nmosOn ? 'ON' : 'OFF'}</b></span>
+        <span>출력 <b>{s.output} ({s.vout} V)</b></span>
+      </div>
+    )}
   </div>;
 }
 
-export function A05SceneVisual({ sceneId, values, showObservation }: Props) {
+export function A05Readouts({ sceneId, values }: { sceneId?: string; values: A05Values }) {
+  if (!sceneId) return null;
+  if (sceneId === 'mosfet-field') {
+    const s = mosfetObservation(values.vgs, values.vds);
+    return (
+      <div className="a05-readouts a05-readouts-dock" aria-live="polite">
+        <span className="a05-readout-card a05-readout-primary">
+          <span className="a05-readout-lbl">VGS</span>
+          <b>{values.vgs.toFixed(1)} V</b>
+        </span>
+        <span className="a05-readout-card a05-readout-primary">
+          <span className="a05-readout-lbl">반전 채널</span>
+          <b>{s.channelThickness > 0 ? '가시화 (문턱 초과)' : values.vgs >= 0.7 ? '경계 (두께 0)' : '미가시화'}</b>
+        </span>
+        <span className="a05-readout-card a05-readout-secondary">
+          <span className="a05-readout-lbl">VDS</span>
+          <b>{values.vds.toFixed(1)} V</b>
+        </span>
+        <span className="a05-readout-card a05-readout-secondary">
+          <span className="a05-readout-lbl">모델 ID</span>
+          <b>{s.id.toFixed(2)} mA</b>
+        </span>
+      </div>
+    );
+  }
+  if (sceneId === 'mosfet-current') {
+    const s = mosfetObservation(values.vgs, values.vds);
+    return (
+      <div className="a05-readouts a05-readouts-dock" aria-live="polite">
+        <span className="a05-readout-card a05-readout-primary">
+          <span className="a05-readout-lbl">VDS</span>
+          <b>{values.vds.toFixed(1)} V</b>
+        </span>
+        <span className="a05-readout-card a05-readout-primary">
+          <span className="a05-readout-lbl">모델 ID</span>
+          <b>{s.id.toFixed(2)} mA</b>
+        </span>
+        <span className="a05-readout-card a05-readout-secondary">
+          <span className="a05-readout-lbl">VGS</span>
+          <b>{values.vgs.toFixed(1)} V</b>
+        </span>
+        <span className="a05-readout-card a05-readout-secondary">
+          <span className="a05-readout-lbl">반전 채널</span>
+          <b>{s.channelThickness > 0 ? '가시화 (문턱 초과)' : '미형성'}</b>
+        </span>
+      </div>
+    );
+  }
+  if (sceneId === 'nmos-resistor-inverter') {
+    const s = resistorInverterObservation(values.vin);
+    return (
+      <div className="a05-readouts a05-readouts-dock" aria-live="polite">
+        <span className="a05-readout-card a05-readout-primary">
+          <span className="a05-readout-lbl">입력 논리</span>
+          <b>{s.inputLogic} ({values.vin.toFixed(0)}V)</b>
+        </span>
+        <span className="a05-readout-card a05-readout-primary">
+          <span className="a05-readout-lbl">출력 논리</span>
+          <b>{s.outputLogic} ({s.vout.toFixed(2)} V)</b>
+        </span>
+        <span className="a05-readout-card a05-readout-secondary">
+          <span className="a05-readout-lbl">nMOS</span>
+          <b>{s.isTransistorOn ? 'ON' : 'OFF'}</b>
+        </span>
+        <span className="a05-readout-card a05-readout-secondary">
+          <span className="a05-readout-lbl">VOUT</span>
+          <b>{s.vout.toFixed(2)} V</b>
+        </span>
+      </div>
+    );
+  }
+  if (sceneId === 'cmos-not-gate') {
+    const s = cmosObservation(values.vin >= 2.5 ? 1 : 0);
+    return (
+      <div className="a05-readouts a05-readouts-dock" aria-live="polite">
+        <span className="a05-readout-card a05-readout-primary">
+          <span className="a05-readout-lbl">입력 논리</span>
+          <b>{values.vin >= 2.5 ? 1 : 0} ({values.vin >= 2.5 ? 5 : 0}V)</b>
+        </span>
+        <span className="a05-readout-card a05-readout-primary">
+          <span className="a05-readout-lbl">출력 논리</span>
+          <b>{s.output} ({s.vout} V)</b>
+        </span>
+        <span className="a05-readout-card a05-readout-secondary">
+          <span className="a05-readout-lbl">pMOS</span>
+          <b>{s.pmosOn ? 'ON' : 'OFF'}</b>
+        </span>
+        <span className="a05-readout-card a05-readout-secondary">
+          <span className="a05-readout-lbl">nMOS</span>
+          <b>{s.nmosOn ? 'ON' : 'OFF'}</b>
+        </span>
+      </div>
+    );
+  }
+  return null;
+}
+
+export function A05SceneVisual({ sceneId, values, showObservation, hideReadouts }: Props) {
   if (!showObservation) return (
     <section className="a05-veiled" aria-label="예측 후 열리는 실험 장면">
       <div className="a05-veiled-object" aria-hidden="true"><span /></div>
@@ -208,9 +311,10 @@ export function A05SceneVisual({ sceneId, values, showObservation }: Props) {
     </section>
   );
   switch (sceneId) {
-    case 'mosfet-field': return <MosfetCutaway values={values} showCurrent={false}/>;
-    case 'mosfet-current': return <MosfetCutaway values={values} showCurrent={true}/>;
-    case 'nmos-resistor-inverter': return <ResistorInverter vin={values.vin}/>;
-    case 'cmos-not-gate': return <CMOSInverter vin={values.vin >= 2.5 ? 1 : 0}/>;
+    case 'mosfet-field': return <MosfetCutaway values={values} showCurrent={false} hideReadouts={hideReadouts}/>;
+    case 'mosfet-current': return <MosfetCutaway values={values} showCurrent={true} hideReadouts={hideReadouts}/>;
+    case 'nmos-resistor-inverter': return <ResistorInverter vin={values.vin} hideReadouts={hideReadouts}/>;
+    case 'cmos-not-gate': return <CMOSInverter vin={values.vin >= 2.5 ? 1 : 0} hideReadouts={hideReadouts}/>;
   }
 }
+

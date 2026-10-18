@@ -34,20 +34,22 @@ export function applyElectricityActionAdapter(
       nextParams.currentMilliAmps = circuit.currentMilliAmps;
       nextParams.terminalVoltageV = circuit.terminalVoltageV;
 
-      // Evidence 1: Open switch under 5V yields zero current
-      if (volts === 5 && !closed) {
-        if (!history.includes('open')) history.push('open');
+      // Only record observation evidence when learner explicitly interacted with the relevant controls
+      if (key === 'closed' || key === 'volts') {
+        if (volts === 5 && !closed) {
+          if (!history.includes('open')) history.push('open');
+        }
+        if (volts === 5 && closed) {
+          if (!history.includes('closed')) history.push('closed');
+        }
       }
-      // Evidence 2: Closed switch under 5V yields 5mA current
-      if (volts === 5 && closed) {
-        if (!history.includes('closed')) history.push('closed');
-      }
-      // Evidence 3: Both directions observed
-      if (direction === 'electron' && !history.includes('electron')) {
-        history.push('electron');
-      }
-      if (direction === 'conventional' && !history.includes('conventional')) {
-        history.push('conventional');
+      if (key === 'direction') {
+        if (direction === 'electron' && !history.includes('electron')) {
+          history.push('electron');
+        }
+        if (direction === 'conventional' && !history.includes('conventional')) {
+          history.push('conventional');
+        }
       }
 
       nextParams.history = history;
@@ -64,11 +66,13 @@ export function applyElectricityActionAdapter(
       nextParams.branchMilliAmps = network.branchMilliAmps;
       nextParams.eachResistorVoltageV = network.eachResistorVoltageV;
 
-      if (topology === 'series' && !history.includes('series')) {
-        history.push('series');
-      }
-      if (topology === 'parallel' && !history.includes('parallel')) {
-        history.push('parallel');
+      if (key === 'topology') {
+        if (topology === 'series' && !history.includes('series')) {
+          history.push('series');
+        }
+        if (topology === 'parallel' && !history.includes('parallel')) {
+          history.push('parallel');
+        }
       }
 
       nextParams.history = history;
