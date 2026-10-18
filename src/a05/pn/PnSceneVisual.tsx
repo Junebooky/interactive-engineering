@@ -47,6 +47,7 @@ export function PnSceneVisual({sceneId,state,revealed}:{sceneId:PnSceneId;state:
    <path d="M563 41 L595 71 V342 L563 310 Z" fill="#163348" stroke="#79a6b6"/>
    <rect x="43" y="41" width="520" height="271" rx="15" fill="#152e42" stroke="#7fabb9"/>
    <path d="M61 54 H540" stroke="#bffff3" opacity=".35" strokeWidth="2"/>
+   <g data-scene-subject="pn-diagram" data-scene-id={sceneId}>
    {sceneId==='semiconductor-band-gap'&&<>
     <Label x={77} y={84} size={20} color={MINT}>가운데 틈은 실리콘의 물리적 구멍이 아니에요</Label>
     <path d="M128 133 V288" stroke="#cde5ef" strokeWidth="3"/>
@@ -114,6 +115,7 @@ export function PnSceneVisual({sceneId,state,revealed}:{sceneId:PnSceneId;state:
     <Label x={98} y={293} color="#c8e4eb" size={13}>V={diode.volts.toFixed(1)}V · I={diode.currentNanoA.toFixed(3)} nA</Label>
     <Label x={97} y={314} color="#dfc894" size={12}>0.7V 고정 ON 문턱 아님 · 역항복 제외</Label>
    </>}
+   </g>
    <Label x={76} y={378} color="#adced9" size={12}>에너지·격자·공핍폭 toy 모형 · 실제 구조 축척과 제품 측정값 아님</Label>
   </svg>
   <div className="a05-readouts" aria-live="polite">

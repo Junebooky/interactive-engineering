@@ -1,0 +1,16 @@
+:root{font-family:system-ui,-apple-system,sans-serif;color-scheme:light;background:#f6f8f7;color:#152a32}*{box-sizing:border-box}
+body{margin:0}.a05-world-gallery{max-width:1100px;margin:0 auto;padding:16px}
+.a05-world-gallery h1{font-size:20px;margin:0 0 6px}
+.a05-world-gallery p{font-size:12px;line-height:1.5;color:#526873}
+.a05-world-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}
+.a05-world-controls select,.a05-world-controls button{min-height:44px;max-width:100%;padding:8px 12px;border-radius:8px;background:#fff;border:1px solid #94aeb8;font:inherit;font-size:13px}
+.a05-world-controls button{background:#087c6d;color:#fff;border-color:#087c6d}
+.a05-world-slot{max-width:830px;width:100%;margin:0 auto;overflow:hidden;min-height:210px;background:#102333}
+.a05-world-slot>.a05-visual{margin:0!important;width:100%!important;max-width:100%!important}
+.a05-world-slot>.a05-visual>svg{display:block;width:100%;max-width:100%;height:auto;max-height:360px}
+.a05-world-slot .a05-readouts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-width:100%;font-size:11px}
+.a05-world-slot .a05-plot{display:none}
+@media(max-width:390px){.a05-world-gallery{padding:8px}.a05-world-slot> .a05-visual>svg{max-height:200px}
+.a05-world-controls label{flex:0 0 100%}}
+@media(max-width:350px){.a05-world-slot>.a05-visual>svg{max-height:174px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
