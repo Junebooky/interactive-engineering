@@ -10,7 +10,7 @@ export const A05_CONCEPT_VISUAL_IDS = [
 ] as const;
 export type A05ConceptVisualId = typeof A05_CONCEPT_VISUAL_IDS[number];
 export interface A05ConceptStructureProps {
- visualId:A05ConceptVisualId;
+ visualId:string;
  /** A02 may pass existing registry text; safe diagram never renders dynamic story spoilers. */
  title?:string;subtitle?:string;caption?:string;
 }
@@ -67,7 +67,8 @@ function Gear({cx,cy,n=12,angle=0,r=54,tint='#58bdd2'}:{cx:number;cy:number;n?:n
 export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
  const uid=useId().replace(/:/g,'');
  const [zoomed,setZoomed]=useState(false);
- const meta=A05_CONCEPT_META[visualId];
+ const meta=(A05_CONCEPT_VISUAL_IDS as readonly string[]).includes(visualId)
+  ? A05_CONCEPT_META[visualId as A05ConceptVisualId] : undefined;
  // Fail visibly rather than misidentifying an unknown domain as a basic battery circuit.
  if(!meta)return <div role="status" className="a05-concept-unsupported">구조 시각화 매핑이 없습니다. 담당자 검수가 필요합니다.</div>;
  return <figure className="a05-concept-stage" data-testid="a05-concept-stage" data-visual-id={visualId} data-zoomed={zoomed}>
