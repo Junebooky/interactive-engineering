@@ -94,8 +94,8 @@ const initial=():ElectricityVisualState=>({
  mode:'charge',rOhms:1000,cMicroFarads:10,timeMs:0,rcInitialVoltageV:0,rcSegmentStartMs:0,
  powerVolts:5,loadMilliAmps:5,seconds:1
 });
-export interface ElectricityLabProps{onEvent?:(event:ElecEvent)=>void;onSpeech?:(id:ElecSceneId,speechText:string)=>void;}
-export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
+export interface ElectricityLabProps{onEvent?:(event:ElecEvent)=>void;onSpeech?:(id:ElecSceneId,speechText:string)=>void;embedded?:boolean;}
+export function ElectricitySceneLab({onEvent,onSpeech,embedded=false}:ElectricityLabProps){
  const [index,setIndex]=useState(0),sceneId=electricitySceneOrder[index],story=STORIES[sceneId];
  const [state,setState]=useState<ElectricityVisualState>(initial),[prediction,setPrediction]=useState<string|null>(null);
  const [seen,setSeen]=useState<string[]>([]),[answer,setAnswer]=useState<string|null>(null);
@@ -147,7 +147,7 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
  const control=(text:string,fn:()=>void,selected:boolean)=>(
   <button type="button" onClick={fn} aria-pressed={selected} className={selected?'selected':''}>{text}</button>
  );
- return <div className="a05-lab a05-electricity-lab" lang="ko">
+ return <div className={`a05-lab a05-electricity-lab${embedded?" a05-embedded":""}`} lang="ko">
   <header className="a05-head">
    <p className="a05-eyebrow">A05 · FOUNDATION LAB / 12</p>
    <h1>전압 → 저항 → RC → 전력: 첫 전기 실험</h1>
@@ -205,7 +205,7 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
     <ElectricitySceneVisual sceneId={sceneId} state={state} revealed={shown}/>
     {shown&&<div className="a05-experiment-dock" data-testid="electricity-experiment-dock" aria-label="실험 조작">
      <h3>실험 조작 <span>현재 장면의 물리 변수</span></h3>
-     <p className="a05-dock-instruction">{story.prompt}</p>
+     <details className="a05-dock-explanation"><summary>실험 방법 보기</summary><p className="a05-dock-instruction">{story.prompt}</p></details>
       {sceneId==='charge-voltage-current-arrows'&&<div className="a05-electricity-controls">
        <strong>전원</strong><div className="a05-control-buttons">
         {control('5 V',()=>change({...state,volts:5},'source 5V'),state.volts===5)}
@@ -213,9 +213,12 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
        <strong>회로 스위치</strong><div className="a05-control-buttons">
         {control('열림 (OPEN)',()=>circuit(false),!state.closed)}
         {control('닫힘 (CLOSED)',()=>circuit(true),state.closed)}</div>
-       <strong>흐름 방향 보기 (관찰 보조)</strong><div className="a05-control-buttons">
-        {control('관습전류',()=>direction('conventional'),state.direction==='conventional')}
-        {control('전자 이동',()=>direction('electron'),state.direction==='electron')}</div>
+       <details className="a05-dock-options"><summary>전류 방향 비교 · {state.direction==='conventional'?'관습전류':'전자 이동'}</summary>
+        <div className="a05-control-buttons">
+         {control('관습전류',()=>direction('conventional'),state.direction==='conventional')}
+         {control('전자 이동',()=>direction('electron'),state.direction==='electron')}
+        </div>
+       </details>
       </div>}
       {sceneId==='resistors-series-parallel-kcl'&&<div className="a05-control-buttons">
        {control('직렬 2kΩ',()=>topology('series'),state.topology==='series')}
@@ -250,8 +253,10 @@ export function ElectricitySceneLab({onEvent,onSpeech}:ElectricityLabProps){
        <p className="a05-note">이 화면에서 V와 I는 각각 설정해 볼 수 있는 가상 부하예요. 언제나 같은 고정 저항이라는 뜻은 아닙니다.</p>
       </div>}
     </div>}
-    <div className="a05-model-limit"><strong>공학 가정 및 단위</strong> {story.assumption}</div>
-    <div className="a05-source">A06 교육 PR #7 / 12 전기·RC 원고 · A05 오리지널 SVG · 실물 회로 측정 아님</div>
+    <details className="a05-scene-assumptions"><summary>공학 가정·단위 및 출처</summary>
+     <div className="a05-model-limit"><strong>공학 가정 및 단위</strong> {story.assumption}</div>
+     <div className="a05-source">A06 교육 PR #7 / 12 전기·RC 원고 · A05 오리지널 SVG · 실물 회로 측정 아님</div>
+    </details>
    </section>
   </main>
  </div>;
