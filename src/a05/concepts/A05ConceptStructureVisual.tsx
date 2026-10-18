@@ -84,7 +84,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
    <text x="24" y="35" fontSize="16" fontWeight="800" fill="#f1fcfd">{meta.title}</text>
    <text x="24" y="341" fontSize="11" fill="#c5dfe5">개념 구조 도해 · 실험값·정답 아님</text>
 
-   {visualId==='circuit-intro'&&<g>
+   {visualId==='circuit-intro'&&<g data-scene-subject="circuit-intro" data-scene-id="circuit-intro">
     <Plate x={55} y={131} w={110} h={100} label="DC 전원" accent="#f1c577" fill="#574735"/>
     <Note x={110} y={122} color="#f1c577">+ 단자</Note><Note x={110} y={264}>− 단자</Note>
     <Wire d="M110 130V93H262" />
@@ -95,7 +95,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Note x={302} y={299}>회로 요소의 위치 관계</Note>
    </g>}
 
-   {visualId==='ohms-intro'&&<g>
+   {visualId==='ohms-intro'&&<g data-scene-subject="ohms-intro" data-scene-id="ohms-intro">
     <Plate x={60} y={136} w={104} h={96} label="전원" accent="#f1c577"/>
     <Wire d="M112 136V91H213"/><Wire d="M274 91H501V150"/><Wire d="M501 214V283H112V232"/>
     <Plate x={213} y={67} w={61} h={48} label="A" accent="#75c9e0"/>
@@ -107,7 +107,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Note x={308} y={301}>측정 단자의 상대적 위치만 설명</Note>
    </g>}
 
-   {visualId==='pn-intro'&&<g>
+   {visualId==='pn-intro'&&<g data-scene-subject="pn-intro" data-scene-id="pn-intro">
     <Plate x={69} y={130} w={233} h={140} label="P형 영역" accent="#75bfe5"/>
     <Plate x={312} y={130} w={233} h={140} label="N형 영역" accent="#79e2c7"/>
     <rect x="273" y="130" width="70" height="140" fill="#8c8c62" fillOpacity=".35" stroke="#f1c577" strokeDasharray="4 5" strokeWidth="2"/>
@@ -120,7 +120,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Note x={307} y={296}>P측 음의 억셉터 · N측 양의 도너 고정 이온</Note>
    </g>}
 
-   {visualId==='mos-cap-intro'&&<g>
+   {visualId==='mos-cap-intro'&&<g data-scene-subject="mos-cap-intro" data-scene-id="mos-cap-intro">
     <Plate x={146} y={92} w={355} h={49} label="게이트 전극" accent="#b9cfe0" fill="#526575"/>
     <Plate x={146} y={145} w={355} h={26} label="절연 산화막" accent="#f1c577" fill="#765636" small/>
     <Plate x={146} y={175} w={355} h={124} label="실리콘 기판" accent="#77bad9"/>
@@ -128,7 +128,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Note x={78} y={235}>반도체</Note><Note x={319} y={312}>게이트–기판 사이에 직류 도전 경로 없음(이상적 절연)</Note>
    </g>}
 
-   {visualId==='mosfet-intro'&&<g>
+   {visualId==='mosfet-intro'&&<g data-scene-subject="mosfet-intro" data-scene-id="mosfet-intro">
     <Plate x={200} y={83} w={237} h={43} label="게이트" accent="#d8e1eb" fill="#536879"/>
     <Plate x={200} y={130} w={237} h={22} label="절연 산화막" accent="#f1c577" fill="#715036" small/>
     <Plate x={73} y={156} w={490} h={140} label="P형 바디 / 실리콘" accent="#7cb6d6"/>
@@ -140,7 +140,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Note x={318} y={313}>게이트는 산화막으로 실리콘과 분리됨</Note>
    </g>}
 
-   {visualId==='dram-intro'&&<g>
+   {visualId==='dram-intro'&&<g data-scene-subject="dram-intro" data-scene-id="dram-intro">
     <Wire d="M82 110H248" kind="quiet"/><Note x={166} y={95}>비트라인 (BL)</Note>
     <Wire d="M248 110V159"/><Plate x={211} y={160} w={75} h={53} label="1T" accent="#7dded4"/>
     <Wire d="M286 186H381"/>
@@ -155,7 +155,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Note x={313} y={294}>1T 스위치와 1C는 직렬로 데이터 경로에 접속</Note>
    </g>}
 
-   {visualId==='sram-intro'&&<g>
+   {visualId==='sram-intro'&&<g data-scene-subject="sram-intro" data-scene-id="sram-intro">
     <Plate x={161} y={126} w={124} h={67} label="NOT A" accent="#67c6e1"/>
     <Plate x={369} y={126} w={124} h={67} label="NOT B" accent="#67c6e1"/>
     <Wire d="M285 146H316V99H348V146H369" kind="select"/>
@@ -167,11 +167,16 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Wire d="M133 157H161"/><Wire d="M493 157H522"/>
     <Wire d="M98 126V92H557V126" kind="select"/>
     <Note x={320} y={79} color="#f1c577">공통 WL (접근 트랜지스터 게이트)</Note>
-    <Note x={95} y={224}>BL</Note><Note x={555} y={224}>BL̅</Note>
+    {/* Actual external BL / complementary BL̅ terminals terminate on the OUTER
+         contacts of the two access FETs; the common WL above only touches gates. */}
+    <Wire d="M38 159H63" /><Wire d="M597 159H620" />
+    <Wire d="M38 106V159" kind="quiet"/><Wire d="M620 106V159" kind="quiet"/>
+    <Note x={38} y={98} anchor="middle" color="#87d8e1">BL</Note>
+    <Note x={606} y={98} anchor="middle" color="#87d8e1">BL̅</Note>
     <Note x={325} y={297}>4T 래치 + 2T 접근 = 6T (개념 수준)</Note>
    </g>}
 
-   {visualId==='nand-intro'&&<g>
+   {visualId==='nand-intro'&&<g data-scene-subject="nand-intro" data-scene-id="nand-intro">
     <rect x="188" y="85" width="80" height="221" rx="18" fill="#176457" stroke="#80e4d1" strokeWidth="3"/>
     <Note x={228} y={77}>수직 채널 홀</Note>
     {[113,159,205,251].map((y,i)=><g key={i}>
@@ -185,7 +190,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Note x={447} y={304}>게이트 / 절연막 / 트랩층 반복</Note>
    </g>}
 
-   {visualId==='gpu-intro'&&<g>
+   {visualId==='gpu-intro'&&<g data-scene-subject="gpu-intro" data-scene-id="gpu-intro">
     <Plate x={61} y={117} w={220} h={155} label="GPU 연산 클러스터" accent="#73cbe4"/>
     {[0,1,2].map(i=>[0,1,2,3].map(j=><rect key={i+'-'+j} x={92+j*43} y={171+i*24} width="33" height="15" rx="3" fill="#2a8b7c" stroke="#7de4d1"/>))}
     <Plate x={309} y={143} w={84} h={103} label="제어기" accent="#f1c577" small/>
@@ -195,7 +200,7 @@ export function A05ConceptStructureVisual({visualId}:A05ConceptStructureProps){
     <Note x={324} y={293}>GPU ↔ 컨트롤러 ↔ 메모리 경로의 개념 배치</Note>
    </g>}
 
-   {visualId==='gears-intro'&&<g>
+   {visualId==='gears-intro'&&<g data-scene-subject="gears-intro" data-scene-id="gears-intro">
     <Gear cx={238} cy={190} n={12} r={58} tint="#7ac5e7"/>
     <Gear cx={355} cy={190} n={12} angle={Math.PI/12} r={58} tint="#7be4cb"/>
     <circle cx={296.5} cy={190} r="5" fill="#f1c577"/>
