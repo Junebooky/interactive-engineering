@@ -826,8 +826,9 @@
   }
   .a03-lab {
     flex: 0 0 auto;
-    height: calc(100dvh * 0.49);
+    height: calc(100dvh * 0.44);
     min-height: 0;
+    position: relative;
     border-radius: 0;
     box-shadow: none;
   }
@@ -847,9 +848,9 @@
     font-size: 10px;
   }
   .a03-lab-bottom {
-    left: 18px;
-    right: 18px;
-    bottom: 20px;
+    left: 16px;
+    right: 16px;
+    bottom: 8px;
   }
   .a03-lab-context {
     display: none;
@@ -860,12 +861,14 @@
   .a03-tool {
     width: 44px;
     height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     border-radius: 10px;
     font-size: 14px;
   }
   .a03-model-bubble {
     right: 14px;
-    bottom: 68px;
+    bottom: 58px;
     max-width: 240px;
   }
   .a03-v2-label {
@@ -880,14 +883,14 @@
     max-width: 146px;
     padding: 6px 10px;
   }
-  /* Mobile Bottom Sheet */
+  /* Mobile Bottom Sheet (Zero geometric overlap with lab) */
   .a03-sheet {
     flex: 1;
     min-height: 0;
     border-radius: 23px 23px 0 0;
-    box-shadow: 0 -10px 24px rgba(4, 27, 39, 0.2);
+    box-shadow: 0 -8px 20px rgba(4, 27, 39, 0.18);
     z-index: 4;
-    margin-top: -8px;
+    margin-top: 0;
   }
   .a03-drag-handle {
     display: block;
@@ -1056,7 +1059,7 @@
   }
   .a03-seg button {
     min-width: 48px;
-    min-height: 42px;
+    min-height: 44px;
     font-size: 11px;
     padding: 0 6px;
   }
@@ -1116,9 +1119,11 @@
     display: none;
   }
   .a03-tool {
-    width: 38px;
-    height: 38px;
-    font-size: 13px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 14px;
     border-radius: 8px;
   }
   .a03-prompt h2 {
@@ -1126,7 +1131,7 @@
   }
   .a03-choice {
     font-size: 11px;
-    min-height: 42px;
+    min-height: 44px;
     padding: 7px 10px;
   }
   .a03-drag-handle {
@@ -1148,6 +1153,25 @@
   .a03-drag-handle {
     margin-top: 7px;
   }
+}
+
+/* Concept Intro Visual Styling */
+.a03-concept-visual {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 6px;
+}
+
+.a03-concept-svg {
+  width: 100%;
+  max-width: 780px;
+  max-height: 100%;
+  aspect-ratio: 780 / 420;
+  display: block;
 }
 
 @media (prefers-reduced-motion: reduce) {

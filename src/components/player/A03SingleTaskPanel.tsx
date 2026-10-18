@@ -533,7 +533,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
           </button>
         )}
 
-        {currentPhase === 'observe' && (
+        {step.stepType !== 'CONCEPT' && currentPhase === 'observe' && (
           <button
             type="button"
             className="a03-main-action"
@@ -546,7 +546,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
           </button>
         )}
 
-        {currentPhase === 'check' && (
+        {step.stepType !== 'CONCEPT' && currentPhase === 'check' && (
           <button
             type="button"
             className="a03-main-action"
@@ -557,7 +557,7 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
           </button>
         )}
 
-        {currentPhase === 'done' && (
+        {step.stepType !== 'CONCEPT' && currentPhase === 'done' && (
           <button
             type="button"
             className="a03-main-action"
