@@ -161,3 +161,114 @@
 @media (max-width: 550px) {
   .a05-mosfet-dock { padding: 12px 8px; }
 }
+
+/* A03 V3 scene-level mobile review: compact lab, not the A02 official sheet/FSM. */
+.a05-mosfet-v3{
+ --ie-app-bg:#F5F7F7;--ie-surface:#FFFFFF;--ie-lab-bg:#102333;
+ --ie-text-primary:#152431;--ie-text-muted:#65757C;--ie-primary:#087C6D;
+ --ie-accent-teal:#7CE7D5;--ie-accent-amber:#F3C36C;
+ --ie-border-muted:#E6EBEB;--ie-lab-ground:#193244;
+ --a05-mint:var(--ie-primary);--a05-text:var(--ie-text-primary);
+ --a05-muted:var(--ie-text-muted);--a05-border:var(--ie-border-muted);
+ background:var(--ie-app-bg);color:var(--ie-text-primary)
+}
+.a05-mosfet-v3 .a05-head h1,.a05-mosfet-v3 .a05-copy h2,
+.a05-mosfet-v3 .a05-question{color:var(--ie-text-primary)}
+.a05-mosfet-v3 .a05-eyebrow{color:var(--ie-primary)}
+.a05-mosfet-v3 .a05-hook{color:var(--ie-text-muted)}
+.a05-mosfet-v3 .a05-stepnav button{background:var(--ie-surface);color:var(--ie-text-primary);border-color:var(--ie-border-muted)}
+.a05-mosfet-v3 .a05-stepnav button.active{background:var(--ie-primary);color:white;border-color:var(--ie-primary)}
+.a05-mosfet-v3 .a05-box,.a05-mosfet-v3 .a05-result,.a05-mosfet-v3 .a05-hint,.a05-mosfet-v3 .a05-why{
+ background:var(--ie-surface);border-color:var(--ie-border-muted);box-shadow:0 4px 16px #1023330c;
+ color:var(--ie-text-primary)
+}
+.a05-mosfet-v3 .a05-box p,.a05-mosfet-v3 .a05-result p,.a05-mosfet-v3 .a05-why p{color:var(--ie-text-primary)}
+.a05-mosfet-v3 .a05-copy .a05-choice-set button,.a05-mosfet-v3 .a05-tools button,
+.a05-mosfet-v3 .a05-result button{
+ background:#F2F4F6;color:var(--ie-text-primary);border-color:var(--ie-border-muted)
+}
+.a05-mosfet-v3 .a05-choice-set button.selected,.a05-mosfet-v3 .a05-truth-row button.selected{
+ border-color:var(--ie-primary);background:#E4F3EF;color:var(--ie-text-primary)
+}
+.a05-mosfet-v3 .a05-primary{background:var(--ie-primary);color:white}
+.a05-mosfet-v3 .a05-canvas-col{
+ background:var(--ie-lab-bg);color:#F1FCFD;border-color:#668E9F;box-shadow:0 10px 30px #10233320
+}
+.a05-mosfet-v3 .a05-canvas-header{color:var(--ie-accent-teal)}
+.a05-mosfet-v3 .a05-visual{background:var(--ie-lab-bg);border-color:#668E9F}
+.a05-mosfet-v3 .a05-readouts span{background:var(--ie-lab-ground);color:#C6E1E6;border-color:#668E9F}
+.a05-mosfet-v3 .a05-readouts b{color:#F1FCFD}
+.a05-mosfet-v3 .a05-scene-slot{position:relative;width:100%;min-width:0;max-width:100%;overflow:visible}
+.a05-mosfet-v3 .a05-scene-slot svg{display:block;width:100%;height:auto}
+.a05-mosfet-v3 .a05-mobile-extra{display:none}
+.a05-mosfet-v3 .a05-mosfet-dock{background:var(--ie-lab-bg);border-color:#668E9F}
+.a05-mosfet-v3 .a05-mosfet-dock h3{color:#F1FCFD}
+.a05-mosfet-v3 .a05-mosfet-dock .a05-control-buttons button{
+ border:1px solid #668E9F;background:var(--ie-lab-ground);color:#F1FCFD
+}
+.a05-mosfet-v3 .a05-mosfet-dock .a05-control-buttons button[aria-pressed=true]{
+ background:var(--ie-primary);border-color:var(--ie-accent-teal);color:white
+}
+.a05-mosfet-v3 .a05-mosfet-dock label{color:#F1FCFD}
+.a05-mosfet-v3 .a05-mosfet-dock input[type=range]{height:44px;margin:0;accent-color:var(--ie-primary)}
+.a05-mosfet-v3 .a05-mosfet-instructions,.a05-mosfet-v3 .a05-scene-assumptions,
+.a05-mosfet-v3 .a05-plot-disclosure{font-size:.83rem;color:#C6E1E6;min-width:0}
+.a05-mosfet-v3 .a05-mosfet-instructions summary,.a05-mosfet-v3 .a05-scene-assumptions summary,
+.a05-mosfet-v3 .a05-mobile-extra summary,.a05-mosfet-v3 .a05-plot-disclosure summary{
+ display:list-item;cursor:pointer;min-height:44px;align-content:center;padding:8px;border-radius:8px;overflow-wrap:anywhere
+}
+.a05-mosfet-v3 .a05-scene-assumptions{margin:3px 5px}
+.a05-mosfet-v3 .a05-model-limit,.a05-mosfet-v3 .a05-source{color:#C6E1E6}
+.a05-mosfet-v3 .a05-model-limit strong{color:var(--ie-accent-teal)}
+.a05-mosfet-v3 .a05-mosfet-a11y-help{display:block;font-size:.76rem;color:#C6E1E6;margin:5px 0}
+.a05-mosfet-v3 .a05-veiled{background:var(--ie-lab-bg);color:#C6E1E6;border-color:#668E9F}
+.a05-mosfet-v3.a05-embedded{padding:0;min-height:0;background:transparent}
+.a05-mosfet-v3.a05-embedded>.a05-head{display:none}
+.a05-mosfet-v3.a05-embedded .a05-stage{max-width:none}
+.a05-mosfet-v3 .a05-hint p{color:var(--ie-text-primary)}
+.a05-mosfet-v3 .a05-result strong,.a05-mosfet-v3 .a05-next{color:var(--ie-primary)!important}
+.a05-mosfet-v3 button:focus-visible,.a05-mosfet-v3 input:focus-visible,
+.a05-mosfet-v3 summary:focus-visible{outline:3px solid var(--ie-accent-amber);outline-offset:3px}
+@media(max-width:600px){
+ .a05-mosfet-v3{padding:8px;min-height:0}
+ .a05-mosfet-v3 .a05-head{margin-bottom:7px}
+ .a05-mosfet-v3 .a05-head h1{font-size:1.03rem;line-height:1.24;margin:3px 0}
+ .a05-mosfet-v3 .a05-head>p:not(.a05-eyebrow){display:none}
+ .a05-mosfet-v3 .a05-stepnav{margin-top:5px;gap:6px}
+ .a05-mosfet-v3 .a05-stepnav button{width:44px;height:44px}
+ .a05-mosfet-v3 .a05-stage{gap:7px}
+ .a05-mosfet-v3 .a05-canvas-col{padding:6px;border-radius:13px}
+ .a05-mosfet-v3 .a05-canvas-header{padding:0 3px 4px;gap:3px;font-size:.63rem;letter-spacing:0}
+ .a05-mosfet-v3 .a05-visual{padding:0;border:0}
+ .a05-mosfet-v3 .a05-readouts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:3px 0}
+ .a05-mosfet-v3 .a05-readouts span{font-size:.7rem;padding:4px;gap:2px;min-height:42px;overflow-wrap:anywhere}
+ .a05-mosfet-v3 .a05-readouts b{font-size:.79rem}
+ .a05-mosfet-v3 .a05-readouts>span:nth-child(n+3){display:none}
+ .a05-mosfet-v3 .a05-mobile-extra{display:block;color:#C6E1E6}
+ .a05-mosfet-v3 .a05-mobile-extra summary,.a05-mosfet-v3 .a05-plot-disclosure summary{font-size:.75rem;min-height:35px;padding:5px}
+ .a05-mosfet-v3 .a05-extra-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+ .a05-mosfet-v3 .a05-extra-grid span{display:grid;gap:3px;padding:7px;background:var(--ie-lab-ground);border:1px solid #668E9F;border-radius:8px;overflow-wrap:anywhere}
+ .a05-mosfet-v3 .a05-mosfet-dock{padding:5px 0 0;margin:2px 0 0;border:0;border-top:1px solid #668E9F;border-radius:0}
+ .a05-mosfet-v3 .a05-mosfet-dock h3{font-size:.85rem;margin:0 0 2px}
+ .a05-mosfet-v3 .a05-mosfet-instructions summary{min-height:30px;padding:4px;font-size:.75rem}
+ .a05-mosfet-v3 .a05-mosfet-dock label{font-size:.81rem;margin:3px 0}
+ .a05-mosfet-v3 .a05-mosfet-dock .a05-control-buttons{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ .a05-mosfet-v3 .a05-mosfet-dock .a05-control-buttons button{min-height:44px;min-width:0;padding:6px 4px;font-size:.77rem}
+ .a05-mosfet-v3 .a05-mosfet-a11y-help{font-size:.73rem;margin:2px 0}
+ .a05-mosfet-v3 .a05-copy{gap:7px}
+ .a05-mosfet-v3 .a05-copy h2{font-size:1rem;line-height:1.34}
+ .a05-mosfet-v3 .a05-hook{display:none}
+ .a05-mosfet-v3 .a05-question{font-size:.85rem;line-height:1.42}
+ .a05-mosfet-v3 .a05-box{padding:9px;border-radius:12px}
+ .a05-mosfet-v3 .a05-box p{font-size:.8rem;line-height:1.4;margin:4px 0 8px}
+ .a05-mosfet-v3 .a05-copy .a05-choice-set{gap:5px}
+ .a05-mosfet-v3 .a05-copy .a05-choice-set button{padding:7px 9px;font-size:.8rem}
+ .a05-mosfet-v3 .a05-tools button{font-size:.78rem;padding:7px 5px}
+ .a05-mosfet-v3 .a05-veiled{min-height:145px;padding:10px}
+ .a05-mosfet-v3 .a05-veiled-object{width:90px;height:62px;margin-bottom:10px}
+}
+@media(max-width:350px){
+ .a05-mosfet-v3 .a05-head h1{font-size:.96rem}
+ .a05-mosfet-v3 .a05-canvas-col{padding:4px}
+ .a05-mosfet-v3 .a05-mosfet-dock .a05-control-buttons button{padding:6px 2px;font-size:.75rem}
+}
