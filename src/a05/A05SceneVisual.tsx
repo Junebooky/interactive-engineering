@@ -49,7 +49,7 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
 
   return (
     <div className="a05-visual">
-      <svg viewBox="0 0 630 370" role="img" aria-label="nMOS의 절연막, 기판, 소스 드레인 및 표면 반전 채널을 깊이감 있는 단면으로 표현">
+      <div className="a05-scene-slot" data-testid="a08-mosfet-scene-slot"><svg viewBox="0 0 630 370" role="img" aria-label="nMOS의 절연막, 기판, 소스 드레인 및 표면 반전 채널을 깊이감 있는 단면으로 표현">
         <defs>
           <linearGradient id={waferGradient} x1="0" y1="0" x2="1" y2="1">
             <stop stopColor="#4b7c91" /><stop offset=".55" stopColor="#224a63" /><stop offset="1" stopColor="#102e4a" />
@@ -98,14 +98,17 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
           <SvgLabel x={201} y={311} color={GOLD} size={12}>관습 전류: DRAIN → SOURCE</SvgLabel>
         </>}
         <SvgLabel x={94} y={344} color="#aec4d8" size={12}>교육용 장채널 nMOS · Vth=0.7V 가정 · 비례·단면 축척 아님</SvgLabel>
-      </svg>
+      </svg></div>
       <div className="a05-readouts" aria-live="polite">
         <span>VGS <b>{values.vgs.toFixed(1)} V</b></span>
+        <span>{showCurrent?'드레인 전류 ID':'반전 채널'} <b>{showCurrent?s.id.toFixed(2)+' mA':s.channelThickness > 0 ? '가시화 (문턱 초과)' : values.vgs >= 0.7 ? '경계 (두께 0)' : '미가시화 (문턱 미만)'}</b></span>
         <span>VDS <b>{values.vds.toFixed(1)} V</b></span>
-        <span>반전 채널 <b>{s.channelThickness > 0 ? '가시화 (문턱 초과)' : values.vgs >= 0.7 ? '경계 (두께 0)' : '미가시화 (문턱 미만)'}</b></span>
-        <span>모델 ID <b>{s.id.toFixed(2)} mA</b></span>
+        <span>{showCurrent?'반전 채널':'모델 ID'} <b>{showCurrent?s.channelThickness>0?'형성':'미형성':s.id.toFixed(2)+' mA'}</b></span>
       </div>
-      {showCurrent && <div className="a05-plot">
+      <details className="a05-mobile-extra" data-testid="a08-mosfet-more"><summary>추가 측정값·채널 정보</summary>
+       <div className="a05-extra-grid"><span>VDS <b>{values.vds.toFixed(1)} V</b></span><span>{showCurrent?'반전 채널':'모델 ID'} <b>{showCurrent?s.channelThickness>0?'형성':'미형성':s.id.toFixed(2)+' mA'}</b></span></div>
+      </details>
+      {showCurrent && <details className="a05-plot-disclosure"><summary>전류 곡선 자세히 보기</summary><div className="a05-plot">
         <svg viewBox="0 0 590 140" role="img" aria-label="VDS 0부터 2볼트까지 드레인 전류의 증가 및 포화 경향">
           <path d="M70 15 V98 H542" stroke="#7390ad" strokeWidth="1.5" fill="none"/>
           <path d="M70 58 H542" stroke="#7390ad" strokeDasharray="4 5" opacity=".35"/>
@@ -118,7 +121,7 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
           <SvgLabel x={535} y={114} size={12}>2</SvgLabel>
           <SvgLabel x={95} y={50} size={12} color={MINT}>포화 이후에도 ID는 0이 아님</SvgLabel>
         </svg>
-      </div>}
+      </div></details>}
     </div>
   );
 }
@@ -126,7 +129,7 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
 function ResistorInverter({ vin }: { vin: number }) {
   const s = resistorInverterObservation(vin);
   return <div className="a05-visual">
-    <svg viewBox="0 0 630 370" role="img" aria-label="5볼트 전원, 10킬로옴 풀업 저항과 nMOS 풀다운으로 이루어진 저항형 NOT 회로">
+    <div className="a05-scene-slot" data-testid="a08-mosfet-scene-slot"><svg viewBox="0 0 630 370" role="img" aria-label="5볼트 전원, 10킬로옴 풀업 저항과 nMOS 풀다운으로 이루어진 저항형 NOT 회로">
       <CircuitSurface>
         <path d="M320 75 V106 M320 163 V209 M320 209 H455 M320 209 V252 M320 291 V304"
           fill="none" stroke="#b1d1da" strokeWidth="5" strokeLinecap="round" />
@@ -153,20 +156,21 @@ function ResistorInverter({ vin }: { vin: number }) {
         {s.currentMa > 0 && <path d="M319 167 V199" stroke={MINT} strokeWidth="5" strokeDasharray="6 6" className="a05-current-line"/>}
         <SvgLabel x={94} y={343} color="#b6c7d8" size={12}>ON이어도 완전 단락 아님 · 유한한 Ron/저항분배 모델</SvgLabel>
       </CircuitSurface>
-    </svg>
+    </svg></div>
     <div className="a05-readouts" aria-live="polite">
       <span>입력 <b>{s.inputLogic} ({vin.toFixed(0)}V)</b></span>
-      <span>nMOS <b>{s.isTransistorOn ? 'ON' : 'OFF'}</b></span>
       <span>VOUT <b>{s.vout.toFixed(2)} V</b></span>
+      <span>nMOS <b>{s.isTransistorOn ? 'ON' : 'OFF'}</b></span>
       <span>출력 논리 <b>{s.outputLogic} ({s.outputLogic ? 'HIGH' : 'LOW'})</b></span>
     </div>
+    <details className="a05-mobile-extra"><summary>nMOS·출력 논리 상세</summary><div className="a05-extra-grid"><span>nMOS <b>{s.isTransistorOn ? 'ON' : 'OFF'}</b></span><span>출력 논리 <b>{s.outputLogic} ({s.outputLogic ? 'HIGH' : 'LOW'})</b></span></div></details>
   </div>;
 }
 
 function CMOSInverter({ vin }: { vin: LogicBit }) {
   const s = cmosObservation(vin);
   return <div className="a05-visual">
-    <svg viewBox="0 0 630 370" role="img" aria-label="상단 pMOS와 하단 nMOS가 입력 전압에 따라 상보적으로 열리는 CMOS 인버터">
+    <div className="a05-scene-slot" data-testid="a08-mosfet-scene-slot"><svg viewBox="0 0 630 370" role="img" aria-label="상단 pMOS와 하단 nMOS가 입력 전압에 따라 상보적으로 열리는 CMOS 인버터">
       <CircuitSurface>
         <SvgLabel x={96} y={75} color="#e4f3fd" size={18}>CMOS NOT · 상보적인 두 스위치</SvgLabel>
         <path d="M322 89 V128 M322 160 V207 M322 207 H452 M322 207 V247 M322 279 V302"
@@ -190,13 +194,14 @@ function CMOSInverter({ vin }: { vin: LogicBit }) {
         <SvgLabel x={357} y={269} color={s.nmosOn ? MINT : '#b9c8d2'} size={13}>nMOS {s.nmosOn ? 'ON' : 'OFF'}</SvgLabel>
         <SvgLabel x={96} y={343} size={12} color="#bbccdb">정지 상태의 관통 경로 억제 · 실제 누설/스위칭 전력은 존재</SvgLabel>
       </CircuitSurface>
-    </svg>
+    </svg></div>
     <div className="a05-readouts" aria-live="polite">
       <span>입력 <b>{vin} ({vin ? 5 : 0} V)</b></span>
+      <span>출력 <b>{s.output} ({s.vout} V)</b></span>
       <span>pMOS <b>{s.pmosOn ? 'ON' : 'OFF'}</b></span>
       <span>nMOS <b>{s.nmosOn ? 'ON' : 'OFF'}</b></span>
-      <span>출력 <b>{s.output} ({s.vout} V)</b></span>
     </div>
+    <details className="a05-mobile-extra"><summary>pMOS·nMOS 상태 자세히</summary><div className="a05-extra-grid"><span>pMOS <b>{s.pmosOn ? 'ON' : 'OFF'}</b></span><span>nMOS <b>{s.nmosOn ? 'ON' : 'OFF'}</b></span></div></details>
   </div>;
 }
 
