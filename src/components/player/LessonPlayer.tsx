@@ -559,8 +559,8 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
                   <button
                     id="open-switch"
                     type="button"
-                    aria-pressed={!currentParams.closed}
-                    className={!currentParams.closed ? 'active' : ''}
+                    aria-pressed={currentParams.closed === false}
+                    className={currentParams.closed === false ? 'active' : ''}
                     onClick={() => updateParam('closed', false)}
                   >
                     열림
@@ -568,8 +568,8 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
                   <button
                     id="close-switch"
                     type="button"
-                    aria-pressed={Boolean(currentParams.closed)}
-                    className={currentParams.closed ? 'active' : ''}
+                    aria-pressed={currentParams.closed === true}
+                    className={currentParams.closed === true ? 'active' : ''}
                     onClick={() => updateParam('closed', true)}
                   >
                     닫힘
@@ -579,8 +579,8 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({ onOpenCatalog }) => 
 
               <div id="readouts" className="a03-readouts" aria-live="polite">
                 <span>전원 전압 <b>5 V</b></span>
-                <span>전류 <b id="amp">{currentParams.closed ? '5 mA' : '0 mA'}</b></span>
-                <span id="switch-readout">{currentParams.closed ? '스위치 닫힘' : '스위치 열림'}</span>
+                <span>전류 <b id="amp">{currentParams.closed === undefined ? '관찰 전' : currentParams.closed ? '5 mA' : '0 mA'}</b></span>
+                <span id="switch-readout">{currentParams.closed === undefined ? '관찰 전' : currentParams.closed ? '스위치 닫힘' : '스위치 열림'}</span>
 
                 <div className="a03-dir-group" role="group" aria-label="전류 화살표 기준">
                   <button

@@ -332,7 +332,9 @@ export const A03SingleTaskPanel: React.FC<A03SingleTaskPanelProps> = ({
             {/* Dynamic observation prompt text */}
             <div className="a03-observe-note" role="status" aria-live="polite">
               {isElecStep1 ? (
-                currentParams.closed ? (
+                currentParams.closed === undefined ? (
+                  '스위치 조작 버튼을 눌러 회로를 열거나 닫아보세요.'
+                ) : currentParams.closed ? (
                   '스위치가 닫혀 회로에 5mA가 흐르고 있어요.'
                 ) : (
                   '회로가 열리면 전류가 멈춰요. 하지만 배터리의 5V는 그대로 남아 있어요.'
