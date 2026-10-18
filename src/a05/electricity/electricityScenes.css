@@ -127,3 +127,66 @@
 @media(prefers-reduced-motion:reduce){
  .a05-electricity-lab *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* A08 / A03 V3 mobile scene review: this is Scene-only, never an A02 bottom-sheet implementation. */
+.a05-electricity-lab.a05-embedded{padding:0;min-height:0;background:transparent}
+.a05-electricity-lab.a05-embedded>.a05-head{display:none}
+.a05-electricity-lab.a05-embedded .a05-stage{max-width:none}
+.a05-electricity-lab .a05-mobile-extra{display:none}
+.a05-electricity-lab .a05-scene-slot{min-width:0;max-width:100%;position:relative;overflow:visible}
+.a05-electricity-lab .a05-scene-slot svg{width:100%;height:auto;display:block}
+.a05-electricity-lab .a05-dock-options,.a05-electricity-lab .a05-dock-explanation,
+.a05-electricity-lab .a05-scene-assumptions{min-width:0;font-size:.82rem;color:var(--ie-scene-muted)}
+.a05-electricity-lab .a05-dock-explanation p{margin:5px 0 0}
+.a05-electricity-lab .a05-dock-options summary,.a05-electricity-lab .a05-dock-explanation summary,
+.a05-electricity-lab .a05-scene-assumptions summary,.a05-electricity-lab .a05-mobile-extra summary{
+  display:list-item;cursor:pointer;min-height:44px;align-content:center;
+  padding:9px 8px;border-radius:8px;overflow-wrap:anywhere
+}
+.a05-electricity-lab .a05-dock-options .a05-control-buttons{margin:5px 0}
+.a05-electricity-lab .a05-scene-assumptions{margin:3px 5px}
+.a05-electricity-lab .a05-scene-assumptions summary{color:var(--ie-scene-muted)}
+@media(max-width:600px){
+ .a05-electricity-lab{padding:8px;min-height:0}
+ .a05-electricity-lab .a05-head{margin-bottom:7px}
+ .a05-electricity-lab .a05-head h1{font-size:1.04rem;line-height:1.24;margin:3px 0}
+ .a05-electricity-lab .a05-head>p:not(.a05-eyebrow){display:none}
+ .a05-electricity-lab .a05-stepnav{margin-top:5px;gap:6px}
+ .a05-electricity-lab .a05-stepnav button{width:44px;min-height:44px}
+ .a05-electricity-lab .a05-stage{gap:7px}
+ .a05-electricity-lab .a05-canvas-col{padding:6px;border-radius:13px}
+ .a05-electricity-lab .a05-canvas-header{padding:0 3px 4px;gap:3px;font-size:.63rem;letter-spacing:0}
+ .a05-electricity-lab .a05-visual{min-width:0}
+ .a05-electricity-lab .a05-readouts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:3px 0}
+ .a05-electricity-lab .a05-readouts span{font-size:.72rem;gap:1px;padding:4px;min-height:42px}
+ .a05-electricity-lab .a05-readouts b{font-size:.82rem}
+ .a05-electricity-lab .a05-readouts>span:nth-child(n+3){display:none}
+ .a05-electricity-lab .a05-mobile-extra{display:block;color:var(--ie-scene-muted)}
+ .a05-electricity-lab .a05-mobile-extra summary{font-size:.75rem;min-height:36px;padding:5px}
+ .a05-electricity-lab .a05-extra-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+ .a05-electricity-lab .a05-extra-grid span{display:grid;gap:3px;padding:7px;background:var(--ie-lab-ground);border:1px solid var(--ie-material-edge);border-radius:8px;overflow-wrap:anywhere}
+ .a05-electricity-lab .a05-experiment-dock{padding:3px 0 0;margin:1px 0 0}
+ .a05-electricity-lab .a05-experiment-dock h3{font-size:.85rem;margin:0 0 3px}
+ .a05-electricity-lab .a05-experiment-dock h3>span{display:none}
+ .a05-electricity-lab .a05-electricity-controls{gap:4px}
+ .a05-electricity-lab .a05-electricity-controls strong{font-size:.75rem}
+ .a05-electricity-lab .a05-experiment-dock .a05-control-buttons{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ .a05-electricity-lab .a05-experiment-dock .a05-control-buttons button{font-size:.77rem;line-height:1.2;padding:6px 3px;overflow-wrap:anywhere;min-width:0}
+ .a05-electricity-lab .a05-dock-options summary,.a05-electricity-lab .a05-dock-explanation summary,.a05-electricity-lab .a05-scene-assumptions summary{font-size:.76rem}
+ .a05-electricity-lab .a05-copy{gap:7px}
+ .a05-electricity-lab .a05-copy h2{font-size:1rem;line-height:1.34}
+ .a05-electricity-lab .a05-copy>.a05-note,.a05-electricity-lab .a05-hook{display:none}
+ .a05-electricity-lab .a05-question{font-size:.85rem;line-height:1.42}
+ .a05-electricity-lab .a05-box{padding:9px;border-radius:12px}
+ .a05-electricity-lab .a05-box p{font-size:.8rem;line-height:1.4;margin:4px 0 8px}
+ .a05-electricity-lab .a05-copy .a05-choice-set{gap:5px}
+ .a05-electricity-lab .a05-copy .a05-choice-set button{padding:7px 9px;font-size:.8rem}
+ .a05-electricity-lab .a05-tools button{font-size:.78rem;padding:7px 5px}
+}
+@media(max-width:350px){
+ .a05-electricity-lab .a05-head h1{font-size:.96rem}
+ .a05-electricity-lab .a05-canvas-col{padding:4px}
+ .a05-electricity-lab .a05-experiment-dock .a05-control-buttons{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .a05-electricity-lab .a05-experiment-dock .a05-control-buttons button{padding:6px 2px;font-size:.73rem}
+ .a05-electricity-lab .a05-mobile-extra summary{font-size:.7rem}
+}
