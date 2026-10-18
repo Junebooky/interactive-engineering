@@ -24,6 +24,8 @@ jobs:
           npm run lint
           npm test
           npm run build
+      - name: Verify A02 existing official Chromium mobile, step, catalog and spoiler tests
+        run: node scripts/test-v3-catalog-and-lab.mjs
       - name: Record 54 real combined-branch A05 native SVG app frames
         run: node scripts/a08-semantic-combined-camera-audit.mjs
       - name: Upload 3 actual contact sheets, 54 app captures and semantic measurements
