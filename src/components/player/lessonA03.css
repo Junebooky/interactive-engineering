@@ -1226,6 +1226,9 @@
     flex-direction: column;
     gap: 3px;
   }
+  .a03-tool#zoom-out {
+    display: none;
+  }
   .a03-tool {
     width: 44px;
     height: 44px;
@@ -1292,7 +1295,7 @@
   }
   .a03-lab-dock-section {
     left: 8px;
-    right: 8px;
+    right: 54px;
     bottom: 8px;
     gap: 4px;
   }
