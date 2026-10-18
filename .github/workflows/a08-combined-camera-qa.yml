@@ -1,0 +1,38 @@
+name: A08 Combined Semantic Camera True-Geometry QA
+on:
+  push:
+    branches:
+      - test/a08-camera-combined-a02-80a132-a05-bounds
+  workflow_dispatch:
+jobs:
+  a08-combined-camera:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install real Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check A02 plus A05 snapshot source without modifying product model
+        run: |
+          npm run lint
+          npm test
+          npm run build
+      - name: Verify A02 existing official Chromium mobile, step, catalog and spoiler tests
+        run: node scripts/test-v3-catalog-and-lab.mjs
+      - name: Record 54 real combined-branch A05 native SVG app frames
+        run: node scripts/a08-semantic-combined-camera-audit.mjs
+      - name: Upload 3 actual contact sheets, 54 app captures and semantic measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a08-combined-camera-actual-svg-semantic-geometry
+          path: browser-evidence/a08-camera-combined/
+          retention-days: 14
+          if-no-files-found: warn

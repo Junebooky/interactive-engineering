@@ -30,7 +30,7 @@ import '../../a05/nand04/nand04.css';
 import '../../a05/a05Scenes.css';
 import { A03SingleTaskPanel, type FlowPhase } from './A03SingleTaskPanel';
 import { resolveStepVisual } from '../../engine/visualRegistry';
-import { ConceptIntroSceneVisual } from './ConceptIntroSceneVisual';
+import { A05ConceptStructureVisual as ConceptIntroSceneVisual } from '../../a05/concepts/A05ConceptStructureVisual';
 import { SceneViewport } from './SceneViewport';
 import './lessonA03.css';
 

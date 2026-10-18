@@ -22,6 +22,7 @@ export function Mos14SceneVisual({sceneId,state,revealed}:{
     <linearGradient id={'gate'+uid} x1="0" x2="1" y1="0" y2="1"><stop stopColor="#a4eaf6"/><stop offset="1" stopColor="#287695"/></linearGradient>
     <linearGradient id={'silicon'+uid} x1="0" x2="0" y1="0" y2="1"><stop stopColor="#2d6870"/><stop offset="1" stopColor="#0a283c"/></linearGradient>
    </defs>
+   <g data-scene-subject="mos14-device" data-scene-id={sceneId}>
    <path d="M70 170 L510 170 L565 207 L125 207 Z" fill="#aef3da" opacity=".28"/>
    <path d="M70 207 H510 L565 235 H125 Z" fill="#16394a" stroke="#8de9db"/>
    <rect x="80" y="221" width="450" height="149" rx="9" fill={'url(#silicon'+uid+')'} stroke="#6fbdba" strokeWidth="2"/>
@@ -64,6 +65,7 @@ export function Mos14SceneVisual({sceneId,state,revealed}:{
    <path d="M542 237 l8 12 l8 -12" fill="none" stroke="#d9eaff" strokeWidth="3"/>
    <CapLabel x={539} y={163} text="E field"/>
    {state.phase==='switching'&&<g><path d="M460 48 H550" stroke="#fff1bd" strokeWidth="3"/><path d="M540 41 l12 7 -12 7" fill="none" stroke="#fff1bd" strokeWidth="3"/><CapLabel x={462} y={85} text="charging"/></g>}
+   </g>
    <CapLabel x={85} y={394} text="이온(고정) ◉   정공(+) ●   전자(−) ●  |  전하 개수는 정성적 도식" color="#cde2dd"/>
   </svg>
   <div className="a05-readouts">
