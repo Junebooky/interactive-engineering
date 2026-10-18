@@ -1,0 +1,44 @@
+name: A08 GPU G03 Scene UX Real Chromium QA
+on:
+  push:
+    branches:
+      - fix/a08-gpu-single-task-dock
+  workflow_dispatch:
+jobs:
+  gpu-scene-ux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Lint, Vitest, TypeScript and Vite build
+        run: |
+          npm run lint
+          npm test
+          npm run build
+      - name: Prepare exact A05 GPU baseline worktree
+        run: |
+          git worktree add --detach /tmp/a08-gpu-before ef07a07747fbe32bb4bc86757fe28efb1116a6ee
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/a08-gpu-before/node_modules
+      - name: Actual before-after Chromium 1440, 390, 320 with screenshots
+        run: node scripts/a08-gpu-before-after.mjs /tmp/a08-gpu-before
+      - name: Original science and negative browser cases adapted to staged dock
+        run: node scripts/a05-gpu-browser.mjs
+      - name: Upload A08 before-after plus science QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a08-gpu-scene-before-after-browser
+          path: browser-evidence/g03/
+          retention-days: 14
+          if-no-files-found: warn

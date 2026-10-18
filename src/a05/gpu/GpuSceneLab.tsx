@@ -140,6 +140,7 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
   // A wrong answer must never unlock the correct answer through a graph, Voice or explanatory caption.
   const numericUnlocked=rateAnswers[24]===384&&rateAnswers[32]===512;
   const sceneRevealed=reveal&&(sceneId!=='gddr-width-rate'||numericUnlocked);
+  const physicalReady=reveal&&assessGpu(sceneId,seen,null).conditions.slice(0,-1).every(c=>c.passed);
   const action=(text:string,fn:()=>void,active:boolean)=>(
     <button type="button" aria-pressed={active} className={active?'selected':''} onClick={fn}>{text}</button>
   );
@@ -157,14 +158,44 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
     <main className="a05-stage">
       <section className="a05-copy" aria-label="학습 단계">
         <span className="a05-eyebrow">{sceneId} · {index+1}/4</span>
-        <h2>{story.title}</h2><p className="a05-hook">{story.hook}</p><p className="a05-question">{story.question}</p>
-        <div className="a05-box"><h3>먼저 예상해 보세요</h3><p>{story.prediction}</p>
+        <h2>{story.title}</h2><p className="a05-hook">{story.hook}</p><p className="a05-question">{!reveal?story.question:physicalReady?'관찰한 결과를 바탕으로 원리 하나를 설명해 보세요.':'지금은 2.5D 실험 조작과 관찰에 집중해 보세요.'}</p>
+        {!reveal&&<div className="a05-box"><h3>먼저 예상해 보세요</h3><p>{story.prediction}</p>
           <div className="a05-choice-set">{story.predictions.map(c=><button type="button" key={c.id} disabled={reveal}
             aria-pressed={prediction===c.id} className={prediction===c.id?'selected':''}
             onClick={()=>{setPrediction(c.id);emit('prediction.recorded',{choice:c.id});}}>{c.text}</button>)}</div>
-        </div>
-        {reveal&&<>
-          <div className="a05-box"><h3>직접 움직여 보기</h3><p>{story.prompt}</p>
+        </div>}
+        {reveal&&!physicalReady&&<div className="a05-box a05-gpu-experiment-guidance" role="status">2.5D 장면 아래 ‘실험 조작’에서 직접 비교한 뒤 한 가지 원리 질문으로 이동해요.</div>}
+        {physicalReady&&!feedback?.passed&&<div className="a05-box"><h3>관찰한 핵심은 무엇일까요?</h3>
+            <div className="a05-choice-set">{story.answers.map(c=><button type="button" key={c.id}
+              aria-pressed={answer===c.id} className={answer===c.id?'selected':''}
+              onClick={()=>{setAnswer(c.id);setFeedback(null);setWhy(false);}}>{c.text}</button>)}</div>
+            <button className="a05-primary" type="button" onClick={()=>{
+              const r=assessGpu(sceneId,seen,answer);setFeedback(r);emit('answer.checked',{passed:r.passed});
+            }}>조건별로 확인하기</button>
+          </div>}
+        <div className="a05-tools"><button type="button" onClick={()=>speak(story.speech)}>한국어 질문 듣기</button>
+          {reveal&&<button type="button" disabled={hint===3} onClick={()=>{
+            setHint(Math.min(3,hint+1));emit('hint.opened',{level:Math.min(3,hint+1)});
+          }}>힌트 {hint}/3</button>}</div>
+        {hint>0&&<div className="a05-hint">{story.hints.slice(0,hint).map((t,i)=><p key={i}>{i+1}. {t}</p>)}</div>}
+        {feedback&&<section className="a05-result" role="status" aria-live="polite">
+          <h3>{feedback.passed?'원리와 관찰을 연결했어요!':'빠진 조건이 있는지 살펴볼까요?'}</h3>
+          {feedback.conditions.map(c=><p key={c.label}><strong>{c.passed?'✓':'△'} {c.label}</strong> — {c.passed?'확인했어요.':c.help}</p>)}
+          {!feedback.passed&&<p>{story.answers.find(x=>x.id===answer)?.correction}</p>}
+          <button type="button" onClick={()=>speak(feedback.passed?story.next:sceneId==='memory-family-roles'?'미검증 항목: '+feedback.conditions.filter(c=>!c.passed).map(c=>c.label).join(', ')+'. 아직 각 가족을 개별 검사하지 않았어요.':feedback.conditions.filter(c=>!c.passed).map(c=>c.help).join(' '))}>피드백 듣기</button>
+          <button type="button" onClick={()=>setWhy(!why)}>{why?'원리 접기':'왜? 원리 보기'}</button>
+        </section>}
+        {why&&feedback&&<div className="a05-why" data-testid="g03-why-panel"><h3>왜 그럴까요?</h3>
+          {feedback.passed?<><p>{story.why}</p><p className="a05-next">{story.next}</p></>:
+            <p>아직 관찰이 완료되지 않았어요. 각 가족의 실제 위치는 직접 선택해 독립 검사해야 해요. 미검증 항목: {feedback.conditions.filter(c=>!c.passed).map(c=>c.label).join(", ")}</p>}
+        </div>}
+        {feedback?.passed&&index<3&&<button type="button" className="a05-primary" onClick={()=>enter(index+1)}>다음 질문으로 →</button>}
+        {feedback?.passed&&index===3&&<div className="a05-why"><p className="a05-next">{story.next}</p><p>A02 앱 통합은 별도입니다.</p></div>}
+      </section>
+      <section className="a05-canvas-col" aria-label="2.5D GPU 메모리 인터랙티브 시각화">
+        <div className="a05-canvas-header"><span>LIVE GPU 2.5D · G03</span><span>{sceneRevealed?'관찰':'정답 계산 전 — 수치 은닉'}</span></div>
+        <GpuSceneVisual sceneId={sceneId} state={state} revealed={sceneRevealed} familyMatchChecked={matching!==null}/>
+        {reveal&&<div className="a05-gpu-experiment-dock" data-testid="a08-gpu-experiment-dock" role="region" aria-label="실험 조작"><h3>실험 조작 · 직접 움직여 보기</h3><p>{story.prompt}</p>
             {sceneId==='compute-feeding'&&<div className="a05-gpu-controls">
               <strong>계산 처리량 (toy/s)</strong><div className="a05-control-buttons">
                 {action('compute 16',()=>compute(16),state.compute===16)}
@@ -195,10 +226,13 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
                 {action('NRZ 2레벨',()=>change({...state,signal:'NRZ' as Signal},'NRZ'),state.signal==='NRZ')}
                 {action('PAM3 3레벨',()=>change({...state,signal:'PAM3' as Signal},'PAM3'),state.signal==='PAM3')}
               </div>
-              <strong>독립 계산 ① 128bit × 24Gb/s/pin ÷ 8 = ? GB/s</strong>
-              <div className="a05-control-buttons">{([384,192,3072] as const).map(v=>action(v+' GB/s',()=>numericChoice(24,v),rateAnswers[24]===v))}</div>
-              <strong>독립 계산 ② 128bit × 32Gb/s/pin ÷ 8 = ? GB/s</strong>
-              <div className="a05-control-buttons">{([512,384,4096] as const).map(v=>action(v+' GB/s',()=>numericChoice(32,v),rateAnswers[32]===v))}</div>
+              {rateAnswers[24]!==384?<>
+                <strong>계산 ① · 128bit × 24Gb/s/pin ÷ 8 = ? GB/s</strong>
+                <div className="a05-control-buttons" data-testid="gpu-quiz24">{([384,192,3072] as const).map(v=>action(v+' GB/s',()=>numericChoice(24,v),rateAnswers[24]===v))}</div>
+              </>:<>
+                <strong>계산 ② · 128bit × 32Gb/s/pin ÷ 8 = ? GB/s</strong>
+                <div className="a05-control-buttons" data-testid="gpu-quiz32">{([512,384,4096] as const).map(v=>action(v+' GB/s',()=>numericChoice(32,v),rateAnswers[32]===v))}</div>
+              </>}
               <p className="a05-note" role="status">{!numericUnlocked?
                 '두 문제의 계산 결과를 직접 선택하세요. 오답을 고를 때는 계기판 숫자·음성을 공개하지 않습니다.':
                 '두 계산을 확인했어요. 이제 이론 모형 계기판을 비교하고 답을 검증하세요.'}</p>
@@ -210,38 +244,7 @@ export function GpuSceneLab({onEvent,onSpeech}:GpuLabProps){
               </div>
               <button type="button" className="a05-primary" onClick={constraints}>열·제조·비용 제약 보기</button>
             </div>}
-          </div>
-          <div className="a05-box"><h3>관찰한 핵심은 무엇일까요?</h3>
-            <div className="a05-choice-set">{story.answers.map(c=><button type="button" key={c.id}
-              aria-pressed={answer===c.id} className={answer===c.id?'selected':''}
-              onClick={()=>{setAnswer(c.id);setFeedback(null);setWhy(false);}}>{c.text}</button>)}</div>
-            <button className="a05-primary" type="button" onClick={()=>{
-              const r=assessGpu(sceneId,seen,answer);setFeedback(r);emit('answer.checked',{passed:r.passed});
-            }}>조건별로 확인하기</button>
-          </div>
-        </>}
-        <div className="a05-tools"><button type="button" onClick={()=>speak(story.speech)}>한국어 질문 듣기</button>
-          {reveal&&<button type="button" disabled={hint===3} onClick={()=>{
-            setHint(Math.min(3,hint+1));emit('hint.opened',{level:Math.min(3,hint+1)});
-          }}>힌트 {hint}/3</button>}</div>
-        {hint>0&&<div className="a05-hint">{story.hints.slice(0,hint).map((t,i)=><p key={i}>{i+1}. {t}</p>)}</div>}
-        {feedback&&<section className="a05-result" role="status" aria-live="polite">
-          <h3>{feedback.passed?'원리와 관찰을 연결했어요!':'빠진 조건이 있는지 살펴볼까요?'}</h3>
-          {feedback.conditions.map(c=><p key={c.label}><strong>{c.passed?'✓':'△'} {c.label}</strong> — {c.passed?'확인했어요.':c.help}</p>)}
-          {!feedback.passed&&<p>{story.answers.find(x=>x.id===answer)?.correction}</p>}
-          <button type="button" onClick={()=>speak(feedback.passed?story.next:sceneId==='memory-family-roles'?'미검증 항목: '+feedback.conditions.filter(c=>!c.passed).map(c=>c.label).join(', ')+'. 아직 각 가족을 개별 검사하지 않았어요.':feedback.conditions.filter(c=>!c.passed).map(c=>c.help).join(' '))}>피드백 듣기</button>
-          <button type="button" onClick={()=>setWhy(!why)}>{why?'원리 접기':'왜? 원리 보기'}</button>
-        </section>}
-        {why&&feedback&&<div className="a05-why" data-testid="g03-why-panel"><h3>왜 그럴까요?</h3>
-          {feedback.passed?<><p>{story.why}</p><p className="a05-next">{story.next}</p></>:
-            <p>아직 관찰이 완료되지 않았어요. 각 가족의 실제 위치는 직접 선택해 독립 검사해야 해요. 미검증 항목: {feedback.conditions.filter(c=>!c.passed).map(c=>c.label).join(", ")}</p>}
-        </div>}
-        {feedback?.passed&&index<3&&<button type="button" className="a05-primary" onClick={()=>enter(index+1)}>다음 질문으로 →</button>}
-        {feedback?.passed&&index===3&&<div className="a05-why"><p className="a05-next">{story.next}</p><p>A02 앱 통합은 별도입니다.</p></div>}
-      </section>
-      <section className="a05-canvas-col" aria-label="2.5D GPU 메모리 인터랙티브 시각화">
-        <div className="a05-canvas-header"><span>LIVE GPU 2.5D · G03</span><span>{sceneRevealed?'관찰':'정답 계산 전 — 수치 은닉'}</span></div>
-        <GpuSceneVisual sceneId={sceneId} state={state} revealed={sceneRevealed} familyMatchChecked={matching!==null}/>
+          </div>}
         <div className="a05-model-limit"><strong>모형 범위</strong> {sceneId==='memory-family-roles'&&!['pair-DDR/RDIMM','pair-GDDR6','pair-GDDR7','pair-HBM'].every(k=>seen.includes(k))
      ?'CPU·GPU 메모리의 대표적 설치 위치 후보를 단순화한 예시입니다. 모든 가족의 매칭을 끝내기 전까지 아직 검사하지 않은 가족의 정답은 표시하지 않습니다.':story.assumptions}</div>
         <div className="a05-source">A06 PR #7 G03 스토리보드 / A05 직접 구현 / 공인 제품 수치 아님</div>
