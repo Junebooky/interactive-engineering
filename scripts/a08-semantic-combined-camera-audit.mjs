@@ -125,6 +125,9 @@ try{
     await page.waitForTimeout(130);
     const m=await measure(page),flags=[];
     if(!m.svg)flags.push('NO_SVG');
+    // On the tested official A02 app, Ohm and Gear courses do not have a CONCEPT step;
+    // their step index 0 is MANIPULATE and is NOT A05#78's published Concept screen.
+    if(['CONCEPT-OHMS','CONCEPT-GEARS'].includes(key))flags.push('NO_PUBLISHED_CONCEPT_STEP_ON_A02_BASE');
     if(!m.nativeSubject)flags.push('A05_NATIVE_GROUP_MISSING');
     if(m.nativeFill!==null&&m.nativeFill<.60)flags.push('A05_NATIVE_FIT_BELOW_60');
     if(m.nativeSubject&&overlap(m.nativeSubject,m.slot)<m.nativeSubject.w*m.nativeSubject.h*.98)flags.push('A05_NATIVE_SUBJECT_CLIPPED');
@@ -155,7 +158,7 @@ try{
   method:'DOM-measured SVG painted geometry via getBBox+getScreenCTM, excluding full SVG background rect; optical proxy, NOT A05 approved semantic subject bounds',results},null,2));
  const report='# A08 camera contact sheet — official A02 PR #73 snapshot\n\n'+
   '- Exact A02 source HEAD: '+SHA+'. Independent A08 evidence branch; no official app code changed.\n'+
-  '- 3 contact sheets (1440/390/320), 8 interactive observe families plus 10 A05 #78 concept families on an A08-only combined preview branch. This is NOT merged into A02.\n'+
+  '- 3 sheets: 8 interactive Observe families + 8 actual published CONCEPT routes + 2 Ohm/Gears Step 0 MANIPULATE legacy control cases. A05 pack provides 10 diagrams but the 2 legacy courses have no published CONCEPT step on A02 snapshot. Do NOT count these as CONCEPT integration.\n'+
   '- Actual ratio = SVG painted shape union projected to browser pixels / measured true slot, fitting axis min(width ratio, height ratio). Full-canvas rect excluded. Still a geometry proxy, not a science-approved subject annotation.\n'+
   '- metadataFill is A02 authored theoretical value, not a measured number. Flag threshold 60% is A03 review alert, not automatic failure.\n'+
   '- A05 latest PR #78 10-concept pack has NOT been integrated into this official app SHA; contact sheet measures only rendered A02 snapshot.\n'+
