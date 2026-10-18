@@ -148,6 +148,31 @@ try{
   }
   await n.close();
  });
+ await qa('A05 accepts A08 #71: 0V switch stays 0V and cannot mint 5V CLOSED mastery evidence',async()=>{
+  const test=await ctx.newPage();test.setDefaultTimeout(10000);
+  await test.goto(url);await predict(test);
+  const dock=test.getByTestId('electricity-experiment-dock');
+  await dock.getByRole('button',{name:'0 V'}).click();
+  await dock.getByRole('button',{name:'닫힘 (CLOSED)'}).click();
+  const readings=await test.locator('.a05-readouts').innerText();
+  if(!readings.includes('0 V')||!readings.includes('0.00 mA'))throw Error('zero-voltage switch physically changed source/current '+readings);
+  if(await test.getByTestId('electricity-current-flow-arrows').count())throw Error('zero-current SVG drew physical flow arrows');
+  const svg=await test.locator('.a05-electricity-visual svg').getAttribute('aria-label');
+  if(!svg.includes('0V')||!svg.includes('0.00밀리암페어'))throw Error('0mA missing accessible truth '+svg);
+  if(await test.locator('.a05-copy .a05-choice-set').count())throw Error('0V CLOSED magically granted 5V/5mA observation');
+  await test.screenshot({path:out+'/18-a08-0V-closed-no-flow.png',fullPage:true});
+  await dock.getByRole('button',{name:'5 V'}).click();
+  if(!((await test.locator('.a05-readouts').innerText()).includes('5.00 mA')))throw Error('5V closed must really compute 5mA');
+  if(!await test.getByTestId('electricity-current-flow-arrows').count())throw Error('5V closed must show real flow arrows');
+  if(await test.locator('.a05-copy .a05-choice-set').count())throw Error('just changing V cannot mint missing actual switch event');
+  await dock.getByRole('button',{name:'열림 (OPEN)'}).click();
+  await dock.getByRole('button',{name:'닫힘 (CLOSED)'}).click();
+  await dock.getByRole('button',{name:'전자 이동'}).click();
+  await dock.getByRole('button',{name:'관습전류',exact:true}).click();
+  if(!await test.locator('.a05-copy .a05-choice-set').count())throw Error('actual 5V physical switch and two direction observations should unlock answer');
+  await test.screenshot({path:out+'/19-a08-5V-recovered-after-direct-action.png',fullPage:true});
+  await test.close();
+ });
  await qa('voice unavailable gives Korean readable fallback',async()=>{
   const v=await ctx.newPage();v.setDefaultTimeout(8000);v.on('pageerror',e=>failed.push({name:'voice JS',error:String(e)}));
   await v.addInitScript(()=>Object.defineProperty(window,'SpeechSynthesisUtterance',{value:undefined,configurable:true}));
