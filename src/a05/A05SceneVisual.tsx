@@ -7,14 +7,14 @@ const MINT = '#4fe0ca';
 const CYAN = '#4bc6fa';
 const GOLD = '#ffd37d';
 
-function CircuitSurface({ children }: { children: React.ReactNode }) {
+function CircuitSurface({ children, sceneId }: { children: React.ReactNode; sceneId: 'nmos-resistor-inverter' | 'cmos-not-gate' }) {
   return (
     <g>
       <path d="M45 34 L550 34 L578 52 L578 332 L72 332 L45 313 Z" fill="#101e34" stroke="#647c9d" strokeWidth="2" />
       <path d="M550 34 L578 52 L578 332 L550 312 Z" fill="#172f45" stroke="#4e7186" />
       <rect x="45" y="34" width="505" height="278" rx="13" fill="#14263c" stroke="#7397ad" />
       <path d="M60 48 H535" stroke="#9eebd3" strokeOpacity=".4" strokeWidth="2" />
-      <g data-scene-subject="inverter-device" data-scene-id="inverter-circuit">{children}</g>
+      <g data-scene-subject="inverter-device" data-scene-id={sceneId}>{children}</g>
     </g>
   );
 }
@@ -25,7 +25,7 @@ function SvgLabel({ x, y, children, color = '#d9e9fa', size = 14 }: {
   return <text x={x} y={y} fill={color} fontSize={size} fontWeight="600">{children}</text>;
 }
 
-function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent: boolean }) {
+function MosfetCutaway({ values, showCurrent, sceneId }: { values: A05Values; showCurrent: boolean; sceneId: 'mosfet-field' | 'mosfet-current' }) {
   const s = mosfetObservation(values.vgs, values.vds);
   const uid = useId().replace(/:/g, '');
   const gateGradient = 'a05gate' + uid;
@@ -58,7 +58,7 @@ function MosfetCutaway({ values, showCurrent }: { values: A05Values; showCurrent
             <stop stopColor="#e6fff8" /><stop offset=".3" stopColor="#81eedb" /><stop offset="1" stopColor="#1a8e9f" />
           </linearGradient>
         </defs>
-        <g data-scene-subject="mosfet-device" data-scene-id="mosfet-cutaway">
+        <g data-scene-subject="mosfet-device" data-scene-id={sceneId}>
         <path d="M89 133 L509 133 L540 160 L540 309 L120 309 L89 282 Z" fill={'url(#' + waferGradient + ')'} stroke="#7facbd" strokeWidth="2"/>
         <path d="M89 133 L509 133 L540 160 L120 160 Z" fill="#416f84" stroke="#91c1c6"/>
         <path d="M120 160 L540 160 L540 309 L120 309 Z" fill="#29465d" fillOpacity=".55"/>
@@ -129,7 +129,7 @@ function ResistorInverter({ vin }: { vin: number }) {
   const s = resistorInverterObservation(vin);
   return <div className="a05-visual">
     <svg viewBox="0 0 630 370" role="img" aria-label="5볼트 전원, 10킬로옴 풀업 저항과 nMOS 풀다운으로 이루어진 저항형 NOT 회로">
-      <CircuitSurface>
+      <CircuitSurface sceneId="nmos-resistor-inverter">
         <path d="M320 75 V106 M320 163 V209 M320 209 H455 M320 209 V252 M320 291 V304"
           fill="none" stroke="#b1d1da" strokeWidth="5" strokeLinecap="round" />
         <rect x="273" y="75" width="94" height="29" rx="9" fill="#5c4737" stroke={GOLD} strokeWidth="2"/>
@@ -169,7 +169,7 @@ function CMOSInverter({ vin }: { vin: LogicBit }) {
   const s = cmosObservation(vin);
   return <div className="a05-visual">
     <svg viewBox="0 0 630 370" role="img" aria-label="상단 pMOS와 하단 nMOS가 입력 전압에 따라 상보적으로 열리는 CMOS 인버터">
-      <CircuitSurface>
+      <CircuitSurface sceneId="cmos-not-gate">
         <SvgLabel x={96} y={75} color="#e4f3fd" size={18}>CMOS NOT · 상보적인 두 스위치</SvgLabel>
         <path d="M322 89 V128 M322 160 V207 M322 207 H452 M322 207 V247 M322 279 V302"
           fill="none" stroke="#a9cedd" strokeWidth="4" strokeLinecap="round"/>
@@ -210,8 +210,8 @@ export function A05SceneVisual({ sceneId, values, showObservation }: Props) {
     </section>
   );
   switch (sceneId) {
-    case 'mosfet-field': return <MosfetCutaway values={values} showCurrent={false}/>;
-    case 'mosfet-current': return <MosfetCutaway values={values} showCurrent={true}/>;
+    case 'mosfet-field': return <MosfetCutaway sceneId="mosfet-field" values={values} showCurrent={false}/>;
+    case 'mosfet-current': return <MosfetCutaway sceneId="mosfet-current" values={values} showCurrent={true}/>;
     case 'nmos-resistor-inverter': return <ResistorInverter vin={values.vin}/>;
     case 'cmos-not-gate': return <CMOSInverter vin={values.vin >= 2.5 ? 1 : 0}/>;
   }
