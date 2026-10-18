@@ -32,6 +32,11 @@ jobs:
           ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/a08-scene-before/node_modules
       - name: Actual Chromium before-after negative states at 1440/390/320
         run: node scripts/a08-electricity-before-after.mjs /tmp/a08-scene-before
+      - name: Capture and assert A03 V3 390 and 320 scene + dock versus prior A08
+        run: |
+          git worktree add --detach /tmp/a08-electricity-v3-before b308cce1c42040f22e54767ab9dd4e787c99eb8d
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/a08-electricity-v3-before/node_modules
+          node scripts/a08-v3-mobile-scene.mjs electricity /tmp/a08-electricity-v3-before
       - name: Re-run original A05 eight browser scenarios
         run: node scripts/a05-electricity-browser.mjs
       - name: Archive A08 real screenshots, even on failure
