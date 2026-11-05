@@ -43,7 +43,7 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     expect(state.currentParams.vgs).toBe(0.0);
   });
 
-  it('2. Step 1 manipulation, fail on low Vgs, pass on proper Vgs', () => {
+  it('2. Step 1 manipulation, fail on low Vgs/misconception, pass on proper exploration & concept answer', () => {
     let state = learningReducer(initialEngineState, {
       type: 'INIT_LESSON',
       payload: { courseId: 'course-semiconductor', lesson: mosfetLesson, restoredStepIndex: 1 },
@@ -51,17 +51,20 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
 
     const step1 = mosfetLesson.steps[1];
 
-    // Under-threshold parameter manipulation
+    // Under-explored manipulation & wrong misconception answer
     state = learningReducer(state, {
       type: 'UPDATE_PARAM',
-      payload: { key: 'vgs', value: 0.4 },
+      payload: { key: 'visited', value: [0, 0.4] },
     });
-    expect(state.currentParams.vgs).toBe(0.4);
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'answer', value: 'oxide' },
+    });
 
     const failEval = evaluateStepRules(step1, state.currentParams);
     expect(failEval.passed).toBe(false);
     expect(failEval.ruleResults[0].passed).toBe(false);
-    expect(failEval.message).toContain('문턱 전압');
+    expect(failEval.ruleResults[1].passed).toBe(false);
 
     state = learningReducer(state, {
       type: 'EVAL_RESULT',
@@ -69,10 +72,14 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     });
     expect(state.fsmState).toBe('EVALUATED_INCORRECT');
 
-    // User adjusts to valid range
+    // User explores high voltage and selects correct concept answer
     state = learningReducer(state, {
       type: 'UPDATE_PARAM',
-      payload: { key: 'vgs', value: 1.2 },
+      payload: { key: 'visited', value: [0, 0.4, 1.2] },
+    });
+    state = learningReducer(state, {
+      type: 'UPDATE_PARAM',
+      payload: { key: 'answer', value: 'surface' },
     });
     expect(state.fsmState).toBe('INTERACTING'); // Reset on param change
     expect(state.evaluation).toBeNull();
@@ -80,6 +87,7 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     const passEval = evaluateStepRules(step1, state.currentParams);
     expect(passEval.passed).toBe(true);
     expect(passEval.ruleResults[0].passed).toBe(true);
+    expect(passEval.ruleResults[1].passed).toBe(true);
 
     state = learningReducer(state, {
       type: 'EVAL_RESULT',
@@ -96,7 +104,7 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     });
 
     const step1 = mosfetLesson.steps[1];
-    const passEval = evaluateStepRules(step1, { vgs: 1.2 });
+    const passEval = evaluateStepRules(step1, { visited: [0, 1.2], answer: 'surface' });
 
     state = learningReducer(state, {
       type: 'EVAL_RESULT',
@@ -105,10 +113,10 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     expect(state.fsmState).toBe('EVALUATED_CORRECT');
     expect(state.evaluation).not.toBeNull();
 
-    // User maliciously or accidentally adjusts slider to invalid value 0.1V after passing
+    // User changes answer to wrong answer after passing
     state = learningReducer(state, {
       type: 'UPDATE_PARAM',
-      payload: { key: 'vgs', value: 0.1 },
+      payload: { key: 'answer', value: 'oxide' },
     });
 
     // Engine must revoke passed status immediately
@@ -116,24 +124,26 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     expect(state.fsmState).toBe('INTERACTING');
   });
 
-  it('4. Multi-condition truth table partial failure and full pass', () => {
-    const truthTableStep = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s4-not-gate-truth-table')!;
+  it('4. Multi-condition CMOS truth table partial failure and full pass', () => {
+    const truthTableStep = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s4-cmos-not-gate')!;
     expect(truthTableStep).toBeDefined();
 
-    // Partial input: out0 is 1 (correct), out1 is 1 (wrong, should be 0)
-    const partialEval = evaluateStepRules(truthTableStep, { out0: 1, out1: 1 });
+    // Partial input: visited both 0 and 5V, out0 is 1 (correct), out1 is 1 (wrong, should be 0)
+    const partialEval = evaluateStepRules(truthTableStep, { visited: [0, 5], out0: 1, out1: 1 });
     expect(partialEval.passed).toBe(false);
-    expect(partialEval.ruleResults).toHaveLength(2);
-    expect(partialEval.ruleResults[0].targetKey).toBe('out0');
-    expect(partialEval.ruleResults[0].passed).toBe(true);
-    expect(partialEval.ruleResults[1].targetKey).toBe('out1');
-    expect(partialEval.ruleResults[1].passed).toBe(false);
+    expect(partialEval.ruleResults).toHaveLength(3);
+    expect(partialEval.ruleResults[0].passed).toBe(true); // visited
+    expect(partialEval.ruleResults[1].targetKey).toBe('out0');
+    expect(partialEval.ruleResults[1].passed).toBe(true);
+    expect(partialEval.ruleResults[2].targetKey).toBe('out1');
+    expect(partialEval.ruleResults[2].passed).toBe(false);
 
     // Full correct input: out0 = 1, out1 = 0
-    const fullEval = evaluateStepRules(truthTableStep, { out0: 1, out1: 0 });
+    const fullEval = evaluateStepRules(truthTableStep, { visited: [0, 5], out0: 1, out1: 0 });
     expect(fullEval.passed).toBe(true);
     expect(fullEval.ruleResults[0].passed).toBe(true);
     expect(fullEval.ruleResults[1].passed).toBe(true);
+    expect(fullEval.ruleResults[2].passed).toBe(true);
   });
 
   it('5. LocalStorage session serialization and restoration integrity', () => {
@@ -171,5 +181,122 @@ describe('MOSFET Lesson End-to-End Smoke & Regression Flow', () => {
     expect(normalized).toContain('0.7 볼트');
     expect(normalized).toContain('10 옴');
     expect(normalized).toContain('0.4 암페어');
+  });
+
+  it('7. S03 & S04 toggle mapping to numeric vin=5.0 and automatic visited tracking with physical observation', async () => {
+    const s03 = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s3-inverter-reversal')!;
+    expect(s03).toBeDefined();
+
+    const vinCtrl = s03.controls?.find((c) => c.id === 'vin');
+    if (!vinCtrl || !vinCtrl.options) {
+      throw new Error('vin control or options not found in S03');
+    }
+    expect(vinCtrl.type).toBe('toggle');
+    expect(vinCtrl.options).toBeDefined();
+
+    // Verify toggle mapping helper logic identical to PromptCard
+    const offOpt = vinCtrl.options[0];
+    const onOpt = vinCtrl.options[1];
+    expect(offOpt.value).toBe(0.0);
+    expect(onOpt.value).toBe(5.0);
+
+    // Initial state: vin = 0.0, visited = [0]
+    let params: Record<string, any> = { ...s03.initialParams };
+    expect(params.vin).toBe(0.0);
+    expect(params.visited).toEqual([0]);
+
+    // Simulate clicking toggle ON: UI produces nextChecked = true -> maps to onOpt.value (5.0)
+    const nextValOn = onOpt.value;
+    params.vin = nextValOn;
+    // LearningContext automatic visited tracking for number voltage
+    if (typeof nextValOn === 'number') {
+      params.visited = Array.from(new Set([...params.visited, nextValOn]));
+    }
+    expect(params.vin).toBe(5.0);
+    expect(params.visited).toContain(0);
+    expect(params.visited).toContain(5);
+
+    // Verify physical observation matches A02 toy model: 10k pullup, ~0.98k Ron -> Vout ≈ 0.45V
+    const { resistorInverterObservation } = await import('../a05/scenePhysics');
+    const invObs = resistorInverterObservation(params.vin);
+    expect(invObs.vin).toBe(5.0);
+    expect(invObs.vout).toBe(0.45);
+    expect(invObs.outputLogic).toBe(0);
+    expect(invObs.pullDownActive).toBe(true);
+
+    // Evaluation with prediction & correct explanation
+    params.prediction = 'down';
+    params.answer = 'pulldown';
+    const evalS03 = evaluateStepRules(s03, params);
+    expect(evalS03.passed).toBe(true);
+    expect(evalS03.ruleResults[0].passed).toBe(true); // visitedLowHigh (0 and >= 5)
+    expect(evalS03.ruleResults[1].passed).toBe(true); // pulldown answer
+
+    // Check S04 CMOS toggle to 5V and physical observation
+    const s04 = mosfetLesson.steps.find((s) => s.id === 'step-mosfet-s4-cmos-not-gate')!;
+    const { cmosObservation } = await import('../a05/scenePhysics');
+    const cmosObs0 = cmosObservation(0);
+    expect(cmosObs0.vout).toBe(5);
+    expect(cmosObs0.output).toBe(1);
+    expect(cmosObs0.pmosOn).toBe(true);
+    expect(cmosObs0.nmosOn).toBe(false);
+
+    const cmosObs1 = cmosObservation(1);
+    expect(cmosObs1.vout).toBe(0);
+    expect(cmosObs1.output).toBe(0);
+    expect(cmosObs1.pmosOn).toBe(false);
+    expect(cmosObs1.nmosOn).toBe(true);
+    expect(cmosObs1.settledDirectPath).toBe(false);
+
+    // S04 evaluation with visited and truth table
+    const s04Params = {
+      ...s04.initialParams,
+      vin: 5.0,
+      visited: [0, 5],
+      prediction: 'pmos-on',
+      out0: 1,
+      out1: 0,
+    };
+    const evalS04 = evaluateStepRules(s04, s04Params);
+    expect(evalS04.passed).toBe(true);
+    expect(evalS04.ruleResults[0].passed).toBe(true);
+    expect(evalS04.ruleResults[1].passed).toBe(true);
+    expect(evalS04.ruleResults[2].passed).toBe(true);
+  });
+
+  it('8. Ohms law knife switch regression: toggle mapping preserves boolean switchClosed', async () => {
+    const { ohmsLawLesson } = await import('../content/circuits/ohmsLawLesson');
+    const step0 = ohmsLawLesson.steps[0];
+    const switchCtrl = step0.controls?.find((c) => c.id === 'switchClosed');
+    if (!switchCtrl || !switchCtrl.options) {
+      throw new Error('switchClosed control or options not found in ohmsLawLesson step 0');
+    }
+    expect(switchCtrl.type).toBe('toggle');
+    expect(switchCtrl.options).toBeDefined();
+
+    const offOpt = switchCtrl.options[0];
+    const onOpt = switchCtrl.options[1];
+    expect(offOpt.value).toBe(false);
+    expect(onOpt.value).toBe(true);
+
+    // Initial state: false
+    let switchClosed = false;
+
+    // Simulate clicking toggle ON
+    const nextChecked = true;
+    const targetVal = nextChecked ? onOpt.value : offOpt.value;
+    switchClosed = targetVal;
+    expect(typeof switchClosed).toBe('boolean');
+    expect(switchClosed).toBe(true);
+
+    // Circuit evaluation with switchClosed = true
+    const evalResult = evaluateStepRules(step0, {
+      ...step0.initialParams,
+      switchClosed: true,
+      voltage: 12,
+      resistance: 30,
+    });
+    expect(evalResult.passed).toBe(true);
+    expect(evalResult.ruleResults[0].passed).toBe(true);
   });
 });

@@ -47,6 +47,14 @@ export function evaluateStepRules(
         isPassed = typeof val === 'number' && Math.abs(val - expectedNum) <= tol;
         break;
       }
+      case 'visitedLowHigh': {
+        const visitedArr = Array.isArray(val) ? val : typeof val === 'number' ? [val] : [];
+        const minHigh = typeof rule.expected === 'number' ? rule.expected : 0.8;
+        const lowSeen = visitedArr.some((v) => v === 0);
+        const highSeen = visitedArr.some((v) => typeof v === 'number' && v >= minHigh);
+        isPassed = lowSeen && highSeen;
+        break;
+      }
       default:
         isPassed = false;
     }

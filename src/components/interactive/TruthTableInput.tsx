@@ -29,7 +29,7 @@ export const TruthTableInput: React.FC<TruthTableInputProps> = ({
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr className="truth-table-row">
             <td className="font-mono font-bold text-slate-300">0 (LOW / 0V)</td>
             <td className="text-slate-400">OFF (차단)</td>
             <td>
@@ -51,7 +51,7 @@ export const TruthTableInput: React.FC<TruthTableInputProps> = ({
               </div>
             </td>
           </tr>
-          <tr>
+          <tr className="truth-table-row">
             <td className="font-mono font-bold text-slate-300">1 (HIGH / 5V)</td>
             <td className="text-slate-400">ON (접지 풀다운)</td>
             <td>
